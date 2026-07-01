@@ -100,13 +100,14 @@ function loginLogic(loginId, pw, name){
       }
       if (String(rows[i][9])==='정지') return err('정지된 계정입니다. 관리자에게 문의하세요.');
       const role = roleOf(rows[i][ROLE_COL]);
-      const res = { login:true, sawonId:rows[i][0], name:rows[i][1], dept:rows[i][8], status:rows[i][9],
+      // acctStatus: 계정 상태(활성/정지 등). status는 API 봉투('ok')이므로 충돌 방지 위해 별도 키 사용
+      const res = { login:true, sawonId:rows[i][0], name:rows[i][1], dept:rows[i][8], acctStatus:rows[i][9],
                     role: role, mustChange: (String(rows[i][PWFLAG_COL])==='Y') };
       if (isAdminLevel(role) && pw) res.adminToken = makeAdminToken(rows[i][0], rows[i][5]); // 관리자 토큰은 비번 검증 시에만
       return ok(res);
     }
   }
-  if (name) return ok({ login:true, sawonId:'', name:name, dept:'', status:'미등록', interim:true, role:'user' });
+  if (name) return ok({ login:true, sawonId:'', name:name, dept:'', acctStatus:'미등록', interim:true, role:'user' });
   return err('등록되지 않은 로그인 아이디입니다');
 }
 
