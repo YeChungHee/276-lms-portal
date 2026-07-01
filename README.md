@@ -2,6 +2,16 @@
 
 > 갱신: 2026-05-30 · 폰트: 맑은 고딕 · 아이콘: SVG · 백엔드: Google Apps Script + Sheets
 
+## 🌐 배포 (GitHub Pages 자동)
+- **라이브 URL:** https://yechunghee.github.io/276-lms-portal/
+- **저장소:** https://github.com/YeChungHee/276-lms-portal
+- **자동 배포:** `main` 브랜치에 push하면 GitHub Actions(`.github/workflows/deploy.yml`)가 자동으로 Pages에 배포합니다.
+- **업데이트 방법:** 파일 수정 후 아래 한 줄만 실행하면 커밋·푸시·배포가 이어집니다.
+  ```bash
+  ./deploy.sh "변경 내용 메모"    # 메시지 생략 시 날짜로 자동 생성
+  ```
+  진행 상황: `gh run watch` 또는 저장소 Actions 탭
+
 ## 사원용 (네이비 테마)
 - `index.html` 로그인 / 계정 요청 (세션 lms_session)
 - `dashboard.html` 학습 허브(교과서·퀴즈·진도/교육완료)
