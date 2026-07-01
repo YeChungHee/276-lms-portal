@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교과서 · 질문지 관리 — 276홀딩스 LMS 어드민</title>
+<style>
+:root{--primary:#673AB7;--primary-dark:#4527A0;--primary-light:#EDE7F6;
+  --success:#2E7D32;--danger:#C62828;--warn:#E65100;--info:#1565C0;
+  --text:#212121;--text-sec:#616161;--border:#E0E0E0;--bg:#F5F5F5;--white:#FFF;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);font-size:13px;}
+
+.topbar{background:var(--primary-dark);color:#fff;height:52px;padding:0 24px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.topbar-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;}
+.topbar-right{display:flex;gap:8px;align-items:center;}
+.tb-link{color:rgba(255,255,255,.65);font-size:12px;text-decoration:none;padding:4px 10px;border-radius:5px;transition:.2s;}
+.tb-link:hover{color:#fff;background:rgba(255,255,255,.12);}
+.tb-key{font-size:11px;color:rgba(255,255,255,.5);}
+
+.hero{background:linear-gradient(135deg,#4527A0,#673AB7);color:#fff;padding:26px 28px;}
+.hero h1{font-size:23px;font-weight:700;margin-bottom:5px;}
+.hero p{font-size:13px;opacity:.82;}
+
+.tabs{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:4px;
+  position:sticky;top:54px;z-index:90;}
+.tab{padding:13px 18px;font-size:13.5px;font-weight:600;color:var(--text-sec);cursor:pointer;
+  border-bottom:3px solid transparent;margin-bottom:-1px;}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+
+.main{max-width:1120px;margin:0 auto;padding:22px 20px 60px;}
+.panel{display:none;}
+.panel.active{display:block;}
+
+.grid2{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start;}
+@media(max-width:820px){.grid2{grid-template-columns:1fr;}}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:16px;}
+.card h2{font-size:14px;color:var(--primary-dark);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card h2 .num{background:var(--primary);color:#fff;width:20px;height:20px;border-radius:6px;font-size:11px;
+  display:inline-flex;align-items:center;justify-content:center;}
+
+label{display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin:12px 0 5px;}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;
+  font-family:inherit;font-size:13px;outline:none;transition:.15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);}
+textarea{resize:vertical;min-height:60px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+.toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:6px;}
+.toggle button{flex:1;padding:9px;border:none;background:var(--white);font-family:inherit;font-size:12.5px;
+  font-weight:600;color:var(--text-sec);cursor:pointer;}
+.toggle button.active{background:var(--primary);color:#fff;}
+
+.method{display:none;}
+.method.active{display:block;}
+
+.btn{padding:10px 18px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-ghost{background:var(--white);color:var(--primary);border:1px solid var(--primary);}
+.btn-sm{padding:5px 11px;font-size:11.5px;border-radius:6px;}
+.btn-danger{background:#FFEBEE;color:var(--danger);}
+.btn-block{width:100%;margin-top:16px;}
+
+.list-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.list-head h2{margin-bottom:0;}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{padding:4px 11px;border-radius:16px;border:1px solid var(--border);background:#fff;font-size:11px;
+  font-weight:600;color:var(--text-sec);cursor:pointer;}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+.item{border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:9px;background:#fff;}
+.item-top{display:flex;align-items:center;gap:9px;margin-bottom:5px;}
+.item-icon{width:30px;height:30px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:12px;background:var(--primary);}
+.item-title{font-weight:700;font-size:13px;flex:1;}
+.item-sub{font-size:11.5px;color:var(--text-sec);}
+.item-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px;}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9px;font-size:10.5px;font-weight:600;}
+.bg-green{background:#E8F5E9;color:var(--success);}
+.bg-blue{background:#E3F2FD;color:var(--info);}
+.bg-orange{background:#FFF3E0;color:var(--warn);}
+.bg-gray{background:#F0F0F0;color:#757575;}
+.bg-purple{background:var(--primary-light);color:var(--primary);}
+.tag{background:var(--primary-light);color:var(--primary);font-size:10.5px;padding:2px 8px;border-radius:9px;font-weight:600;}
+
+.q-opt{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.q-opt input[type=radio]{width:auto;flex-shrink:0;accent-color:var(--primary);}
+.q-opt input[type=text]{flex:1;}
+.hintbox{font-size:11.5px;color:var(--text-sec);background:#FAFAFA;border:1px dashed var(--border);
+  border-radius:7px;padding:9px 11px;margin-top:8px;line-height:1.6;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;
+  padding:11px 22px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:200;}
+.toast.show{opacity:1;}
+.empty{text-align:center;color:#aaa;font-size:12.5px;padding:24px 0;}
+.endpoint{font-family:monospace;font-size:10.5px;color:var(--text-sec);background:#fff;border:1px solid var(--border);
+  padding:1px 6px;border-radius:4px;}
+
+/* 고정 메뉴(사이드바) */
+.topbar{position:fixed;left:0;right:0;top:0;height:54px;}
+body{padding-top:54px;padding-left:236px;}
+.anav{position:fixed;left:0;top:54px;bottom:0;width:236px;background:#fff;border-right:1px solid var(--border);overflow-y:auto;z-index:80;padding:14px 0;}
+.anav .ns{font-size:10px;font-weight:700;color:#999;letter-spacing:1px;padding:10px 20px 5px;text-transform:uppercase;}
+.anav a{display:flex;align-items:center;gap:9px;padding:10px 20px;font-size:13px;color:#333;text-decoration:none;border-left:3px solid transparent;}
+.anav a:hover{background:var(--bg);color:var(--primary);}
+.anav a.active{background:var(--primary-light);color:var(--primary-dark);border-left-color:var(--primary);font-weight:700;}
+.anav a svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+@media(max-width:820px){.anav{display:none;}body{padding-left:0;}}
+
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="ic-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+<symbol id="ic-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ic-card" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></symbol>
+<symbol id="ic-building" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+<symbol id="ic-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="ic-clipboard" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></symbol>
+<symbol id="ic-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+<symbol id="ic-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="ic-list" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+<symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+<symbol id="ic-trend" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+<symbol id="ic-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><polyline points="1 20 1 14 7 14"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+</defs></svg>
+
+<div class="topbar">
+  <div class="topbar-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CE93D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 276홀딩스 LMS · 관리자 콘솔</div>
+  <div class="topbar-right">
+    <a href="dashboard.html" class="tb-link">사원 포털</a>
+    <a href="admin.html" class="tb-link" onclick="try{localStorage.removeItem('admin_key')}catch(e){}">잠금</a>
+  </div>
+</div>
+<nav class="anav"><div class="ns">운영</div><a href="admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 운영 대시보드</a><a href="admin-accounts.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> 계정 관리</a><div class="ns">콘텐츠</div><a href="admin-content.html" class="active"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 교과서 관리</a><a href="admin-content.html#quiz" class="active"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 질문지 관리</a><a href="admin-program.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 4주 교육 계획서</a><div class="ns">학습 모니터링</div><a href="admin-progress.html"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 교육 진도·완료</a><a href="admin-scores.html"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 퀴즈 점수·취약점</a></nav>
+<div class="hero">
+  <h1>교과서 · 질문지 생성 관리</h1>
+  <p>교과서를 웹페이지 링크 또는 PDF로 등록하고, 퀴즈 문항(진단 태그·해설·난이도)을 생성·배포합니다.</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-book" onclick="switchTab('book')"><svg class="ic" width="15" height="15" style="vertical-align:-.16em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 교과서 관리</div>
+  <div class="tab" id="tab-quiz" onclick="switchTab('quiz')"><svg class="ic" width="15" height="15" style="vertical-align:-.16em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-file"/></svg> 질문지(퀴즈) 관리</div>
+</div>
+
+<div class="main">
+
+  <!-- ════════ 교과서 관리 ════════ -->
+  <div class="panel active" id="panel-book">
+    <div class="grid2">
+      <!-- 등록 폼 -->
+      <div>
+        <div class="card">
+          <h2><span class="num"><svg width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-plus"/></svg></span> 교과서 등록</h2>
+          <div class="toggle">
+            <button class="active" id="bm-template" onclick="bookMethod('template')"><svg class="ic" width="14" height="14" style="vertical-align:-.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 직접 작성</button>
+            <button id="bm-link" onclick="bookMethod('link')"><svg class="ic" width="14" height="14" style="vertical-align:-.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-globe"/></svg> 웹링크</button>
+            <button id="bm-pdf" onclick="bookMethod('pdf')"><svg class="ic" width="14" height="14" style="vertical-align:-.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-file"/></svg> PDF</button>
+          </div>
+
+          <!-- 직접 작성(공통 템플릿) -->
+          <div class="method active" id="method-template">
+            <label>교재 제목</label>
+            <input id="tpl-title" placeholder="예: 경영지원 온보딩">
+            <div class="row3">
+              <div><label>주차</label><input id="tpl-week" type="number" placeholder="1" min="1"></div>
+              <div><label>대상 부서</label><select id="tpl-dept"><option value="공통">공통</option><option>영업</option><option>심사</option><option>기획</option><option>운영</option><option>AX</option><option>경영지원</option></select></div>
+              <div></div>
+            </div>
+            <label>한 줄 소개 <span style="font-weight:400;color:#999;">— 히어로 설명문(비우면 자동)</span></label>
+            <input id="tpl-intro" placeholder="예: 회사의 숫자·리스크·고객·프로세스를 함께 보는 경영관리 기본기">
+            <label>키워드 <span style="font-weight:400;color:#999;">— 쉼표로 구분, 히어로 태그(비우면 기본값)</span></label>
+            <input id="tpl-tags" placeholder="예: 숫자로 본다, 리스크 관리, 프로세스 이해">
+            <label>챕터 <span style="font-weight:400;color:#999;">— 제목 · 핵심요약(줄바꿈=항목) · 본문</span></label>
+            <div id="tplChapters"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addTplChapter()" style="margin:2px 0 14px;">+ 챕터 추가</button>
+            <button class="btn btn-primary btn-block" id="tplSaveBtn" onclick="addBookTemplate()">교과서 생성 · 활성화</button>
+            <div class="hintbox">직접 작성: 파일 없이 <b>공통 구조(상단바·진도·핵심요약·교육완료)</b>가 자동 적용됩니다. 챕터를 비워도 골격이 생성되어 학생이 즉시 대시보드에서 학습할 수 있습니다.<br>→ <span class="endpoint">save_textbook</span> · <span class="endpoint">textbook-view.html?id=…</span></div>
+          </div>
+
+          <!-- 웹링크 -->
+          <div class="method" id="method-link">
+            <label>교재 제목</label>
+            <input id="bk-title" placeholder="예: 전자어음 할인">
+            <label>파일 URL / 경로</label>
+            <input id="bk-url" placeholder="예: textbook-enote-discount.html">
+            <div class="row3">
+              <div><label>주차</label><input id="bk-week" type="number" placeholder="1" min="1"></div>
+              <div><label>챕터 수</label><input id="bk-chap" type="number" placeholder="7" min="1"></div>
+              <div><label>열기 방식</label><select id="bk-open"><option value="새탭">새 탭</option><option value="iframe">iframe</option></select></div>
+            </div>
+            <label>대상 부서</label>
+            <select id="bk-dept"><option value="공통">공통</option><option>영업</option><option>심사</option><option>기획</option><option>운영</option><option>AX</option></select>
+            <button class="btn btn-primary btn-block" onclick="addBookLink()">교과서 등록</button>
+            <div class="hintbox">웹링크 방식: 학생이 대시보드에서 교재 제목 클릭 시 해당 페이지가 열립니다. 진도는 교과서 내 핵심요약 완료로 기록됩니다.<br>→ <span class="endpoint">save_textbook</span></div>
+          </div>
+
+          <!-- PDF -->
+          <div class="method" id="method-pdf">
+            <label>교재 제목 <span style="font-weight:400;color:#999;">— 비우면 PDF에서 자동 추출</span></label>
+            <input id="pdf-title" placeholder="예: 기업경영관리 교육자료">
+            <label>PDF 파일</label>
+            <input id="pdf-file" type="file" accept="application/pdf" onchange="pdfPicked(this)">
+            <div id="pdf-status" style="font-size:11.5px;color:var(--text-sec);margin:6px 0;"></div>
+            <label>추출 텍스트 (편집 가능) <span style="font-weight:400;color:#999;">— "01." 형식 제목 기준으로 챕터 자동 분할</span></label>
+            <textarea id="pdf-text" rows="7" placeholder="PDF 업로드 시 텍스트가 자동 추출됩니다 (pdf.js)…"></textarea>
+            <div id="pdf-preview" style="font-size:11.5px;color:var(--text-sec);margin:6px 0;"></div>
+            <button class="btn btn-primary btn-block" onclick="aiGenerate()">★ AI로 교과서 재구성 · 활성화 (권장)</button>
+            <button class="btn btn-ghost btn-block" style="margin-top:8px;" onclick="addBookPdf()">빠른 자동 분할로 생성 (AI 미사용)</button>
+            <div class="hintbox"><b>AI 재구성</b>: 추출 텍스트를 Claude가 장·표·리스트·핵심요약으로 재구성(서버에 API 키 설정 필요). <b>빠른 분할</b>: 제목 기준 단순 분할(즉시·무API).<br>→ <span class="endpoint">ai_textbook</span> · <span class="endpoint">textbook-view.html?id=…</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 목록 -->
+      <div>
+        <div class="card">
+          <div class="list-head"><h2><span class="num"><svg width="13" height="13" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-list"/></svg></span> 등록된 교과서</h2><span class="item-sub" id="bk-count"></span></div>
+          <div id="bookList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ 질문지(퀴즈) 관리 ════════ -->
+  <div class="panel" id="panel-quiz">
+    <div class="grid2">
+      <!-- 문항 추가 -->
+      <div>
+        <div class="card">
+          <h2><span class="num"><svg width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-plus"/></svg></span> 퀴즈 / 문항 생성</h2>
+          <label>퀴즈(질문지)</label>
+          <select id="q-quiz" onchange="renderQuestions()"></select>
+          <div class="row2" style="margin-top:6px;">
+            <input id="newQuizName" placeholder="새 퀴즈명">
+            <button class="btn btn-ghost btn-sm" onclick="addQuiz()"><svg class="ic" width="13" height="13" style="vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-plus"/></svg> 퀴즈 추가</button>
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+
+          <label>문항 유형</label>
+          <div class="toggle">
+            <button class="active" id="qt-ox" onclick="qType('ox')">O / X</button>
+            <button id="qt-mc" onclick="qType('mc')">객관식 (4지선다)</button>
+          </div>
+
+          <label>질문</label>
+          <textarea id="q-text" rows="2" placeholder="질문을 입력하세요"></textarea>
+
+          <div id="opts-ox" class="method active">
+            <label>정답</label>
+            <div class="q-opt"><input type="radio" name="oxans" value="O" checked> <span>O (맞다)</span></div>
+            <div class="q-opt"><input type="radio" name="oxans" value="X"> <span>X (아니다)</span></div>
+          </div>
+
+          <div id="opts-mc" class="method">
+            <label>보기 & 정답 선택</label>
+            <div class="q-opt"><input type="radio" name="mcans" value="0" checked><input type="text" id="mc0" placeholder="보기 1"></div>
+            <div class="q-opt"><input type="radio" name="mcans" value="1"><input type="text" id="mc1" placeholder="보기 2"></div>
+            <div class="q-opt"><input type="radio" name="mcans" value="2"><input type="text" id="mc2" placeholder="보기 3"></div>
+            <div class="q-opt"><input type="radio" name="mcans" value="3"><input type="text" id="mc3" placeholder="보기 4"></div>
+          </div>
+
+          <div class="row2">
+            <div><label>진단 태그(카테고리)</label><input id="q-tag" placeholder="예: 전자어음, 핀테크기초"></div>
+            <div><label>난이도</label><select id="q-diff"><option>하</option><option selected>중</option><option>상</option></select></div>
+          </div>
+          <label>해설</label>
+          <textarea id="q-exp" rows="2" placeholder="정답 해설"></textarea>
+          <button class="btn btn-primary btn-block" onclick="addQuestion()">문항 추가</button>
+          <div class="hintbox">문항은 진단 태그로 분류되어 취약점 분석·보강 교육 생성에 사용됩니다.<br>→ <span class="endpoint">add_questions</span> · <span class="endpoint">deploy_quiz</span></div>
+        </div>
+      </div>
+
+      <!-- 문항 목록 -->
+      <div>
+        <div class="card">
+          <div class="list-head">
+            <h2><span class="num"><svg width="13" height="13" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-list"/></svg></span> 문항 목록 <span id="q-quizname" class="tag"></span></h2>
+            <button class="btn btn-primary btn-sm" onclick="deployQuiz()"><svg class="ic" width="13" height="13" style="vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-zap"/></svg> 배포</button>
+          </div>
+          <div class="filter-chips" id="tagFilters"></div>
+          <div id="questionList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const ADMIN_KEY='flowpay2026';
+
+/* ───── 저장소 (localStorage 로컬 저장 + Apps Script 연동) ───── */
+function load(k,def){try{return JSON.parse(localStorage.getItem(k))??def;}catch(e){return def;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function post(action,payload){ /* Apps Script 연동 */
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(Object.assign({action},payload))}).catch(()=>{});
+}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+
+/* 초기 교과서 (현재 포털 실제 파일) */
+const DEFAULT_BOOKS=[
+ {id:'b1',title:'회사 소개',url:'company-intro.html',week:1,chap:8,dept:'공통',method:'link',active:true},
+ {id:'b2',title:'경제·금융발달',url:'textbook-economy.html',week:1,chap:7,dept:'공통',method:'link',active:true},
+ {id:'b3',title:'핀테크 도메인',url:'textbook-fintech.html',week:2,chap:5,dept:'공통',method:'link',active:true},
+ {id:'b4',title:'매출채권',url:'textbook-enote-discount.html',week:2,chap:7,dept:'공통',method:'link',active:true},
+ {id:'b5',title:'플로우페이 플랫폼 사용하기',url:'textbook-flowpay-platform.html',week:3,chap:5,dept:'공통',method:'link',active:true},
+ {id:'b6',title:'플로우페이 프로세스',url:'textbook-flowpay-process.html',week:3,chap:8,dept:'공통',method:'link',active:true},
+ {id:'b7',title:'심사·채권추심',url:'textbook-review-collection.html',week:4,chap:8,dept:'심사',method:'link',active:true},
+ {id:'b8',title:'기업경영관리',url:'textbook-management.html',week:1,chap:5,dept:'공통',method:'link',active:true}
+];
+const DEFAULT_QUIZZES=[
+ {id:'qz1',name:'핀테크 도메인 OX 퀴즈',book:'textbook-fintech.html',pass:80},
+ {id:'qz2',name:'플로우페이 플랫폼 퀴즈',book:'textbook-flowpay-platform.html',pass:80},
+ {id:'qz3',name:'플로우페이 프로세스 퀴즈',book:'textbook-flowpay-process.html',pass:80},
+ {id:'qz4',name:'심사·채권추심 퀴즈 (20문항)',book:'textbook-review-collection.html',pass:80},
+ {id:'qz5',name:'핀테크 도메인 OX 퀴즈 (30문항)',book:'textbook-fintech.html',pass:80},
+ {id:'qz6',name:'경제·금융발달 퀴즈 (10문항)',book:'textbook-economy.html',pass:80},
+ {id:'qz7',name:'전자어음 할인 퀴즈 (10문항)',book:'textbook-enote-discount.html',pass:80},
+ {id:'qz8',name:'기업경영관리 퀴즈 (20문항)',book:'textbook-management.html',pass:80}
+];
+const DEFAULT_QUESTIONS=[];
+
+let books=load('admin_textbooks',DEFAULT_BOOKS);
+// 내장 신규 교과서 병합(기존 localStorage에 없던 항목 추가)
+(function(){ let changed=false; DEFAULT_BOOKS.forEach(d=>{ if(!books.some(b=>b.url===d.url)){ books.push(d); changed=true; } }); if(changed) save('admin_textbooks',books); })();
+let editTplId=null;
+const REAL_BOOK_FILES=DEFAULT_BOOKS.map(b=>b.url); // 내장 7종(편집 시 템플릿 전환 제외)
+let quizzes=load('admin_quizzes',DEFAULT_QUIZZES);
+(function(){ let ch=false; DEFAULT_QUIZZES.forEach(d=>{ if(!quizzes.some(q=>q.name===d.name)){ quizzes.push(d); ch=true; } }); if(ch) save('admin_quizzes',quizzes); })();
+let questions=load('admin_questions',DEFAULT_QUESTIONS);
+let curQuiz=quizzes[0]?quizzes[0].id:null;
+let tagFilter='all';
+
+/* ───── 탭 ───── */
+function switchTab(t){
+  document.getElementById('tab-book').classList.toggle('active',t==='book');
+  document.getElementById('tab-quiz').classList.toggle('active',t==='quiz');
+  document.getElementById('panel-book').classList.toggle('active',t==='book');
+  document.getElementById('panel-quiz').classList.toggle('active',t==='quiz');
+}
+
+/* ───── 교과서 ───── */
+function bookMethod(m){
+  ['template','link','pdf'].forEach(x=>{
+    var t=document.getElementById('bm-'+x); if(t) t.classList.toggle('active',m===x);
+    var p=document.getElementById('method-'+x); if(p) p.classList.toggle('active',m===x);
+  });
+}
+/* 직접 작성 — 챕터 에디터 */
+function addTplChapter(t,sum,body){
+  const box=document.getElementById('tplChapters');
+  const i=box.children.length+1;
+  const d=document.createElement('div');
+  d.className='tpl-chap';
+  d.style.cssText='border:1px solid var(--border);border-radius:9px;padding:11px 12px;margin-bottom:9px;background:#FAFAFB;';
+  d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <b style="font-size:12px;color:var(--primary-dark);">${i}장</b>
+      <button class="btn btn-danger btn-sm" onclick="this.closest('.tpl-chap').remove()">삭제</button></div>
+    <input class="tc-t" placeholder="장 제목 (예: 조직 구성과 역할)" value="${(t||'').replace(/"/g,'&quot;')}" style="margin-bottom:6px;">
+    <textarea class="tc-sum" rows="2" placeholder="핵심요약 — 한 줄에 하나씩" style="margin-bottom:6px;">${sum||''}</textarea>
+    <textarea class="tc-body" rows="3" placeholder="본문 내용">${body||''}</textarea>`;
+  box.appendChild(d);
+}
+function addBookTemplate(){
+  const title=val('tpl-title');
+  if(!title){toast('교재 제목을 입력하세요');return;}
+  const chapters=[...document.querySelectorAll('#tplChapters .tpl-chap')].map(c=>({
+    t:c.querySelector('.tc-t').value.trim(),
+    sum:c.querySelector('.tc-sum').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    body:c.querySelector('.tc-body').value.trim()
+  })).filter(c=>c.t||c.body||c.sum.length);
+  const intro=val('tpl-intro');
+  const tags=val('tpl-tags').split(',').map(s=>s.trim()).filter(Boolean);
+  if(editTplId){
+    const b=books.find(x=>x.id===editTplId);
+    if(b){ b.title=title; b.week=+val('tpl-week')||1; b.dept=val('tpl-dept');
+      b.method='template'; b.chapters=chapters; b.chap=chapters.length||1;
+      b.intro=intro; b.tags=tags;
+      b.url='textbook-view.html?id='+b.id; b.active=true;
+      save('admin_textbooks',books); post('save_textbook',b); }
+    cancelEdit(); renderBooks(); toast('교과서가 수정되었습니다 — 대시보드에 즉시 반영');
+    return;
+  }
+  const id='b'+Date.now();
+  const b={id,title,url:'textbook-view.html?id='+id,week:+val('tpl-week')||1,
+    chap:chapters.length||1,dept:val('tpl-dept'),method:'template',intro,tags,chapters,active:true};
+  books.push(b);save('admin_textbooks',books);post('save_textbook',b);
+  document.getElementById('tpl-title').value='';document.getElementById('tpl-week').value='';
+  document.getElementById('tplChapters').innerHTML='';addTplChapter();
+  renderBooks();toast('교과서가 생성·활성화되었습니다 — 대시보드에서 바로 학습 가능');
+}
+function editBook(id){
+  const b=books.find(x=>x.id===id); if(!b)return;
+  bookMethod('template'); editTplId=id;
+  document.getElementById('tpl-title').value=b.title||'';
+  document.getElementById('tpl-week').value=b.week||'';
+  document.getElementById('tpl-dept').value=b.dept||'공통';
+  document.getElementById('tpl-intro').value=b.intro||'';
+  document.getElementById('tpl-tags').value=Array.isArray(b.tags)?b.tags.join(', '):(b.tags||'');
+  const box=document.getElementById('tplChapters'); box.innerHTML='';
+  const chs=(Array.isArray(b.chapters)&&b.chapters.length)
+    ? b.chapters
+    : Array.from({length:Math.max(1,+b.chap||1)},()=>({t:'',sum:[],body:''}));
+  chs.forEach(c=>addTplChapter(c.t||c.title||'', (Array.isArray(c.sum)?c.sum.join('\n'):(c.sum||'')), c.body||''));
+  document.getElementById('tplSaveBtn').textContent='수정 저장';
+  document.getElementById('tpl-title').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('"'+(b.title||'교과서')+'" 편집 중 — 내용 수정 후 저장하세요');
+}
+function cancelEdit(){
+  editTplId=null;
+  document.getElementById('tpl-title').value='';document.getElementById('tpl-week').value='';
+  document.getElementById('tpl-intro').value='';document.getElementById('tpl-tags').value='';
+  document.getElementById('tplChapters').innerHTML='';addTplChapter();
+  document.getElementById('tplSaveBtn').textContent='교과서 생성 · 활성화';
+}
+/* ── PDF → 교과서 자동 변환 (pdf.js) ── */
+let PDF_TITLE_AUTO='';
+function pdfStatus(m){const e=document.getElementById('pdf-status');if(e)e.textContent=m;}
+async function pdfPicked(el){
+  const f=el.files&&el.files[0]; if(!f)return;
+  if(typeof pdfjsLib==='undefined'){ pdfStatus('PDF 라이브러리 로딩 실패 — 인터넷 연결 확인. 텍스트를 직접 붙여넣어도 됩니다.'); return; }
+  pdfStatus('"'+f.name+'" 텍스트 추출 중…');
+  try{
+    const buf=await f.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let txt='';
+    for(let p=1;p<=pdf.numPages;p++){
+      const page=await pdf.getPage(p);
+      const tc=await page.getTextContent();
+      let lastY=null, line='', prevEnd=null; const lines=[];
+      tc.items.forEach(it=>{
+        const x=it.transform[4], y=it.transform[5], w=it.width||0;
+        if(lastY!==null && Math.abs(y-lastY)>3){ lines.push(line); line=''; prevEnd=null; }
+        if(prevEnd!==null){ const gap=x-prevEnd; if(gap>16) line+='\t'; else if(gap>1.5) line+=' '; }  // 큰 가로 간격=표 칸 구분(탭)
+        line+=it.str; prevEnd=x+w; lastY=y;
+      });
+      if(line) lines.push(line);
+      txt+=lines.join('\n').replace(/\n?\d+ \/ \d+\s*$/,'')+'\n';
+    }
+    txt=txt.replace(/\n{3,}/g,'\n\n').trim();
+    document.getElementById('pdf-text').value=txt;
+    PDF_TITLE_AUTO=(txt.split('\n').find(l=>l.trim())||'').trim().slice(0,40);
+    if(!val('pdf-title')) document.getElementById('pdf-title').value=PDF_TITLE_AUTO;
+    const chs=splitPdfChapters(txt);
+    pdfStatus('추출 완료: '+pdf.numPages+'p · 약 '+txt.length+'자');
+    document.getElementById('pdf-preview').innerHTML='자동 분할: <b>'+chs.length+'개 챕터</b> — '+chs.slice(0,8).map(c=>'·'+c.t).join(' ');
+  }catch(e){ pdfStatus('추출 실패: '+((e&&e.message)||e)+' — 텍스트를 직접 붙여넣어 생성할 수 있습니다.'); }
+}
+function splitPdfChapters(text){
+  // 퀴즈/문제 구간은 교과서 본문에서 제외
+  const qm=text.match(/\n\s*\d{1,2}\s*\.\s*(O\/X|객관식|서술형|단답)/);
+  if(qm) text=text.slice(0,qm.index);
+  const lines=text.split('\n');
+  // 두 자리 번호 제목(01.~) 또는 "제N장"만 챕터 경계로 — 본문 내 1)·1. 소항목은 본문 유지
+  const isHead=l=>/^\s*\d{2}\s*[.)]\s+\S/.test(l) || /^\s*제?\s*\d{1,2}\s*장/.test(l);
+  const chs=[]; let cur=null;
+  lines.forEach(raw=>{
+    const l=raw.trim(); if(!l)return;
+    if(isHead(l)){ if(cur)chs.push(cur); cur={t:l.replace(/\s+/g,' ').replace(/^\s*\d{1,2}\s*[.)]\s*/,'').replace(/^제?\s*\d{1,2}\s*장\s*[.:]?\s*/,'').slice(0,60),bodyLines:[]}; }
+    else if(cur){ cur.bodyLines.push(l); }
+  });
+  if(cur)chs.push(cur);
+  if(!chs.length){
+    const body=lines.filter(l=>l.trim());
+    const groups=Math.min(6,Math.max(1,Math.round(body.length/25)));
+    const per=Math.ceil(body.length/groups);
+    for(let i=0;i<body.length;i+=per){ chs.push({t:(chs.length+1)+'장', bodyLines:body.slice(i,i+per)}); }
+  }
+  return chs.map(c=>({ t:c.t, body:c.bodyLines.join('\n'), sum:c.bodyLines.filter(l=>l.length>=10).slice(0,3) }));
+}
+function addBookLink(){
+  const title=val('bk-title'),url=val('bk-url');
+  if(!title||!url){toast('제목과 URL을 입력하세요');return;}
+  const b={id:'b'+Date.now(),title,url,week:+val('bk-week')||1,chap:+val('bk-chap')||1,dept:val('bk-dept'),method:'link',active:true};
+  books.push(b);save('admin_textbooks',books);post('save_textbook',b);
+  ['bk-title','bk-url','bk-week','bk-chap'].forEach(id=>document.getElementById(id).value='');
+  renderBooks();toast('교과서가 등록되었습니다');
+}
+function addBookPdf(){
+  let title=val('pdf-title')||PDF_TITLE_AUTO;
+  const text=document.getElementById('pdf-text').value.trim();
+  if(!title){toast('제목을 입력하거나 PDF를 업로드하세요');return;}
+  if(!text){toast('추출 텍스트가 없습니다 — PDF 업로드 또는 텍스트 붙여넣기');return;}
+  const chapters=splitPdfChapters(text);
+  const id='b'+Date.now();
+  const b={id,title,url:'textbook-view.html?id='+id,week:1,chap:chapters.length||1,
+    dept:'공통',method:'template',source:'pdf',chapters,active:true};
+  books.push(b);save('admin_textbooks',books);post('save_textbook',b);
+  document.getElementById('pdf-title').value='';document.getElementById('pdf-text').value='';
+  document.getElementById('pdf-status').textContent='';document.getElementById('pdf-preview').textContent='';
+  PDF_TITLE_AUTO='';
+  renderBooks();toast('교과서가 자동 생성·활성화되었습니다 ('+chapters.length+'개 챕터)');
+}
+async function aiGenerate(){
+  const text=document.getElementById('pdf-text').value.trim();
+  let title=val('pdf-title')||PDF_TITLE_AUTO;
+  if(!text){toast('추출 텍스트가 없습니다 — PDF 업로드 또는 텍스트 붙여넣기');return;}
+  pdfStatus('AI가 교과서로 재구성 중… 수십 초 걸릴 수 있습니다.');
+  try{
+    // 단순요청(text/plain)로 전송해야 응답을 읽을 수 있음 — Content-Type 헤더 설정 금지
+    const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'ai_textbook',key:ADMIN_KEY,title:title,text:text})});
+    const j=await r.json();
+    if(j.status!=='ok'||!j.book||!Array.isArray(j.book.chapters)){
+      const msg=(j&&j.message)||'응답 오류';
+      pdfStatus('AI 실패: '+msg+(msg==='no_api_key'?' — Apps Script 속성에 ANTHROPIC_API_KEY 설정 후 재시도하세요.':'')+' / "빠른 자동 분할"로도 생성할 수 있습니다.');
+      return;
+    }
+    const bk=j.book; const id='b'+Date.now();
+    const b={id,title:bk.title||title||'교과서',url:'textbook-view.html?id='+id,week:1,
+      chap:bk.chapters.length||1,dept:'공통',method:'template',source:'ai',chapters:bk.chapters,active:true};
+    books.push(b);save('admin_textbooks',books);
+    post('save_textbook',{id:b.id,title:b.title,url:b.url,week:1,chap:b.chap,dept:'공통',method:'template',active:true});
+    document.getElementById('pdf-title').value='';document.getElementById('pdf-text').value='';
+    pdfStatus('');document.getElementById('pdf-preview').textContent='';PDF_TITLE_AUTO='';
+    renderBooks();toast('AI 교과서 생성·활성화 완료 ('+b.chap+'개 챕터)');
+  }catch(e){ pdfStatus('AI 호출 실패: '+((e&&e.message)||e)+' — 네트워크/배포 상태를 확인하세요.'); }
+}
+function toggleBook(id){const b=books.find(x=>x.id===id);b.active=!b.active;save('admin_textbooks',books);renderBooks();}
+function delBook(id){books=books.filter(x=>x.id!==id);save('admin_textbooks',books);renderBooks();toast('삭제되었습니다');}
+function renderBooks(){
+  const el=document.getElementById('bookList');
+  document.getElementById('bk-count').textContent=books.length+'개';
+  if(!books.length){el.innerHTML='<div class="empty">등록된 교과서가 없습니다</div>';return;}
+  const ICO={pdf:'ic-file',template:'ic-book',link:'ic-globe'};
+  const LBL={pdf:'PDF',template:'직접작성',link:'웹링크'};
+  const BG={pdf:'bg-orange',template:'bg-green',link:'bg-blue'};
+  el.innerHTML=books.map(b=>`<div class="item">
+    <div class="item-top">
+      <div class="item-icon"><svg width="16" height="16" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#${ICO[b.method]||'ic-globe'}"/></svg></div>
+      <div style="flex:1"><div class="item-title">${b.title}</div><div class="item-sub">${b.url} · ${b.chap}장 · ${b.week}주차</div></div>
+      ${REAL_BOOK_FILES.indexOf(b.url)===-1?`<button class="btn btn-sm btn-ghost" onclick="editBook('${b.id}')">편집</button>`:''}
+      <button class="btn btn-sm ${b.active?'bg-green':'bg-gray'}" onclick="toggleBook('${b.id}')">${b.active?'활성':'비활성'}</button>
+      <button class="btn btn-sm btn-danger" onclick="delBook('${b.id}')">삭제</button>
+    </div>
+    <div class="item-meta">
+      <span class="badge ${BG[b.method]||'bg-blue'}">${LBL[b.method]||'웹링크'}</span>
+      <span class="badge bg-purple">${b.dept}</span>
+      ${(b.method==='link'||b.method==='template')&&b.url&&b.url.indexOf('(')!==0?`<a class="badge bg-gray" href="${b.url}" target="_blank">열기 ↗</a>`:''}
+    </div></div>`).join('');
+}
+
+/* ───── 퀴즈 / 문항 ───── */
+function val(id){return document.getElementById(id).value.trim();}
+let qtype='ox';
+function qType(t){qtype=t;
+  document.getElementById('qt-ox').classList.toggle('active',t==='ox');
+  document.getElementById('qt-mc').classList.toggle('active',t==='mc');
+  document.getElementById('opts-ox').classList.toggle('active',t==='ox');
+  document.getElementById('opts-mc').classList.toggle('active',t==='mc');
+}
+function renderQuizSelect(){
+  const sel=document.getElementById('q-quiz');
+  sel.innerHTML=quizzes.map(q=>`<option value="${q.id}">${q.name}</option>`).join('');
+  if(curQuiz)sel.value=curQuiz;
+}
+function addQuiz(){
+  const name=val('newQuizName');if(!name){toast('퀴즈명을 입력하세요');return;}
+  const q={id:'qz'+Date.now(),name,book:'',pass:80};
+  quizzes.push(q);save('admin_quizzes',quizzes);curQuiz=q.id;
+  document.getElementById('newQuizName').value='';renderQuizSelect();renderQuestions();toast('퀴즈가 추가되었습니다');
+}
+function addQuestion(){
+  curQuiz=document.getElementById('q-quiz').value;
+  const text=val('q-text');if(!text){toast('질문을 입력하세요');return;}
+  const tag=val('q-tag')||'미분류',diff=val('q-diff'),exp=val('q-exp');
+  let q={id:'q'+Date.now(),quiz:curQuiz,type:qtype,text,tag,diff,exp,active:true};
+  if(qtype==='ox'){ q.ans=document.querySelector('input[name=oxans]:checked').value; }
+  else{
+    q.opts=[val('mc0'),val('mc1'),val('mc2'),val('mc3')].filter(x=>x);
+    if(q.opts.length<2){toast('보기를 2개 이상 입력하세요');return;}
+    q.ans=+document.querySelector('input[name=mcans]:checked').value;
+    if(q.ans>=q.opts.length)q.ans=0;
+  }
+  questions.push(q);save('admin_questions',questions);post('add_questions',{quiz:curQuiz,question:q});
+  document.getElementById('q-text').value='';document.getElementById('q-exp').value='';document.getElementById('q-tag').value='';
+  ['mc0','mc1','mc2','mc3'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderQuestions();toast('문항이 추가되었습니다');
+}
+function toggleQ(id){const q=questions.find(x=>x.id===id);q.active=!q.active;save('admin_questions',questions);renderQuestions();}
+function delQ(id){questions=questions.filter(x=>x.id!==id);save('admin_questions',questions);renderQuestions();toast('삭제되었습니다');}
+function deployQuiz(){
+  const qz=quizzes.find(q=>q.id===curQuiz);
+  const list=questions.filter(q=>q.quiz===curQuiz&&q.active);
+  if(!list.length){toast('배포할 활성 문항이 없습니다');return;}
+  post('deploy_quiz',{quiz:qz,questions:list});
+  toast(`"${qz.name}" ${list.length}문항 배포 요청됨`);
+}
+function renderQuestions(){
+  curQuiz=document.getElementById('q-quiz').value||curQuiz;
+  const qz=quizzes.find(q=>q.id===curQuiz);
+  document.getElementById('q-quizname').textContent=qz?qz.name:'';
+  let list=questions.filter(q=>q.quiz===curQuiz);
+  /* 태그 필터 칩 */
+  const tags=[...new Set(list.map(q=>q.tag))];
+  const fc=document.getElementById('tagFilters');
+  fc.innerHTML=`<span class="chip ${tagFilter==='all'?'active':''}" onclick="setTagFilter('all')">전체 ${list.length}</span>`+
+    tags.map(t=>`<span class="chip ${tagFilter===t?'active':''}" onclick="setTagFilter('${t}')">#${t}</span>`).join('');
+  if(tagFilter!=='all')list=list.filter(q=>q.tag===tagFilter);
+  const el=document.getElementById('questionList');
+  if(!list.length){el.innerHTML='<div class="empty">문항이 없습니다. 왼쪽에서 추가하세요.</div>';return;}
+  el.innerHTML=list.map((q,i)=>{
+    const ansTxt=q.type==='ox'?('정답: '+q.ans):('정답: '+(q.opts[q.ans]||''));
+    const opts=q.type==='mc'?`<div class="item-sub" style="margin-top:4px">${q.opts.map((o,j)=>`${j===q.ans?'<svg class="ic" width="13" height="13" style="vertical-align:-.14em;fill:none;stroke:#2E7D32;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg>':'·'} ${o}`).join(' &nbsp; ')}</div>`:'';
+    return `<div class="item">
+      <div class="item-top">
+        <div class="item-icon" style="background:${q.type==='ox'?'#1565C0':'#673AB7'}">${q.type==='ox'?'OX':'4지'}</div>
+        <div style="flex:1"><div class="item-title">${q.text}</div></div>
+        <button class="btn btn-sm ${q.active?'bg-green':'bg-gray'}" onclick="toggleQ('${q.id}')">${q.active?'활성':'비활성'}</button>
+        <button class="btn btn-sm btn-danger" onclick="delQ('${q.id}')">삭제</button>
+      </div>
+      ${opts}
+      <div class="item-meta">
+        <span class="tag">#${q.tag}</span>
+        <span class="badge bg-orange">난이도 ${q.diff}</span>
+        <span class="badge bg-gray">${ansTxt}</span>
+      </div>
+      ${q.exp?`<div class="item-sub" style="margin-top:5px"><svg class="ic" width="13" height="13" style="vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-help"/></svg> ${q.exp}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function setTagFilter(t){tagFilter=t;renderQuestions();}
+
+/* ───── 초기화 ───── */
+renderBooks();
+addTplChapter();   // 직접 작성 — 기본 1개 챕터 행
+renderQuizSelect();
+renderQuestions();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+if(typeof pdfjsLib!=='undefined'){ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
+</script>
+</body>
+</html>

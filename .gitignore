@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# 로컬 프리뷰 설정 (개인 환경)
+.claude/
+
+# 임시/백업
+*.tmp
+*.bak
+*~
+
+# 배포용 수동 사본 (구버전 중복 — 루트 HTML이 원본 소스)
+site_deploy/

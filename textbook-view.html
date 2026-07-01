@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교과서 — 276홀딩스</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--brand:#1A237E;--accent:#3949AB;--blue:#1565C0;--green:#2E7D32;--muted:#666;
+  --bg:#F5F6FA;--card:#FFF;--border:#E0E3EF;--text:#202124;--sidebar:248px;}
+html{scroll-behavior:smooth;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;}
+/* 상단바 */
+.top-header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:linear-gradient(135deg,#0D1547,#1A237E,#3949AB);box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.top-header .brand{color:#fff;font-size:13px;opacity:.8;}
+.top-header .title{color:#fff;font-size:16px;font-weight:700;flex:1;text-align:center;padding:0 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top-header .right{display:flex;align-items:center;gap:10px;}
+.top-header .who{background:rgba(255,255,255,.18);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;}
+.top-header .lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:12px;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;}
+.top-header .lo:hover{background:rgba(255,255,255,.26);}
+/* 사이드바 목차 */
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar);background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:18px 0;z-index:90;}
+.sidebar::-webkit-scrollbar{width:4px;}.sidebar::-webkit-scrollbar-thumb{background:#C5CAE9;border-radius:4px;}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--brand);letter-spacing:1px;text-transform:uppercase;padding:0 22px 10px;}
+.nav-item{display:block;padding:9px 22px;font-size:13px;color:#444;text-decoration:none;border-left:3px solid transparent;line-height:1.4;}
+.nav-item:hover{background:var(--bg);color:var(--brand);}
+.nav-item.active{background:#EEF0FB;color:var(--brand);border-left-color:var(--brand);font-weight:700;}
+/* 본문 */
+.main{margin-left:var(--sidebar);margin-top:56px;padding:36px 44px 90px;max-width:1000px;}
+.hero{background:linear-gradient(135deg,#0D1547,#283593);color:#fff;border-radius:16px;padding:34px 38px;margin-bottom:26px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%;}
+.hero-sub{font-size:12.5px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:30px;font-weight:700;margin-bottom:11px;line-height:1.3;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:640px;}
+.hero-meta{margin-top:18px;display:flex;gap:9px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+/* 진도 */
+.progress-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:30px;display:flex;align-items:center;gap:14px;}
+.progress-wrap .pbar{flex:1;height:10px;background:#EEF0F8;border-radius:99px;overflow:hidden;}
+.progress-wrap .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--green));border-radius:99px;transition:width .3s;}
+.progress-wrap .ptext{font-size:12.5px;font-weight:700;color:var(--brand);white-space:nowrap;}
+/* 챕터 */
+.chapter{margin-bottom:50px;scroll-margin-top:70px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.chapter-num{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-title{font-size:22px;font-weight:700;color:var(--brand);}
+.chapter-title span{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px;}
+.chapter-border{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent);margin-bottom:20px;}
+.section p{margin-bottom:11px;white-space:pre-wrap;}
+.section ul{margin:8px 0 14px 4px;padding-left:20px;}
+.section li{margin:5px 0;}
+/* 표 */
+.tbl-wrap{overflow-x:auto;margin:14px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px;}
+table.tbl th{background:var(--brand);color:#fff;padding:10px 14px;text-align:left;font-weight:600;}
+table.tbl td{padding:9px 14px;border-bottom:1px solid #EEF0F8;vertical-align:top;}
+table.tbl tr:nth-child(even) td{background:#F5F6FA;}
+/* 콜아웃/공식/예시 */
+.blk-callout{background:#EEF0FB;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0;font-size:14px;}
+.blk-callout b{color:var(--brand);}
+.blk-warning{background:#FFEBEE;border-left:4px solid #C62828;border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0;font-size:14px;color:#7f1d1d;}
+.blk-example{background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:14px;}
+.blk-example .lbl{font-weight:700;color:#7a5b00;margin-bottom:4px;}
+.blk-formula{background:#0D1547;color:#fff;border-radius:10px;padding:11px 16px;margin:12px 0;font-family:'Consolas',monospace;font-size:14.5px;text-align:center;letter-spacing:.3px;}
+/* 핵심요약 버튼 */
+.ch-summary{margin-top:18px;}
+.summary-btn{background:#EEF0FB;color:var(--brand);border:1px solid #C5CAE9;border-radius:10px;padding:11px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.summary-btn:hover{background:#E1E5F8;}
+.summary-btn.done-btn{background:#E8F5E9;color:var(--green);border-color:#A5D6A7;}
+.summary-btn svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+/* 모달 */
+.modal{position:fixed;inset:0;background:rgba(13,21,71,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal.open{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:26px 28px;max-width:540px;width:100%;}
+.tip-chip{display:inline-block;background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px;margin-bottom:10px;}
+.modal-box h3{font-size:19px;color:var(--brand);margin-bottom:12px;}
+.modal-box ul{list-style:none;}
+.modal-box li{font-size:14px;padding:8px 0 8px 22px;position:relative;border-bottom:1px solid #F0F1F8;}
+.modal-box li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700;}
+.tip-complete{margin-top:16px;width:100%;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+.tip-complete:disabled{opacity:.5;}
+/* 교육완료 바 */
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);padding:14px 24px;display:none;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 -3px 14px rgba(0,0,0,.12);z-index:120;}
+.done-bar.show{display:flex;}
+.done-bar span{font-size:13.5px;font-weight:600;color:var(--brand);}
+.done-final{background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px 26px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+.empty-note{background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:14px 16px;font-size:13.5px;color:#7a5b00;margin-bottom:16px;}
+@media(max-width:860px){
+  .sidebar{display:none;} .main{margin-left:0;padding:24px 18px 80px;} .done-bar{left:0;}
+  .hero h1{font-size:24px;}
+}
+@media print{.top-header,.sidebar,.done-bar,.summary-btn{display:none!important;}.main{margin:0;padding:18px;}}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+</defs></svg>
+
+<div class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title" id="hdrTitle">교과서</span>
+  <div class="right">
+    <a class="lo" href="dashboard.html">← 대시보드</a>
+    <span class="who"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> <span id="whoChip">—</span></span>
+    <button class="lo" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+
+<nav class="sidebar" id="sidebar"><div class="sidebar-title">목차</div></nav>
+
+<main class="main">
+  <div class="hero">
+    <div class="hero-sub">NEW HIRE TRAINING · 276 HOLDINGS</div>
+    <h1 id="heroTitle">교과서</h1>
+    <p id="heroDesc"></p>
+    <div class="hero-meta" id="heroMeta"></div>
+  </div>
+  <div class="progress-wrap" id="progressWrap" style="display:none;">
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="ptext" id="ptext">0 / 0 장</div>
+  </div>
+  <div id="chapters"></div>
+</main>
+
+<!-- 핵심요약 모달 -->
+<div class="modal" id="tipModal"><div class="modal-box">
+  <span class="tip-chip" id="tipChip">핵심 요약</span>
+  <h3 id="tipTitle"></h3>
+  <ul id="tipList"></ul>
+  <button class="tip-complete" id="tipCompleteBtn" onclick="completeTip()">✓ 완료 — 다음 장으로 이동</button>
+</div></div>
+
+<!-- 교육완료 바 -->
+<div class="done-bar" id="doneBar">
+  <span>✓ 모든 장의 핵심 요약을 확인했습니다. 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+const studentName=(SESSION&&SESSION.name)||'';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+function qp(k){return new URLSearchParams(location.search).get(k);}
+function loadBooks(){try{return JSON.parse(localStorage.getItem('admin_textbooks')||'[]');}catch(e){return [];}}
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+const BOOK_ID=qp('id')||'';
+const books=loadBooks();
+const BOOK=books.find(b=>String(b.id)===String(BOOK_ID))||null;
+
+/* 평문 → 블록 자동 구조화 */
+function parseBody(body){
+  const lines=String(body||'').split('\n');
+  const blocks=[]; let para=[], tbl=[], list=[];
+  const flushPara=()=>{ if(para.length){blocks.push({type:'para',text:para.join('\n')});para=[];} };
+  const flushList=()=>{ if(list.length){blocks.push({type:'list',items:list.slice()});list=[];} };
+  const flushTbl=()=>{
+    if(!tbl.length) return;
+    if(tbl.length>=2){ blocks.push({type:'table',headers:null,rows:tbl.slice()}); }
+    else { para.push(tbl[0].join('  ')); flushPara(); }   // 1행이면 표 대신 문단
+    tbl=[];
+  };
+  const splitCells=l=> l.indexOf('\t')>-1 ? l.split('\t').map(x=>x.trim()).filter(x=>x!=='')
+                     : l.indexOf('|')>-1 ? l.split('|').map(x=>x.trim()).filter(x=>x!=='')
+                     : l.split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
+  // "라벨 + 숫자/금액/%/배수" → 2열 표 행
+  const kvRow=l=>{ const m=l.match(/^(.{1,30}?)\s+([0-9][0-9,.\s]*\s*(?:원|%|배|개|건|일|명)?|[0-9,]+\s*(?:원|%|배|개|건|일|명))$/); return (m&&/[0-9]/.test(m[2]))?[m[1].trim(),m[2].trim()]:null; };
+  lines.forEach(raw=>{
+    const l=raw.replace(/^[ ]+|[ ]+$/g,'');  // 탭 보존(양끝 공백만 제거)
+    if(!l.trim()){ flushPara();flushList();flushTbl(); return; }
+    const isTbl=l.indexOf('\t')>-1 || (l.indexOf('|')>-1 && l.split('|').length>=3) || /\S\s{2,}\S.*\s{2,}\S/.test(l);
+    const kv=isTbl?null:kvRow(l);
+    const isList=/^(\d+[.)]|[-·•▪◦])\s+/.test(l);
+    const isFormula=/[=＝]/.test(l) && l.length<=60 && /[%×*+\/\-()]/.test(l);
+    if(isTbl){ flushPara();flushList(); tbl.push(splitCells(l)); return; }
+    if(kv){ flushPara();flushList(); tbl.push(kv); return; }
+    flushTbl();
+    if(isList){ flushPara(); list.push(l.replace(/^(\d+[.)]|[-·•▪◦])\s+/,'')); return; }
+    flushList();
+    if(isFormula){ flushPara(); blocks.push({type:'formula',text:l}); return; }
+    para.push(l);
+  });
+  flushPara();flushList();flushTbl();
+  return blocks.length?blocks:[{type:'para',text:String(body||'')}];
+}
+function buildChapters(b){
+  const stripNum=s=>String(s||'').replace(/^\s*\d{1,2}\s*[.)]\s*/,'').trim();  // 앞 번호(01. 등) 제거 — 번호는 렌더러가 부여
+  if(b && Array.isArray(b.chapters) && b.chapters.length){
+    return b.chapters.map((c,i)=>({
+      t:stripNum(c.t||c.title)||((i+1)+'장'), sub:c.sub||'',
+      blocks:Array.isArray(c.blocks)&&c.blocks.length?c.blocks:parseBody(c.body||''),
+      sum:(Array.isArray(c.sum)?c.sum:(c.sum?String(c.sum).split('\n'):[])).filter(x=>x&&x.trim())
+    }));
+  }
+  const n=Math.max(1,(b&&+b.chap)||1);
+  return Array.from({length:n},(_,i)=>({ t:(i+1)+'장', sub:'',
+    blocks:[{type:'para',text:'본 장의 학습 내용은 관리자 콘솔(교과서 관리)에서 입력할 수 있습니다. 핵심 요약을 확인하고 다음 장으로 진행하세요.'}],
+    sum:['('+(i+1)+'장) 핵심 내용을 확인했습니다.'] }));
+}
+
+const TITLE=(BOOK&&BOOK.title)||'교과서';
+const CHAPTERS=buildChapters(BOOK);
+const TOTAL=CHAPTERS.length;
+const DONE_KEY='tb_'+BOOK_ID+'_completed';
+const FIN_KEY='tb_'+BOOK_ID+'_finished';
+let completedChapters=[];
+
+document.title=TITLE+' — 276홀딩스';
+document.getElementById('hdrTitle').textContent=TITLE;
+document.getElementById('whoChip').textContent=studentName;
+
+function renderBlocks(blocks){
+  return (blocks||[]).map(bl=>{
+    const ty=bl.type||'para';
+    if(ty==='list'&&Array.isArray(bl.items)) return '<ul>'+bl.items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+    if(ty==='table'&&Array.isArray(bl.rows)){
+      const head=Array.isArray(bl.headers)&&bl.headers.length?'<tr>'+bl.headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>':'';
+      const rows=bl.rows.map(r=>'<tr>'+(Array.isArray(r)?r:[r]).map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('');
+      return '<div class="tbl-wrap"><table class="tbl">'+head+rows+'</table></div>';
+    }
+    if(ty==='callout') return '<div class="blk-callout">'+(bl.title?'<b>'+esc(bl.title)+'</b><br>':'')+esc(bl.text||'')+'</div>';
+    if(ty==='warning') return '<div class="blk-warning">'+esc(bl.text||'')+'</div>';
+    if(ty==='example') return '<div class="blk-example"><div class="lbl">예시</div>'+esc(bl.text||'')+'</div>';
+    if(ty==='formula') return '<div class="blk-formula">'+esc(bl.text||'')+'</div>';
+    return '<p>'+esc(bl.text||'')+'</p>';
+  }).join('');
+}
+
+if(!BOOK){
+  document.getElementById('hdrTitle').textContent='교과서';
+  document.getElementById('heroTitle').textContent='교과서를 찾을 수 없습니다';
+  document.getElementById('heroDesc').textContent=BOOK_ID?('요청한 교과서(id: '+BOOK_ID+')가 이 브라우저에 없습니다.'):'교과서가 지정되지 않았습니다(주소에 ?id= 없음).';
+  document.getElementById('sidebar').style.display='none';
+  document.querySelector('.main').style.marginLeft='0';
+  const REAL=['company-intro.html','textbook-economy.html','textbook-fintech.html','textbook-enote-discount.html','textbook-flowpay-platform.html','textbook-flowpay-process.html','textbook-review-collection.html'];
+  const list=books.filter(b=>b.active!==false).map(b=>{
+    const href=(b.url&&REAL.indexOf(b.url)>-1)?b.url:('textbook-view.html?id='+encodeURIComponent(b.id));
+    return '<a class="chapter" href="'+href+'" style="display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:10px;"><b style="color:var(--brand);">'+esc(b.title||'교과서')+'</b><div style="font-size:13px;color:var(--muted);margin-top:3px;">'+esc((b.dept?'['+b.dept+'] ':'')+(((b.chapters&&b.chapters.length)||b.chap||1))+'개 챕터')+'</div></a>';
+  }).join('');
+  document.getElementById('chapters').innerHTML='<div class="empty-note">대시보드를 거치지 않고 직접 열었거나, 이 브라우저(폴더)에 등록 데이터가 없습니다. 아래에서 선택하거나 <b>← 대시보드</b>로 이동하세요.</div>'+(list||'<div class="empty-note">이 브라우저에 등록된 교과서가 없습니다.</div>');
+}else{
+  // 히어로
+  document.getElementById('heroTitle').textContent=TITLE;
+  document.getElementById('heroDesc').textContent=(BOOK.intro&&BOOK.intro.trim())||('총 '+TOTAL+'개 챕터 · 각 장 핵심요약 확인으로 진도가 기록됩니다.');
+  const tags=(Array.isArray(BOOK.tags)&&BOOK.tags.length?BOOK.tags:(BOOK.tags?String(BOOK.tags).split(','):[])).map(t=>t.trim()).filter(Boolean);
+  const TAGS=tags.length?tags:['핵심요약 클릭','장별 진도 기록','완독 후 퀴즈'];
+  document.getElementById('heroMeta').innerHTML=TAGS.slice(0,4).map(t=>'<span class="hero-tag">'+esc(t)+'</span>').join('');
+  // 목차
+  document.getElementById('sidebar').innerHTML='<div class="sidebar-title">목차</div>'+
+    CHAPTERS.map((c,i)=>'<a class="nav-item" href="#ch'+(i+1)+'" id="nav'+i+'">'+(i+1)+'. '+esc(c.t)+'</a>').join('');
+  // 진도 바
+  document.getElementById('progressWrap').style.display='flex';
+  // 챕터
+  document.getElementById('chapters').innerHTML=CHAPTERS.map((c,i)=>`
+    <section class="chapter" id="ch${i+1}">
+      <div class="chapter-header"><div class="chapter-num">${i+1}</div>
+        <div class="chapter-title">${esc(c.t)}${c.sub?'<span>'+esc(c.sub)+'</span>':''}</div></div>
+      <div class="chapter-border"></div>
+      <div class="section">${renderBlocks(c.blocks)}</div>
+      <div class="ch-summary"><button class="summary-btn" id="sbtn${i}" onclick="openTip(${i})"><svg width="15" height="15"><use href="#ic-bookmark"/></svg> ${i+1}장 핵심 요약</button></div>
+    </section>`).join('');
+}
+
+function openTip(idx){
+  document.getElementById('tipChip').textContent=(idx+1)+'장 핵심 요약';
+  document.getElementById('tipTitle').textContent=CHAPTERS[idx].t;
+  const sums=CHAPTERS[idx].sum.length?CHAPTERS[idx].sum:['이 장의 핵심을 확인했습니다.'];
+  document.getElementById('tipList').innerHTML=sums.map(t=>'<li>'+esc(t)+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn'); btn.disabled=false;
+  btn.textContent=idx<TOTAL-1?'✓ 완료 — 다음 장으로 이동':'✓ 학습 완료';
+  window._tipIdx=idx; document.getElementById('tipModal').classList.add('open');
+}
+function completeTip(){
+  const idx=window._tipIdx; const btn=document.getElementById('tipCompleteBtn'); btn.disabled=true; btn.textContent='저장 중...';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:idx+1,chapterName:'['+TITLE+'] '+CHAPTERS[idx].t})}).catch(()=>{});
+  if(!completedChapters.includes(idx)) completedChapters.push(idx);
+  try{localStorage.setItem(DONE_KEY,JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  document.getElementById('tipModal').classList.remove('open');
+  setTimeout(()=>{
+    if(idx<TOTAL-1){const nx=document.getElementById('ch'+(idx+2));if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'});}
+    else{const db=document.getElementById('doneBar');if(db){db.classList.add('show');db.scrollIntoView({behavior:'smooth'});}}
+  },250);
+}
+function updateProgress(){
+  for(let i=0;i<TOTAL;i++){
+    const done=completedChapters.includes(i);
+    const sb=document.getElementById('sbtn'+i);
+    if(sb&&done){sb.classList.add('done-btn');sb.textContent='✓ '+(i+1)+'장 완료';}
+  }
+  const n=completedChapters.length;
+  const pf=document.getElementById('pfill'); if(pf) pf.style.width=(TOTAL?Math.round(n/TOTAL*100):0)+'%';
+  const pt=document.getElementById('ptext'); if(pt) pt.textContent=n+' / '+TOTAL+' 장 ('+(TOTAL?Math.round(n/TOTAL*100):0)+'%)';
+  const db=document.getElementById('doneBar'); if(db) db.classList.toggle('show', TOTAL>0 && n>=TOTAL);
+}
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'['+TITLE+'] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem(FIN_KEY,'1');}catch(e){}
+  alert(TITLE+' 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+function logout(){try{localStorage.removeItem('lms_session');localStorage.removeItem('lms_student_name');}catch(e){}location.replace('index.html');}
+
+/* 스크롤스파이 */
+window.addEventListener('scroll',function(){
+  if(!BOOK) return;
+  let top=window.scrollY+80, cur=0;
+  for(let i=0;i<TOTAL;i++){ const s=document.getElementById('ch'+(i+1)); if(s&&s.offsetTop<=top) cur=i; }
+  for(let i=0;i<TOTAL;i++){ const n=document.getElementById('nav'+i); if(n) n.classList.toggle('active',i===cur); }
+});
+
+try{completedChapters=JSON.parse(localStorage.getItem(DONE_KEY)||'[]');}catch(e){completedChapters=[];}
+if(BOOK){ updateProgress(); const n0=document.getElementById('nav0'); if(n0)n0.classList.add('active'); }
+</script>
+</body>
+</html>

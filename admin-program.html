@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4주 교육 계획서 — 276홀딩스 LMS 관리자</title>
+<style>
+:root{--primary:#673AB7;--primary-dark:#4527A0;--primary-light:#EDE7F6;
+  --success:#2E7D32;--danger:#C62828;--warn:#E65100;--info:#1565C0;
+  --text:#212121;--text-sec:#616161;--border:#E0E0E0;--bg:#F5F5F5;--white:#FFF;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
+.topbar{background:var(--primary-dark);color:#fff;height:54px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;position:fixed;left:0;right:0;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.topbar-logo{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.topbar-logo .v{font-size:10px;background:rgba(255,255,255,.2);padding:2px 7px;border-radius:6px;font-weight:600;}
+.topbar-right{display:flex;gap:8px;}
+.tb-link{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;padding:5px 11px;border-radius:6px;}
+.tb-link:hover{color:#fff;background:rgba(255,255,255,.14);}
+body{padding-top:54px;padding-left:236px;}
+.anav{position:fixed;left:0;top:54px;bottom:0;width:236px;background:#fff;border-right:1px solid var(--border);overflow-y:auto;z-index:80;padding:14px 0;}
+.anav .ns{font-size:10px;font-weight:700;color:#999;letter-spacing:1px;padding:10px 20px 5px;text-transform:uppercase;}
+.anav a{display:flex;align-items:center;gap:9px;padding:10px 20px;font-size:13px;color:#333;text-decoration:none;border-left:3px solid transparent;}
+.anav a:hover{background:var(--bg);color:var(--primary);}
+.anav a.active{background:var(--primary-light);color:var(--primary-dark);border-left-color:var(--primary);font-weight:700;}
+.anav a svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+@media(max-width:980px){.anav{display:none;}body{padding-left:0;}}
+
+.pagehead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 24px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:54px;z-index:60;}
+.pagehead h1{font-size:17px;color:var(--primary-dark);display:flex;align-items:center;gap:8px;}
+.pagehead h1 svg{width:18px;height:18px;fill:none;stroke:var(--primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-dark);}
+.btn-ghost{background:#fff;color:var(--primary);border:1px solid var(--primary);}.btn-ghost:hover{background:var(--primary-light);}
+.btn-light{background:#fff;color:var(--text-sec);border:1px solid var(--border);}.btn-light:hover{background:var(--bg);}
+.btn-slack{background:#fff;color:#4A154B;border:1px solid #d9c9da;}.btn-slack:hover{background:#f7f0f7;}
+.btn-sm{padding:5px 11px;font-size:11.5px;}
+
+.wrap{display:grid;grid-template-columns:1fr 420px;gap:20px;max-width:1240px;margin:0 auto;padding:22px 24px 70px;align-items:start;}
+@media(max-width:1120px){.wrap{grid-template-columns:1fr;}}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+.card h2{font-size:14px;color:var(--primary-dark);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card h2 svg{width:16px;height:16px;fill:none;stroke:var(--primary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+label{display:block;font-size:12px;font-weight:600;color:var(--text-sec);margin:10px 0 5px;}
+label .req{color:var(--danger);}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;outline:none;transition:.15s;background:#fff;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);}
+textarea{resize:vertical;min-height:54px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:520px){.row2{grid-template-columns:1fr;}}
+
+/* 주차 아코디언 */
+.week{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+.week-head{display:flex;align-items:center;gap:11px;padding:14px 18px;cursor:pointer;user-select:none;}
+.week-num{width:26px;height:26px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.week-title{font-size:13.5px;font-weight:700;flex:1;color:var(--text);}
+.week-date{font-size:11px;color:#999;background:var(--bg);padding:3px 9px;border-radius:99px;margin-right:4px;white-space:nowrap;}
+.week-toggle{color:#aaa;font-size:18px;line-height:1;transition:.2s;}
+.week.collapsed .week-body{display:none;}
+.week.collapsed .week-toggle{transform:rotate(0);}
+.week-body{padding:0 18px 18px;border-top:1px solid var(--border);}
+.week-body label:first-child{margin-top:14px;}
+
+table.sched{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
+table.sched th{background:var(--bg);color:var(--text-sec);padding:7px 8px;text-align:left;font-weight:600;font-size:11px;border-bottom:1px solid var(--border);}
+table.sched td{padding:5px 6px;border-bottom:1px solid #F0F0F0;vertical-align:middle;}
+table.sched td input{padding:6px 8px;font-size:12px;}
+.col-day{width:96px;}.col-x{width:30px;text-align:center;}
+.xbtn{background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;line-height:1;padding:2px 5px;border-radius:5px;}
+.xbtn:hover{color:var(--danger);background:#FFEBEE;}
+.addrow{margin-top:8px;}
+.check-item{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);flex-shrink:0;}
+.check-item input[type=text]{flex:1;}
+
+/* 미리보기 */
+.preview-wrap{position:sticky;top:130px;}
+.preview-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:0;overflow:hidden;}
+.preview-top{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;border-bottom:1px solid var(--border);}
+.preview-top b{font-size:13px;color:var(--primary-dark);}
+.preview-top span{font-size:11px;color:#999;}
+.preview-body{padding:20px;max-height:calc(100vh - 230px);overflow-y:auto;}
+.pv-empty{text-align:center;color:#bbb;padding:50px 16px;}
+.pv-empty svg{width:42px;height:42px;fill:none;stroke:#ccc;stroke-width:1.6;margin-bottom:12px;}
+.pv-empty .t{font-size:13px;font-weight:700;color:#999;}
+.pv-empty .s{font-size:11.5px;margin-top:5px;}
+
+/* 미리보기 문서 */
+.doc h3{font-size:18px;color:var(--primary-dark);text-align:center;margin-bottom:4px;}
+.doc .doc-sub{text-align:center;font-size:11px;color:#999;margin-bottom:16px;}
+.doc .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12px;background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.doc .meta div b{color:var(--primary-dark);}
+.doc .goal{font-size:12px;background:var(--primary-light);border-radius:8px;padding:10px 13px;margin-bottom:16px;}
+.doc .wk{margin-bottom:16px;border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.doc .wk-h{color:#fff;padding:8px 13px;font-size:12.5px;font-weight:700;}
+.doc .wk-b{padding:11px 13px;}
+.doc .wk-goal{font-size:11.5px;color:var(--text-sec);margin-bottom:9px;}
+.doc .wk-goal b{color:var(--text);}
+.doc table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:9px;}
+.doc table th{background:var(--bg);padding:5px 7px;text-align:left;border:1px solid var(--border);color:var(--text-sec);}
+.doc table td{padding:5px 7px;border:1px solid var(--border);vertical-align:top;}
+.doc .ck{font-size:11.5px;padding:3px 0;display:flex;gap:6px;}
+.doc .ck .box{width:13px;height:13px;border:1.5px solid #bbb;border-radius:3px;flex-shrink:0;margin-top:1px;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:300;}
+.toast.show{opacity:1;}
+.savechip{font-size:11px;color:#999;}
+
+@media print{
+  body *{visibility:hidden;}
+  #printArea,#printArea *{visibility:visible;}
+  #printArea{position:absolute;left:0;top:0;width:100%;padding:24px;}
+  .topbar,.anav,.pagehead{display:none!important;}
+}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><polyline points="1 20 1 14 7 14"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+<symbol id="ic-print" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+<symbol id="ic-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+<symbol id="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="ic-magic" viewBox="0 0 24 24"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h0M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5"/></symbol>
+</defs></svg>
+
+<div class="topbar">
+  <div class="topbar-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CE93D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 276홀딩스 LMS · 관리자 콘솔</div>
+  <div class="topbar-right">
+    <a href="dashboard.html" class="tb-link">사원 포털</a>
+    <a href="admin.html" class="tb-link" onclick="try{localStorage.removeItem('admin_key')}catch(e){}">잠금</a>
+  </div>
+</div>
+<nav class="anav"><div class="ns">운영</div><a href="admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 운영 대시보드</a><a href="admin-accounts.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> 계정 관리</a><div class="ns">콘텐츠</div><a href="admin-content.html"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 교과서 관리</a><a href="admin-content.html#quiz"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 질문지 관리</a><a href="admin-program.html" class="active"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 4주 교육 계획서</a><div class="ns">학습 모니터링</div><a href="admin-progress.html"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 교육 진도·완료</a><a href="admin-scores.html"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 퀴즈 점수·취약점</a></nav>
+
+<div class="pagehead">
+  <h1><svg><use href="#ic-doc"/></svg> 4주 학습 계획서 작성</h1>
+  <div class="head-actions">
+    <span class="savechip" id="saveChip"></span>
+    <button class="btn btn-ghost btn-sm" onclick="loadTemplate()"><svg><use href="#ic-magic"/></svg> 표준 커리큘럼</button>
+    <button class="btn btn-light btn-sm" onclick="resetAll()"><svg><use href="#ic-x"/></svg> 초기화</button>
+    <button class="btn btn-ghost btn-sm" onclick="renderPreview()"><svg><use href="#ic-refresh"/></svg> 미리보기 갱신</button>
+    <button class="btn btn-slack btn-sm" onclick="toSlack()"><svg><use href="#ic-send"/></svg> Slack 초안</button>
+    <button class="btn btn-primary btn-sm" onclick="doPrint()"><svg><use href="#ic-print"/></svg> 인쇄/PDF</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- 좌: 빌더 -->
+  <div class="builder">
+    <div class="card">
+      <h2><svg><use href="#ic-user"/></svg> 사원 기본 정보</h2>
+      <div class="row2">
+        <div><label>이름 <span class="req">*</span></label><input id="empName" placeholder="홍길동" oninput="autosave()"></div>
+        <div><label>부서</label>
+          <select id="empDept" onchange="autosave()">
+            <option value="">선택</option>
+            <option>영업지원</option><option>영업</option><option>운영·심사</option>
+            <option>개발</option><option>AX·R&D</option><option>경영지원</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div><label>멘토 / 사수</label><input id="empMentor" placeholder="박진용" oninput="autosave()"></div>
+        <div><label>입사일</label><input id="empJoin" type="date" oninput="autosave();updateWeekDates()"></div>
+      </div>
+      <label>온보딩 핵심 목표</label>
+      <textarea id="empGoal" placeholder="예: 매출채권·플로우페이 도메인 이해 + 각 교과서 학습·퀴즈 합격(80%+) + 첫 실무 과제 수행" oninput="autosave()"></textarea>
+    </div>
+
+    <div id="weeks"></div>
+  </div>
+
+  <!-- 우: 미리보기 -->
+  <div class="preview-wrap">
+    <div class="preview-card">
+      <div class="preview-top"><b>미리보기</b><span>갱신 버튼으로 업데이트</span></div>
+      <div class="preview-body">
+        <div id="printArea">
+          <div class="pv-empty" id="pvEmpty">
+            <svg viewBox="0 0 24 24"><use href="#ic-doc"/></svg>
+            <div class="t">미리보기</div>
+            <div class="s">내용 입력 후 '미리보기 갱신'을 클릭하세요</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_KEY='flowpay2026';
+try{ if(localStorage.getItem('admin_key')!==ADMIN_KEY) location.replace('admin.html'); }catch(e){}
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const WK_COLORS=['#673AB7','#1565C0','#2E7D32','#E65100'];
+const WK_HINT=['오리엔테이션 & 도메인 기초','핵심 도메인 & 플로우페이','프로세스 심화 & 심사','실무 적용 & 리뷰'];
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* ---------- 주차 섹션 빌드 ---------- */
+function weekSection(i){
+  return `<div class="week" id="wk${i}">
+    <div class="week-head" onclick="toggleWeek(${i})">
+      <span class="week-num" style="background:${WK_COLORS[i]}">${i+1}</span>
+      <span class="week-title">${i+1}주차 주제 입력 <span style="color:#aaa;font-weight:400;">(예: ${WK_HINT[i]})</span></span>
+      <span class="week-date" id="wdate${i}">—</span>
+      <span class="week-toggle" id="tg${i}">▾</span>
+    </div>
+    <div class="week-body">
+      <label>주차 주제</label>
+      <input id="wkTopic${i}" placeholder="예: ${WK_HINT[i]}" oninput="autosave()">
+      <label>주차 목표</label>
+      <input id="wkGoal${i}" placeholder="이번 주 핵심 달성 목표를 입력하세요" oninput="autosave()">
+      <label>일별 학습 일정</label>
+      <table class="sched"><thead><tr><th class="col-day">일정</th><th>학습 주제</th><th>세부 내용 / 실습</th><th class="col-x"></th></tr></thead>
+      <tbody id="sched${i}"></tbody></table>
+      <button class="btn btn-light btn-sm addrow" onclick="addRow(${i})">+ 일정 추가</button>
+      <label style="margin-top:16px;">완료 체크리스트</label>
+      <div id="check${i}"></div>
+      <button class="btn btn-light btn-sm addrow" onclick="addCheck(${i})">+ 항목 추가</button>
+    </div>
+  </div>`;
+}
+function buildWeeks(){
+  document.getElementById('weeks').innerHTML=[0,1,2,3].map(weekSection).join('');
+  [0,1,2,3].forEach(i=>{ addRow(i);addRow(i);addRow(i); addCheck(i);addCheck(i); if(i>0) document.getElementById('wk'+i).classList.add('collapsed'); });
+}
+function updateWeekDates(){
+  const v=val('empJoin');
+  if(!v){ [0,1,2,3].forEach(i=>{const e=document.getElementById('wdate'+i);if(e)e.textContent='—';}); return; }
+  const start=new Date(v); const fmt=d=>`${d.getMonth()+1}/${d.getDate()}`;
+  [0,1,2,3].forEach(i=>{
+    const s=new Date(start); s.setDate(s.getDate()+i*7);
+    const e=new Date(s); e.setDate(s.getDate()+4);
+    const el=document.getElementById('wdate'+i); if(el) el.textContent=`${fmt(s)} ~ ${fmt(e)}`;
+  });
+}
+function toggleWeek(i){document.getElementById('wk'+i).classList.toggle('collapsed');
+  document.getElementById('tg'+i).textContent=document.getElementById('wk'+i).classList.contains('collapsed')?'▸':'▾';}
+function addRow(i,day,topic,detail){
+  const tb=document.getElementById('sched'+i);
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td class="col-day"><input placeholder="월/화" value="${esc(day)}" oninput="autosave()"></td>
+    <td><input placeholder="학습 주제" value="${esc(topic)}" oninput="autosave()"></td>
+    <td><input placeholder="세부 내용 및 실습 방법" value="${esc(detail)}" oninput="autosave()"></td>
+    <td class="col-x"><button class="xbtn" onclick="this.closest('tr').remove();autosave()">&times;</button></td>`;
+  tb.appendChild(tr);
+}
+function addCheck(i,txt,done){
+  const box=document.getElementById('check'+i);
+  const div=document.createElement('div'); div.className='check-item';
+  div.innerHTML=`<input type="checkbox" ${done?'checked':''} onchange="autosave()">
+    <input type="text" placeholder="완료 항목 입력" value="${esc(txt)}" oninput="autosave()">
+    <button class="xbtn" onclick="this.closest('.check-item').remove();autosave()">&times;</button>`;
+  box.appendChild(div);
+}
+
+/* ---------- 데이터 수집/복원 ---------- */
+function collect(){
+  const weeks=[0,1,2,3].map(i=>({
+    topic:val('wkTopic'+i), goal:val('wkGoal'+i),
+    sched:[...document.querySelectorAll('#sched'+i+' tr')].map(tr=>{
+      const x=tr.querySelectorAll('input'); return {day:x[0].value,topic:x[1].value,detail:x[2].value};
+    }).filter(r=>r.day||r.topic||r.detail),
+    checks:[...document.querySelectorAll('#check'+i+' .check-item')].map(c=>{
+      const x=c.querySelectorAll('input'); return {done:x[0].checked,txt:x[1].value};
+    }).filter(c=>c.txt)
+  }));
+  return {name:val('empName'),dept:val('empDept'),mentor:val('empMentor'),join:val('empJoin'),goal:val('empGoal'),weeks};
+}
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+function restore(d){
+  if(!d) return;
+  setv('empName',d.name);setv('empDept',d.dept);setv('empMentor',d.mentor);setv('empJoin',d.join);setv('empGoal',d.goal);
+  (d.weeks||[]).forEach((w,i)=>{
+    setv('wkTopic'+i,w.topic);setv('wkGoal'+i,w.goal);
+    document.getElementById('sched'+i).innerHTML=''; document.getElementById('check'+i).innerHTML='';
+    (w.sched&&w.sched.length?w.sched:[{},{},{}]).forEach(r=>addRow(i,r.day,r.topic,r.detail));
+    (w.checks&&w.checks.length?w.checks:[{},{}]).forEach(c=>addCheck(i,c.txt,c.done));
+  });
+}
+function setv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
+
+/* ---------- 자동저장 ---------- */
+let saveT=null;
+function autosave(){
+  clearTimeout(saveT);
+  saveT=setTimeout(()=>{ try{localStorage.setItem('lms_program_draft',JSON.stringify(collect()));}catch(e){}
+    const c=document.getElementById('saveChip'); c.textContent='자동 저장됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  },500);
+}
+
+/* ---------- 표준 커리큘럼 템플릿 ---------- */
+function loadTemplate(){
+  const tpl={ name:val('empName'),dept:val('empDept')||'영업지원',mentor:val('empMentor'),join:val('empJoin'),
+    goal:'276홀딩스 금융 도메인(매출채권·핀테크) 이해 → 플로우페이 사용법·프로세스·심사 숙지 → 교과서 학습·퀴즈 합격(80%+) → 첫 실무 과제 수행',
+    weeks:[
+     {topic:'온보딩 & 회사·금융 기초', goal:'회사·문화 이해 + 경제/금융 발달과 핀테크 도메인 학습',
+      sched:[
+        {day:'월',topic:'회사 소개·조직 문화·복지',detail:'회사소개 교과서 학습 + 사수 1:1'},
+        {day:'화·수',topic:'경제·금융 발달 과정',detail:'경제 교과서 학습 + 핵심요약 확인'},
+        {day:'목·금',topic:'핀테크 도메인',detail:'핀테크 교과서 학습 + OX 퀴즈 응시'}],
+      checks:[{txt:'협업툴(슬랙·노션·구글) 셋업'},{txt:'회사소개·경제·핀테크 교과서 학습 완료'},{txt:'핀테크 OX 퀴즈 응시'}]},
+     {topic:'핵심 도메인 & 플로우페이', goal:'매출채권 개념 + 플로우페이 플랫폼 사용법 습득',
+      sched:[
+        {day:'월·화',topic:'매출채권(전자어음 할인)',detail:'매출채권 교과서 학습 + 퀴즈'},
+        {day:'수·목',topic:'플로우페이 플랫폼 사용법',detail:'플랫폼 교과서 학습 + 화면 실습'},
+        {day:'금',topic:'FlowPay/FlowPoint/FlowScore',detail:'서비스 구조 이해 + 퀴즈 응시'}],
+      checks:[{txt:'매출채권 교과서·퀴즈 완료'},{txt:'플로우페이 플랫폼 교과서·퀴즈 완료'},{txt:'사수 1:1 점검'}]},
+     {topic:'프로세스 심화 & 심사', goal:'플로우페이 프로세스 + 심사·채권추심 이해',
+      sched:[
+        {day:'월·화',topic:'플로우페이 프로세스',detail:'프로세스 교과서 학습 + 퀴즈'},
+        {day:'수·목',topic:'심사·채권추심',detail:'심사 매뉴얼·결제지연 프로세스 학습 + 퀴즈'},
+        {day:'금',topic:'전 과정 복습',detail:'취약 영역 보강 + 재퀴즈'}],
+      checks:[{txt:'프로세스 교과서·퀴즈 완료'},{txt:'심사·채권추심 교과서·퀴즈 완료'},{txt:'취약 태그 보강 학습'}]},
+     {topic:'실무 적용 & 리뷰', goal:'학습 발표 + 첫 실무 과제 + 온보딩 리뷰',
+      sched:[
+        {day:'월',topic:'학습 이해 발표',detail:'전 과정 요약 발표(15분)'},
+        {day:'화·목',topic:'첫 실무 과제',detail:'사수 지정 과제 수행'},
+        {day:'금',topic:'온보딩 리뷰',detail:'운영팀 버디와 4주차 리뷰 미팅 + 피드백 작성'}],
+      checks:[{txt:'전 퀴즈 합격(80%+)'},{txt:'학습 이해 발표 완료'},{txt:'첫 실무 과제 제출'},{txt:'온보딩 피드백 작성'}]}
+    ]};
+  restore(tpl); autosave(); renderPreview(); toast('표준 커리큘럼을 불러왔습니다');
+}
+
+/* ---------- 미리보기 ---------- */
+function renderPreview(){
+  const d=collect();
+  if(!d.name && !d.weeks.some(w=>w.topic||w.goal||w.sched.length)){ toast('내용을 먼저 입력하세요'); return; }
+  const meta=`<div class="meta">
+    <div><b>이름</b> ${esc(d.name)||'-'}</div><div><b>부서</b> ${esc(d.dept)||'-'}</div>
+    <div><b>멘토/사수</b> ${esc(d.mentor)||'-'}</div><div><b>입사일</b> ${esc(d.join)||'-'}</div></div>`;
+  const goal=d.goal?`<div class="goal"><b>온보딩 핵심 목표</b><br>${esc(d.goal)}</div>`:'';
+  const weeks=d.weeks.map((w,i)=>{
+    const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td></tr>`).join(''):'<tr><td colspan="3" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
+    const cks=w.checks.length?w.checks.map(c=>`<div class="ck"><span class="box"></span>${esc(c.txt)}</div>`).join(''):'';
+    return `<div class="wk"><div class="wk-h" style="background:${WK_COLORS[i]}">${i+1}주차 · ${esc(w.topic)||WK_HINT[i]}</div>
+      <div class="wk-b">${w.goal?`<div class="wk-goal"><b>목표</b> ${esc(w.goal)}</div>`:''}
+        <table><thead><tr><th style="width:60px;">일정</th><th>학습 주제</th><th>세부 내용</th></tr></thead><tbody>${rows}</tbody></table>
+        ${cks?`<div style="font-size:11px;color:#888;font-weight:700;margin:4px 0 3px;">완료 체크리스트</div>${cks}`:''}
+      </div></div>`;
+  }).join('');
+  document.getElementById('printArea').innerHTML=
+    `<div class="doc"><h3>4주 교육 계획서</h3><div class="doc-sub">276홀딩스 신입사원 온보딩 · ${new Date().toLocaleDateString('ko-KR')}</div>${meta}${goal}${weeks}</div>`;
+  toast('미리보기를 갱신했습니다');
+}
+
+/* ---------- 인쇄 ---------- */
+function doPrint(){
+  if(!document.querySelector('#printArea .doc')) renderPreview();
+  if(!document.querySelector('#printArea .doc')) return;
+  window.print();
+}
+
+/* ---------- Slack 초안(발송은 권한 확인 후) ---------- */
+function toSlack(){
+  const d=collect(); if(!d.name){toast('이름을 입력하세요');return;}
+  let txt=`*${d.name}님 4주 교육 계획서* (${d.dept||'-'} / 멘토 ${d.mentor||'-'})\n`;
+  if(d.goal) txt+=`목표: ${d.goal}\n`;
+  d.weeks.forEach((w,i)=>{ txt+=`\n*${i+1}주차 — ${w.topic||WK_HINT[i]}*\n`;
+    w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+': ':''}${r.topic}${r.detail?' ('+r.detail+')':''}\n`; }); });
+  try{ navigator.clipboard.writeText(txt); toast('Slack 메시지 초안이 클립보드에 복사되었습니다 — 채널에 붙여넣어 발송하세요'); }
+  catch(e){ toast('초안이 생성되었습니다(클립보드 복사 실패)'); }
+}
+
+/* ---------- 초기화 ---------- */
+function resetAll(){
+  if(!confirm('작성 중인 내용을 모두 지울까요?')) return;
+  try{localStorage.removeItem('lms_program_draft');}catch(e){}
+  ['empName','empDept','empMentor','empJoin','empGoal'].forEach(id=>setv(id,''));
+  buildWeeks();
+  document.getElementById('printArea').innerHTML=`<div class="pv-empty"><svg viewBox="0 0 24 24"><use href="#ic-doc"/></svg><div class="t">미리보기</div><div class="s">내용 입력 후 '미리보기 갱신'을 클릭하세요</div></div>`;
+  document.getElementById('saveChip').textContent='';
+  toast('초기화되었습니다');
+}
+
+/* ---------- 초기 ---------- */
+buildWeeks();
+try{ const saved=localStorage.getItem('lms_program_draft'); if(saved){ restore(JSON.parse(saved)); document.getElementById('saveChip').textContent='이전 작성분 불러옴'; } }catch(e){}
+updateWeekDates();
+</script>
+</body>
+</html>

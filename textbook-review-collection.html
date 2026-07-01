@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>심사·채권추심 | 276홀딩스 영업지원팀</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--brand:#1A237E;--accent:#3949AB;--blue:#1565C0;--green:#2E7D32;--red:#C62828;
+  --yellow:#F57F17;--tan:#8D7B68;--bg:#F5F6FA;--card:#fff;--border:#E0E3EF;--text:#202124;--muted:#666;--sidebar:262px;}
+html{scroll-behavior:smooth;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;}
+
+.top-header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
+  background:linear-gradient(135deg,#0D1547,#1A237E,#3949AB);display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.top-header .brand{color:#fff;font-size:13px;opacity:.8;}
+.top-header .title{color:#fff;font-size:16px;font-weight:700;}
+.top-header .right{display:flex;align-items:center;gap:12px;}
+.top-header .who{background:rgba(255,255,255,.18);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;}
+.top-header .lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;
+  font-size:11.5px;padding:5px 11px;border-radius:7px;cursor:pointer;font-family:inherit;}
+
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar);background:#fff;
+  border-right:2px solid var(--border);overflow-y:auto;z-index:90;padding:20px 0 40px;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#C5CAE9;border-radius:4px;}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--brand);letter-spacing:1px;text-transform:uppercase;
+  padding:0 20px 12px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.nav-item{display:block;padding:9px 20px;font-size:13px;color:#444;text-decoration:none;
+  border-left:3px solid transparent;transition:all .15s;cursor:pointer;}
+.nav-item:hover{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);}
+.nav-item.active{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);font-weight:500;}
+.nav-item.chapter{font-weight:600;margin-top:8px;}
+.nav-item.sub{padding-left:32px;font-size:12.5px;color:#666;}
+.nav-back{margin:4px 20px 12px;display:block;font-size:12.5px;color:var(--accent);text-decoration:none;}
+
+.main{margin-left:var(--sidebar);margin-top:56px;padding:40px 48px 80px;max-width:980px;}
+
+.hero{background:linear-gradient(135deg,#0D1547,#283593);color:#fff;border-radius:16px;padding:40px 44px;
+  margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:rgba(255,255,255,.06);border-radius:50%;}
+.hero-sub{font-size:13px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:12px;line-height:1.3;}
+.hero h1 .hl{color:#9FA8DA;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:600px;}
+.hero-meta{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+
+.notice-bar{background:linear-gradient(135deg,#FFF8E1,#FFFDE7);border:1px solid #FFD600;border-radius:10px;
+  padding:12px 20px;margin-bottom:32px;font-size:13px;color:#5D4037;display:flex;align-items:flex-start;gap:10px;line-height:1.6;}
+.notice-bar .nb-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+
+.progress-wrap{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:16px 20px;margin-bottom:32px;box-shadow:0 2px 8px rgba(26,35,126,.06);overflow-x:auto;}
+.pdot-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.pdot{width:32px;height:32px;border-radius:50%;background:#E0E3EF;color:#666;display:flex;align-items:center;
+  justify-content:center;font-weight:700;font-size:13px;}
+.pdot.done{background:#43A047;color:#fff;}
+.pdot.done span{display:none;}
+.pdot.done::after{content:'✓';font-size:15px;}
+.pdot-label{font-size:10.5px;color:#666;margin-top:6px;text-align:center;width:62px;line-height:1.25;}
+.pline{flex:1;min-width:18px;height:3px;background:#E0E3EF;margin:0 3px 22px;border-radius:2px;}
+.pline.done{background:#43A047;}
+
+.chapter{margin-bottom:58px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.chapter-num{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));
+  color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-title{font-size:24px;font-weight:700;color:var(--brand);}
+.chapter-title span{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px;}
+.chapter-border{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent);margin-bottom:24px;}
+
+.section{margin-bottom:28px;}
+.section-title{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:12px;padding-bottom:6px;
+  border-bottom:2px solid #BBDEFB;display:flex;align-items:center;gap:8px;}
+.section p{margin-bottom:10px;}
+
+.box-key{background:#E8EAF6;border-left:5px solid var(--brand);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;}
+.box-key .box-label{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.box-tip{background:#FFF8E1;border-left:5px solid #F9A825;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-warning{background:#FFEBEE;border-left:5px solid #E53935;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-dark{background:#1F2433;color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;}
+.box-dark h4{font-size:16px;margin-bottom:8px;}
+.box-dark p{font-size:13.5px;opacity:.9;line-height:1.6;}
+
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.mini-card{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.mini-card h5{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:6px;}
+.mini-card p{font-size:12.5px;color:#555;line-height:1.5;}
+.mini-card .lbl{font-size:11px;color:#999;font-weight:700;letter-spacing:.5px;margin-bottom:4px;}
+
+.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;}
+.s5{background:#F0F1F8;border-radius:10px;padding:14px;border:1px solid var(--border);}
+.s5 .n{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.s5 h5{font-size:14px;color:var(--brand);margin-bottom:5px;}
+.s5 p{font-size:12px;color:#555;line-height:1.4;}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.compare-card{background:#fff;border-radius:10px;padding:18px;border:2px solid var(--border);}
+.compare-card.a{border-top:4px solid var(--accent);}
+.compare-card.b{border-top:4px solid var(--tan);}
+.compare-card h4{font-size:15px;font-weight:700;margin-bottom:10px;}
+.compare-card .row{font-size:13px;padding:7px 0;border-bottom:1px solid #F2F2F2;}
+.compare-card .row:last-child{border-bottom:none;}
+.compare-card .row b{color:var(--brand);}
+
+.tbl-wrap{overflow-x:auto;margin:16px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+table.tbl th{background:var(--brand);color:#fff;padding:11px 16px;text-align:left;font-weight:600;}
+table.tbl td{padding:10px 16px;border-bottom:1px solid #EEF0F8;vertical-align:top;}
+table.tbl tr:nth-child(even) td{background:#F5F6FA;}
+
+.faq-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:5px;}
+.faq-a{font-size:13px;color:#444;line-height:1.55;}
+
+ul.bullets{list-style:none;padding:0;margin:8px 0;}
+ul.bullets li{font-size:13.5px;padding:5px 0 5px 20px;position:relative;color:#444;}
+ul.bullets li::before{content:'•';position:absolute;left:4px;color:var(--accent);font-weight:700;}
+
+.ch-summary{text-align:center;margin:6px 0 4px;padding-top:10px;border-top:1px dashed var(--border);}
+.summary-btn{background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff;border:none;padding:12px 32px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(26,35,126,.25);transition:filter .15s;}
+.summary-btn:hover{filter:brightness(1.1);}
+.summary-btn.done-btn{background:linear-gradient(135deg,#43A047,#388E3C);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(13,21,71,.55);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;padding:20px;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:18px;padding:30px 32px;max-width:540px;width:100%;transform:scale(.92);
+  transition:transform .2s;max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.tip-chip{display:inline-block;background:#E8EAF6;color:var(--brand);font-size:12px;font-weight:700;padding:5px 14px;border-radius:99px;margin-bottom:14px;}
+.tip-chapter-title{font-size:22px;font-weight:700;color:var(--brand);margin-bottom:16px;}
+.tip-list{list-style:none;padding:0;margin-bottom:20px;}
+.tip-list li{font-size:14px;padding:11px 0;border-bottom:1px solid #EEF0F8;padding-left:28px;position:relative;line-height:1.5;}
+.tip-list li::before{content:'✓';color:#43A047;position:absolute;left:0;}
+.tip-complete-btn{width:100%;background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:15px;
+  border-radius:12px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+.tip-complete-btn:disabled{opacity:.6;cursor:default;}
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);
+  padding:14px 32px;display:none;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 -3px 14px rgba(0,0,0,.1);z-index:80;}
+.done-bar.show{display:flex;}
+.done-bar .msg{font-size:13.5px;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:8px;}
+.done-final{background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:13px 34px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(46,125,50,.3);}
+.done-final:hover{filter:brightness(1.08);}
+@media(max-width:860px){.done-bar{left:0;padding:12px 16px;}}
+
+[id]{scroll-margin-top:72px;}
+.src-note{font-size:11.5px;color:#999;margin-top:40px;border-top:1px solid var(--border);padding-top:14px;}
+
+@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;padding:24px 20px 60px;}
+  .grid3,.grid2,.compare-grid{grid-template-columns:1fr;}.steps5{grid-template-columns:repeat(2,1fr);}}
+@media print{.sidebar,.top-header{display:none!important;}.main{margin:0;padding:20px;}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></symbol>
+</defs></svg>
+
+<div class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title">심사·채권추심</span>
+  <div class="right">
+    <a class="lo" href="dashboard.html" style="text-decoration:none;">← 대시보드</a>
+    <span class="who" id="whoChip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> —</span>
+    <button class="lo" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+
+<nav class="sidebar">
+  <div class="sidebar-title">목차</div>
+  <a class="nav-item chapter" href="#ch1">1. 심사 개요 — B2B SNPL 4단계 깔때기</a>
+  <a class="nav-item chapter" href="#ch2">2. 1차 필터링 — 자격·결격(Knock-out)</a>
+  <a class="nav-item chapter" href="#ch3">3. 2차 정량평가 — 재무 건전성</a>
+  <a class="nav-item chapter" href="#ch4">4. 3·4차 + 사기 방지·EWS</a>
+  <a class="nav-item chapter" href="#ch5">5. 결제지연 관리 개요·원칙</a>
+  <a class="nav-item chapter" href="#ch6">6. 사전 안내 프로세스(D-3~D-0)</a>
+  <a class="nav-item chapter" href="#ch7">7. 연체 기간별 5단계 대응</a>
+  <a class="nav-item chapter" href="#ch8">8. 한도·거래 조치 + 체크리스트</a>
+</nav>
+
+<main class="main">
+  <div class="hero">
+    <div class="hero-sub">NEW HIRE TRAINING · 276 HOLDINGS Sales Academy</div>
+    <h1>심사·채권추심 — <span class="hl">우량 차주 선별과 채권 회수</span>의 표준</h1>
+    <p>B2B 선매입 후결제(SNPL) 심사 4단계 깔때기와, 결제지연 발생 시 채권을 회수하는 단계별 표준 절차를 한 흐름으로 익힙니다. 목적은 부실 위험을 조기에 차단하고, 발생한 연체를 신속·표준화된 절차로 관리하는 기본기입니다.</p>
+    <div class="hero-meta">
+      <span class="hero-tag">보수적 리스크 관리</span><span class="hero-tag">신속한 초기 대응</span><span class="hero-tag">단계별 표준화</span>
+    </div>
+  </div>
+
+  <div class="notice-bar">
+    <span class="nb-icon"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg></span>
+    <div><strong>학습 목표</strong> — 신입사원이 심사 4단계 깔때기의 목적과 기준을 이해하고, 결제지연 발생 시 연체 단계별 대응과 한도 조치를 정확히 수행할 수 있게 합니다. 각 장 끝의 <strong>핵심 요약</strong>을 확인하면 진도가 계정에 기록됩니다.</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="pdot-wrap"><div class="pdot" id="pdot0"><span>1</span></div><div class="pdot-label">심사개요</div></div>
+    <div class="pline" id="pline0"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot1"><span>2</span></div><div class="pdot-label">1차필터</div></div>
+    <div class="pline" id="pline1"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot2"><span>3</span></div><div class="pdot-label">2차정량</div></div>
+    <div class="pline" id="pline2"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot3"><span>4</span></div><div class="pdot-label">정성·사기</div></div>
+    <div class="pline" id="pline3"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot4"><span>5</span></div><div class="pdot-label">연체개요</div></div>
+    <div class="pline" id="pline4"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot5"><span>6</span></div><div class="pdot-label">사전안내</div></div>
+    <div class="pline" id="pline5"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot6"><span>7</span></div><div class="pdot-label">연체5단계</div></div>
+    <div class="pline" id="pline6"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot7"><span>8</span></div><div class="pdot-label">한도조치</div></div>
+  </div>
+
+  <!-- CH1 -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header"><div class="chapter-num">1</div>
+      <div class="chapter-title">심사 개요 — B2B SNPL 4단계 깔때기<span>리소스 효율 배분과 부실 위험 조기 차단</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>플로우페이는 <strong>B2B 선매입 후결제(SNPL, Supply Now Pay Later)</strong> 서비스로, 중소기업의 원자재 조달에 필요한 유동성을 공급합니다. 심사는 이 유동성을 안전하게 공급할 우량 차주를 선별하는 과정입니다.</p>
+      <p>심사는 단계를 거칠수록 좁아지는 <strong>깔때기(Funnel) 4단계</strong> 구조로 설계되어 있습니다. 앞 단계에서 명백한 부적격을 걸러내 뒷 단계의 정밀 평가에 리소스를 집중합니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr);">
+        <div class="s5"><div class="n">1</div><h5>1차 필터링</h5><p>기본자격 검증과 결격 사유 확인.</p></div>
+        <div class="s5"><div class="n">2</div><h5>2차 정량평가</h5><p>재무 건전성과 상환능력 평가.</p></div>
+        <div class="s5"><div class="n">3</div><h5>3차 정성평가</h5><p>운영·경영 의지 등 비계량 평가.</p></div>
+        <div class="s5"><div class="n">4</div><h5>4차 거래 적합성</h5><p>자금 용도와 거래 구조 적합성 판단.</p></div>
+      </div>
+      <div class="box-key"><div class="box-label">심사의 목적</div>
+        심사는 깔때기의 각 단계에서 부실 위험을 조기에 차단하고, 평가 리소스를 효율적으로 배분하기 위한 절차입니다.
+        <ul class="bullets"><li>보수적 리스크 관리를 원칙으로 우량 차주를 선별합니다.</li><li>앞 단계일수록 기본·필수 요건을 빠르게 검증합니다.</li><li>뒤 단계로 갈수록 재무·운영·거래 구조를 정밀하게 평가합니다.</li></ul>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn0" onclick="openTip(0)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 1장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH2 -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header"><div class="chapter-num">2</div>
+      <div class="chapter-title">1차 필터링 — 자격 검증·결격 사유<span>기본 요건 충족과 Knock-out 판정</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">기본 요건 (충족 필요)</div><h5>최소 자격</h5>
+          <ul class="bullets"><li>법인·개인사업자 업력 1년 이상</li><li>완전자본잠식 배제</li><li>국세·지방세 체납 이력 부재</li></ul></div>
+        <div class="mini-card"><div class="lbl">결격 사유 (탈락)</div><h5>Knock-out 항목</h5>
+          <ul class="bullets"><li>신용등급 'CCC-' 이하</li><li>최근 3년 내 법적 조치(가압류·소송) 이력</li></ul></div>
+      </div>
+      <div class="box-dark"><h4>업종 기준 — 배제와 주의</h4>
+        <p>윤리적 문제 업종(사행성·유흥·다단계 등)은 <strong>배제</strong>합니다. 또한 변동성이 큰 업종(가상자산 투기·부동산 PF 등)은 <strong>주의</strong> 대상으로 별도 검토합니다.</p></div>
+      <div class="box-warning"><strong>주의 — 기준은 변동될 수 있습니다</strong>
+        <ul class="bullets"><li>위 요건과 결격 항목의 구체 기준은 심사팀의 최신 규정을 반드시 확인합니다.</li><li>경계선상의 건은 임의 판단하지 말고 심사팀에 확인을 요청합니다.</li></ul></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn1" onclick="openTip(1)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 2장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH3 -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header"><div class="chapter-num">3</div>
+      <div class="chapter-title">2차 정량평가 — 재무 건전성·상환능력<span>핵심 재무비율 기준과 현금흐름 중심 평가</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="tbl-wrap">
+      <table class="tbl"><tr><th>핵심 재무비율</th><th>기준</th></tr>
+        <tr><td>유동비율</td><td>100% 이상</td></tr>
+        <tr><td>부채비율</td><td>200% 이하</td></tr>
+        <tr><td>이자보상배율(ICR)</td><td>1.5배 이상</td></tr>
+        <tr><td>차입금의존도</td><td>50% 미만</td></tr>
+        <tr><td>영업이익률</td><td>5% 이상 (권장)</td></tr>
+        <tr><td>현금비율</td><td>20% 이상</td></tr></table>
+      </div>
+      <div class="box-key"><div class="box-label">시장 비교 — ICR 기준의 의미</div>
+        2024년 한계기업(ICR 1 미만) 비중은 42.8%에 달했습니다. ICR 1.5배 기준은 이러한 시장 평균을 상회하는 <strong>상위 우량군</strong>을 선별하기 위한 기준입니다.</div>
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">보조 지표</div><h5>현금흐름 중심 평가</h5><p>EBITDA/이자비용, 현금전환주기(CCC = DSO + DIO − DPO)를 함께 보아 손익뿐 아니라 실제 현금흐름을 평가합니다.</p></div>
+        <div class="box-tip"><strong>업종별 차등 적용</strong>
+          <ul class="bullets"><li>제조업: 영업이익률 3% 이상</li><li>서비스·IT: 영업이익률 5% 이상</li><li>업종 특성을 반영해 기준을 차등 적용합니다.</li></ul></div>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn2" onclick="openTip(2)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 3장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH4 -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header"><div class="chapter-num">4</div>
+      <div class="chapter-title">3차 정성·4차 거래 적합성 + 사기 방지·EWS<span>운영 평가, 거래 구조 검증, 조기경보</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">3차 정성평가</div><h5>운영·경영 역량</h5>
+          <ul class="bullets"><li>CEO의 경영 의지</li><li>주주 구성</li><li>내부 통제</li><li>현장 실사 — 서류와 실체의 일치 확인</li></ul></div>
+        <div class="mini-card"><div class="lbl">4차 거래 적합성</div><h5>거래 구조 판단</h5>
+          <ul class="bullets"><li>자금 용도가 '원자재 구매'인지 확인</li><li>특수관계인 거래 배제</li></ul></div>
+      </div>
+
+      <div class="section-title">사기 방지 — 가공·순환거래 차단</div>
+      <p>가공거래('깡')와 순환거래(Circular Trading)는 핵심 위험입니다(예: 모뉴엘 사태). 이를 막기 위해 거래의 실체를 다각도로 검증합니다.</p>
+      <div class="grid2">
+        <div class="box-key"><div class="box-label">3자간 검증</div>
+          <ul class="bullets"><li>자금은 판매기업의 법인계좌로 직접 송금합니다.</li><li>중복 매출채권 양도를 방지합니다(양도등기·전자어음 배서 확인).</li></ul></div>
+        <div class="mini-card"><div class="lbl">데이터 기반 FDS</div><h5>교차검증·네트워크 분석</h5><p>홈택스 전자세금계산서와 실제 입금 내역을 교차검증하고, 거래 네트워크를 분석해 이상 패턴을 탐지합니다.</p></div>
+      </div>
+
+      <div class="box-dark"><h4>조기경보(EWS) 트리거</h4>
+        <p>아래 신호가 감지되면 <strong>신규 취급을 중단</strong>하고 현장실사를 실시합니다.</p>
+        <ul class="bullets"><li>대표 신용등급 급락</li><li>월매출 전년 대비 30% 이상 급락</li><li>단기차입금 급증</li></ul></div>
+
+      <div class="box-warning"><strong>법적 유의사항</strong>
+        <ul class="bullets"><li>법적 성격 — 소구권 있는 팩토링은 대출로 간주될 수 있습니다.</li><li>이자제한법상 연 20% 상한 — 수수료를 합산해 20%를 초과할 수 없습니다(시스템 캡).</li><li>구체 사항은 심사·법무팀에 확인합니다.</li></ul></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn3" onclick="openTip(3)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 4장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH5 -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header"><div class="chapter-num">5</div>
+      <div class="chapter-title">결제지연 관리 개요·원칙<span>채권 부실화 사전 방지와 회수율 극대화</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>결제지연 관리의 목적은 채권 부실화를 사전에 방지하고 회수율을 극대화하는 것입니다. <strong>1영업일 이상 지연부터 즉시 관리 절차를 개시</strong>합니다.</p>
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">용어</div><h5>결제지연</h5><p>약정한 결제일에 입금이 이루어지지 않은 상태입니다.</p></div>
+        <div class="mini-card"><div class="lbl">용어</div><h5>상환지연보고서</h5><p>지연 사유와 계획을 징구하는 1차 문서입니다.</p></div>
+        <div class="mini-card"><div class="lbl">용어</div><h5>상환계획서</h5><p>협의로 확정된 공식 문서입니다.</p></div>
+      </div>
+      <div class="box-key"><div class="box-label">4대 원칙</div>
+        <ul class="bullets"><li><b>① 신속한 초기 대응</b> — 지연 즉시 절차를 시작합니다.</li><li><b>② 기록의 생활화</b> — 모든 접촉을 CRM에 기록합니다.</li><li><b>③ 리스크 즉각 차단</b> — 신규거래를 전면 중단합니다.</li><li><b>④ 단계별 표준화</b> — 연체 기간별 표준 절차를 따릅니다.</li></ul>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn4" onclick="openTip(4)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 5장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH6 -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-header"><div class="chapter-num">6</div>
+      <div class="chapter-title">사전 안내 프로세스<span>결제일 전후 4단계 (D-3 ~ D-0)</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>연체를 예방하기 위해 결제일 전후로 단계적으로 안내합니다. 채널을 단계마다 강화해 입금을 유도합니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr);">
+        <div class="s5"><div class="n">1</div><h5>D-3 1차 사전 안내</h5><p>카카오 · 이메일 · SMS</p></div>
+        <div class="s5"><div class="n">2</div><h5>D-1 전일 안내</h5><p>카카오 · SMS</p></div>
+        <div class="s5"><div class="n">3</div><h5>D-0 당일 오전 안내</h5><p>카카오 · SMS · 유선</p></div>
+        <div class="s5"><div class="n">4</div><h5>D-0 마감 전 입금 확인</h5><p>영업팀 · 운영팀</p></div>
+      </div>
+      <div class="box-tip"><strong>운영 포인트</strong>
+        <ul class="bullets"><li>단계가 진행될수록 채널을 강화합니다(문자 → 유선 추가).</li><li>마감 전 입금 확인은 영업팀과 운영팀이 함께 점검합니다.</li></ul></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn5" onclick="openTip(5)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 6장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH7 -->
+  <section class="chapter" id="ch7">
+    <div class="chapter-header"><div class="chapter-num">7</div>
+      <div class="chapter-title">연체 기간별 5단계 대응<span>초기 → 단기 → 중기 → 장기 → 상각</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="steps5">
+        <div class="s5"><div class="n">1</div><h5>초기연체 D+1~5</h5><p>유선·문자 1일 1회 이상 독촉, 내방 인터뷰, CRM 기록. 목표: 단순 누락 해결 (영업팀)</p></div>
+        <div class="s5"><div class="n">2</div><h5>단기연체 D+6~30</h5><p>내용증명 발송, 대표이사 면담, 모든 추가 거래 중단. 산출물: 상환계획서 (영업·심사·운영 공동)</p></div>
+        <div class="s5"><div class="n">3</div><h5>중기연체 D+31~90</h5><p>보증보험금 청구, 연대보증인 채무이행 요구, 외부 추심 위임 검토, 주1회 경영진 보고. 목표: 담보권 실행 회수</p></div>
+        <div class="s5"><div class="n">4</div><h5>장기연체 D+91~180</h5><p>지급명령·가압류·강제집행, 판결문 확보, 대손충당금 설정 대상 분류. 목표: 사법 절차로 권리 확정</p></div>
+        <div class="s5"><div class="n">5</div><h5>상각 D+181↑</h5><p>대손상각 처리, 재산 변동 모니터링, 회수 가능 시 추심 재개. 목표: 자산 건전성 (운영팀·세무대리인)</p></div>
+      </div>
+      <div class="tbl-wrap">
+      <table class="tbl"><tr><th>단계</th><th>기간</th><th>핵심 조치</th><th>목표 / 산출물</th></tr>
+        <tr><td>STAGE1 초기연체</td><td>D+1~5</td><td>유선·문자 1일 1회 이상 독촉, 내방 인터뷰, CRM 기록</td><td>단순 누락 해결</td></tr>
+        <tr><td>STAGE2 단기연체</td><td>D+6~30</td><td>내용증명 발송, 대표이사 면담, 모든 추가 거래 중단</td><td>상환계획서(산출물)</td></tr>
+        <tr><td>STAGE3 중기연체</td><td>D+31~90</td><td>보증보험금 청구, 연대보증인 채무이행 요구, 외부 추심 위임 검토, 주1회 경영진 보고</td><td>담보권 실행 회수</td></tr>
+        <tr><td>STAGE4 장기연체</td><td>D+91~180</td><td>지급명령·가압류·강제집행, 판결문 확보, 대손충당금 설정 대상 분류</td><td>사법 절차로 권리 확정</td></tr>
+        <tr><td>STAGE5 상각</td><td>D+181↑</td><td>대손상각 처리, 재산 변동 모니터링, 회수 가능 시 추심 재개</td><td>자산 건전성</td></tr></table>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn6" onclick="openTip(6)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 7장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH8 -->
+  <section class="chapter" id="ch8">
+    <div class="chapter-header"><div class="chapter-num">8</div>
+      <div class="chapter-title">한도·거래 조치 + 핵심 체크리스트<span>전면 중단, 한도 재산정, 누적 관리</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">결제지연 즉시</div><h5>전면 거래 중단</h5><p>예외 없이 전면 거래를 중단하고, 신규 한도를 해소 시까지 제한합니다.</p></div>
+        <div class="mini-card"><div class="lbl">지연 해소 후</div><h5>한도 재산정</h5><p>심사팀이 신용도를 재평가한 뒤, 기존 한도의 80% 이하를 적용하는 것을 원칙으로 합니다.</p></div>
+        <div class="mini-card"><div class="lbl">누적 관리</div><h5>3회 지연</h5><p>누적 3회 지연 시 거래 영구 종료를 검토합니다.</p></div>
+      </div>
+      <div class="box-key"><div class="box-label">실무자가 기억할 핵심</div>
+        <ul class="bullets"><li><b>1영업일</b> — 지연 시 즉시 관리 절차 개시</li><li><b>즉시 전면 거래중단</b> — 예외 없음</li><li><b>모든 접촉 CRM 기록</b> — 기록의 생활화</li><li><b>80% 한도 원칙</b> — 해소 후 재평가하여 기존 한도의 80% 이하 적용</li><li><b>누적 3회 종료</b> — 3회 지연 시 거래 영구 종료 검토</li></ul>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn7" onclick="openTip(7)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 8장 핵심 요약</button></div>
+  </section>
+
+  <div class="src-note">출처: 심사·채권추심 매뉴얼 (276홀딩스). 사내 교육용으로 재구성. 구체 기준은 심사·법무팀 최신 규정을 확인하십시오.</div>
+</main>
+
+<!-- ══ 핵심 요약 모달 ══ -->
+<div class="modal-overlay" id="tipModal">
+  <div class="modal-box">
+    <span class="tip-chip" id="tipChip">핵심 요약</span>
+    <div class="tip-chapter-title" id="tipTitle"></div>
+    <ul class="tip-list" id="tipList"></ul>
+    <button class="tip-complete-btn" id="tipCompleteBtn" onclick="completeTip()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 완료 — 다음 장으로 이동</button>
+  </div>
+</div>
+
+<!-- ══ 교육 완료 바 (모든 핵심요약 확인 시 노출) ══ -->
+<div class="done-bar" id="doneBar">
+  <span class="msg"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:#43A047;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 모든 핵심요약을 확인했습니다 — 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+/* ───── 세션 가드 (계정 기반) ───── */
+let SESSION=null;
+try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+let studentName=(SESSION&&SESSION.name)||'';
+
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const CHAPTER_NAMES=['심사 개요 — B2B SNPL 4단계','1차 필터링 — 자격·결격','2차 정량평가 — 재무 건전성','3·4차 + 사기 방지·EWS','결제지연 관리 개요·원칙','사전 안내 프로세스','연체 기간별 5단계 대응','한도·거래 조치 + 체크리스트'];
+const TIPS=[
+ ['플로우페이 = B2B 선매입 후결제(SNPL) — 중소기업 원자재 조달 유동성 공급',
+  '심사는 깔때기 4단계: 1차 필터링 → 2차 정량평가 → 3차 정성평가 → 4차 거래 적합성',
+  '목적: 리소스 효율 배분 + 부실 위험 조기 차단(보수적 리스크 관리로 우량 차주 선별)'],
+ ['기본 요건: 업력 1년 이상 · 완전자본잠식 배제 · 국세/지방세 체납 이력 부재',
+  '결격(탈락): 신용등급 CCC- 이하 · 최근 3년 내 법적 조치(가압류·소송) 이력',
+  '윤리적 문제 업종 배제(사행성·유흥·다단계), 변동성 큰 업종(가상자산·부동산 PF) 주의 — 구체 기준은 심사팀 확인'],
+ ['핵심 비율: 유동비율 100%↑ · 부채비율 200%↓ · ICR 1.5배↑ · 차입금의존도 50%↓ · 영업이익률 5%↑ · 현금비율 20%↑',
+  '2024년 한계기업(ICR 1 미만) 42.8% → ICR 1.5배 기준은 상위 우량군 선별',
+  '보조지표: EBITDA/이자비용, CCC(=DSO+DIO−DPO). 업종별 차등(제조 3%+, 서비스·IT 5%+)'],
+ ['3차 정성: CEO 경영 의지·주주 구성·내부 통제·현장 실사 / 4차: 자금 용도=원자재 구매, 특수관계인 거래 배제',
+  '사기 방지: 가공·순환거래 위험(모뉴엘) → 3자간 검증(판매기업 법인계좌 직접 송금), 중복 양도 방지, 홈택스 교차검증 FDS',
+  'EWS: 신용등급 급락 / 월매출 30%+ 급락 / 단기차입금 급증 → 신규취급 중단·현장실사. 이자제한법 연 20% 상한(수수료 합산)'],
+ ['목적: 채권 부실화 사전 방지 + 회수율 극대화 — 1영업일 이상 지연부터 즉시 절차 개시',
+  '용어: 결제지연 / 상환지연보고서(1차 문서) / 상환계획서(협의 확정 공식 문서)',
+  '4대 원칙: ① 신속한 초기 대응 ② 기록의 생활화(CRM) ③ 리스크 즉각 차단(신규거래 전면 중단) ④ 단계별 표준화'],
+ ['결제일 전후 4단계 사전 안내로 연체를 예방',
+  'D-3 1차 안내(카카오·이메일·SMS) → D-1 전일 안내(카카오·SMS) → D-0 당일 오전(카카오·SMS·유선)',
+  'D-0 마감 전 입금 확인은 영업팀·운영팀이 함께 점검'],
+ ['STAGE1 초기 D+1~5: 1일 1회+ 독촉·내방 인터뷰·CRM 기록 / STAGE2 단기 D+6~30: 내용증명·대표 면담·추가거래 중단 → 상환계획서',
+  'STAGE3 중기 D+31~90: 보증보험금 청구·연대보증인 이행 요구·외부 추심 검토 / STAGE4 장기 D+91~180: 지급명령·가압류·강제집행·판결문 확보',
+  'STAGE5 상각 D+181↑: 대손상각·재산 변동 모니터링·회수 가능 시 추심 재개'],
+ ['결제지연 즉시: 전면 거래 중단(예외 없음) + 신규 한도 제한(해소 시까지)',
+  '지연 해소 후: 심사팀 신용도 재평가 → 기존 한도의 80% 이하 적용 원칙',
+  '누적 3회 지연 → 거래 영구 종료 검토. 핵심: 1영업일 즉시 개시 / 전면 중단 / CRM 기록 / 80% 한도 / 누적3회 종료']
+];
+const TOTAL=CHAPTER_NAMES.length;
+let completedChapters=[];
+
+function openTip(idx){
+  document.getElementById('tipChip').textContent=(idx+1)+'장 핵심 요약';
+  document.getElementById('tipTitle').textContent=CHAPTER_NAMES[idx];
+  document.getElementById('tipList').innerHTML=TIPS[idx].map(t=>'<li>'+t+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=false;
+  btn.textContent=idx<TOTAL-1?'✓ 완료 — 다음 장으로 이동':'✓ 학습 완료 — 대시보드로';
+  window._tipIdx=idx;
+  document.getElementById('tipModal').classList.add('open');
+}
+function completeTip(){
+  const idx=window._tipIdx;
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:idx+1,chapterName:'[심사·채권추심] '+CHAPTER_NAMES[idx]})}).catch(()=>{});
+  if(!completedChapters.includes(idx))completedChapters.push(idx);
+  try{localStorage.setItem('review_completed',JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  document.getElementById('tipModal').classList.remove('open');
+  setTimeout(()=>{
+    if(idx<TOTAL-1){const nx=document.getElementById('ch'+(idx+2));if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'});}
+    else{ const db=document.getElementById('doneBar'); if(db){db.classList.add('show'); db.scrollIntoView({behavior:'smooth'});} }
+  },250);
+}
+function updateProgress(){
+  for(let i=0;i<TOTAL;i++){
+    const done=completedChapters.includes(i);
+    const d=document.getElementById('pdot'+i),l=document.getElementById('pline'+i),sb=document.getElementById('sbtn'+i);
+    if(d)d.classList.toggle('done',done);
+    if(l)l.classList.toggle('done',done);
+    if(sb&&done){sb.classList.add('done-btn');sb.textContent='✓ '+(i+1)+'장 완료';}
+  }
+  const db=document.getElementById('doneBar');
+  if(db) db.classList.toggle('show', completedChapters.length>=TOTAL);
+}
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'[심사·채권추심] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem('review_finished','1');}catch(e){}
+  alert('심사·채권추심 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+function logout(){try{localStorage.removeItem('lms_session');}catch(e){}location.replace('index.html');}
+
+window.addEventListener('scroll',function(){
+  const sections=document.querySelectorAll('[id]');const navItems=document.querySelectorAll('.nav-item');
+  let top=window.scrollY+90,cur='';
+  sections.forEach(s=>{if(s.offsetTop<=top)cur=s.id;});
+  navItems.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));
+});
+
+window.addEventListener('DOMContentLoaded',function(){
+  if(!SESSION||!SESSION.name)return;
+  document.getElementById('whoChip').innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+studentName;
+  try{completedChapters=JSON.parse(localStorage.getItem('review_completed')||'[]');}catch(e){completedChapters=[];}
+  updateProgress();
+});
+</script>
+</body>
+</html>

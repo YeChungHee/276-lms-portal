@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플로우페이 프로세스 | 276홀딩스 영업지원팀</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--brand:#1A237E;--accent:#3949AB;--blue:#1565C0;--green:#2E7D32;--red:#C62828;
+  --yellow:#F57F17;--tan:#8D7B68;--bg:#F5F6FA;--card:#fff;--border:#E0E3EF;--text:#202124;--muted:#666;--sidebar:262px;}
+html{scroll-behavior:smooth;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;}
+
+.top-header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
+  background:linear-gradient(135deg,#0D1547,#1A237E,#3949AB);display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.top-header .brand{color:#fff;font-size:13px;opacity:.8;}
+.top-header .title{color:#fff;font-size:16px;font-weight:700;}
+.top-header .right{display:flex;align-items:center;gap:12px;}
+.top-header .who{background:rgba(255,255,255,.18);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;}
+.top-header .lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;
+  font-size:11.5px;padding:5px 11px;border-radius:7px;cursor:pointer;font-family:inherit;}
+
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar);background:#fff;
+  border-right:2px solid var(--border);overflow-y:auto;z-index:90;padding:20px 0 40px;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#C5CAE9;border-radius:4px;}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--brand);letter-spacing:1px;text-transform:uppercase;
+  padding:0 20px 12px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.nav-item{display:block;padding:9px 20px;font-size:13px;color:#444;text-decoration:none;
+  border-left:3px solid transparent;transition:all .15s;cursor:pointer;}
+.nav-item:hover{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);}
+.nav-item.active{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);font-weight:500;}
+.nav-item.chapter{font-weight:600;margin-top:8px;}
+.nav-item.sub{padding-left:32px;font-size:12.5px;color:#666;}
+.nav-back{margin:4px 20px 12px;display:block;font-size:12.5px;color:var(--accent);text-decoration:none;}
+
+.main{margin-left:var(--sidebar);margin-top:56px;padding:40px 48px 80px;max-width:980px;}
+
+.hero{background:linear-gradient(135deg,#0D1547,#283593);color:#fff;border-radius:16px;padding:40px 44px;
+  margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:rgba(255,255,255,.06);border-radius:50%;}
+.hero-sub{font-size:13px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:12px;line-height:1.3;}
+.hero h1 .hl{color:#9FA8DA;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:600px;}
+.hero-meta{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+
+.notice-bar{background:linear-gradient(135deg,#FFF8E1,#FFFDE7);border:1px solid #FFD600;border-radius:10px;
+  padding:12px 20px;margin-bottom:32px;font-size:13px;color:#5D4037;display:flex;align-items:flex-start;gap:10px;line-height:1.6;}
+.notice-bar .nb-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+
+.progress-wrap{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:16px 20px;margin-bottom:32px;box-shadow:0 2px 8px rgba(26,35,126,.06);overflow-x:auto;}
+.pdot-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.pdot{width:32px;height:32px;border-radius:50%;background:#E0E3EF;color:#666;display:flex;align-items:center;
+  justify-content:center;font-weight:700;font-size:13px;}
+.pdot.done{background:#43A047;color:#fff;}
+.pdot.done span{display:none;}
+.pdot.done::after{content:'✓';font-size:15px;}
+.pdot-label{font-size:10.5px;color:#666;margin-top:6px;text-align:center;width:62px;line-height:1.25;}
+.pline{flex:1;min-width:18px;height:3px;background:#E0E3EF;margin:0 3px 22px;border-radius:2px;}
+.pline.done{background:#43A047;}
+
+.chapter{margin-bottom:58px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.chapter-num{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));
+  color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-title{font-size:24px;font-weight:700;color:var(--brand);}
+.chapter-title span{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px;}
+.chapter-border{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent);margin-bottom:24px;}
+
+.section{margin-bottom:28px;}
+.section-title{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:12px;padding-bottom:6px;
+  border-bottom:2px solid #BBDEFB;display:flex;align-items:center;gap:8px;}
+.section p{margin-bottom:10px;}
+
+.box-key{background:#E8EAF6;border-left:5px solid var(--brand);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;}
+.box-key .box-label{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.box-tip{background:#FFF8E1;border-left:5px solid #F9A825;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-warning{background:#FFEBEE;border-left:5px solid #E53935;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-dark{background:#1F2433;color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;}
+.box-dark h4{font-size:16px;margin-bottom:8px;}
+.box-dark p{font-size:13.5px;opacity:.9;line-height:1.6;}
+
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.mini-card{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.mini-card h5{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:6px;}
+.mini-card p{font-size:12.5px;color:#555;line-height:1.5;}
+.mini-card .lbl{font-size:11px;color:#999;font-weight:700;letter-spacing:.5px;margin-bottom:4px;}
+
+.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;}
+.s5{background:#F0F1F8;border-radius:10px;padding:14px;border:1px solid var(--border);}
+.s5 .n{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.s5 h5{font-size:14px;color:var(--brand);margin-bottom:5px;}
+.s5 p{font-size:12px;color:#555;line-height:1.4;}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.compare-card{background:#fff;border-radius:10px;padding:18px;border:2px solid var(--border);}
+.compare-card.a{border-top:4px solid var(--accent);}
+.compare-card.b{border-top:4px solid var(--tan);}
+.compare-card h4{font-size:15px;font-weight:700;margin-bottom:10px;}
+.compare-card .row{font-size:13px;padding:7px 0;border-bottom:1px solid #F2F2F2;}
+.compare-card .row:last-child{border-bottom:none;}
+.compare-card .row b{color:var(--brand);}
+
+.tbl-wrap{overflow-x:auto;margin:16px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+table.tbl th{background:var(--brand);color:#fff;padding:11px 16px;text-align:left;font-weight:600;}
+table.tbl td{padding:10px 16px;border-bottom:1px solid #EEF0F8;vertical-align:top;}
+table.tbl tr:nth-child(even) td{background:#F5F6FA;}
+
+.faq-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:5px;}
+.faq-a{font-size:13px;color:#444;line-height:1.55;}
+
+ul.bullets{list-style:none;padding:0;margin:8px 0;}
+ul.bullets li{font-size:13.5px;padding:5px 0 5px 20px;position:relative;color:#444;}
+ul.bullets li::before{content:'•';position:absolute;left:4px;color:var(--accent);font-weight:700;}
+
+.ch-summary{text-align:center;margin:6px 0 4px;padding-top:10px;border-top:1px dashed var(--border);}
+.summary-btn{background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff;border:none;padding:12px 32px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(26,35,126,.25);transition:filter .15s;}
+.summary-btn:hover{filter:brightness(1.1);}
+.summary-btn.done-btn{background:linear-gradient(135deg,#43A047,#388E3C);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(13,21,71,.55);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;padding:20px;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:18px;padding:30px 32px;max-width:540px;width:100%;transform:scale(.92);
+  transition:transform .2s;max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.tip-chip{display:inline-block;background:#E8EAF6;color:var(--brand);font-size:12px;font-weight:700;padding:5px 14px;border-radius:99px;margin-bottom:14px;}
+.tip-chapter-title{font-size:22px;font-weight:700;color:var(--brand);margin-bottom:16px;}
+.tip-list{list-style:none;padding:0;margin-bottom:20px;}
+.tip-list li{font-size:14px;padding:11px 0;border-bottom:1px solid #EEF0F8;padding-left:28px;position:relative;line-height:1.5;}
+.tip-list li::before{content:'✓';color:#43A047;position:absolute;left:0;}
+.tip-complete-btn{width:100%;background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:15px;
+  border-radius:12px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+.tip-complete-btn:disabled{opacity:.6;cursor:default;}
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);
+  padding:14px 32px;display:none;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 -3px 14px rgba(0,0,0,.1);z-index:80;}
+.done-bar.show{display:flex;}
+.done-bar .msg{font-size:13.5px;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:8px;}
+.done-final{background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:13px 34px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(46,125,50,.3);}
+.done-final:hover{filter:brightness(1.08);}
+@media(max-width:860px){.done-bar{left:0;padding:12px 16px;}}
+
+[id]{scroll-margin-top:72px;}
+.src-note{font-size:11.5px;color:#999;margin-top:40px;border-top:1px solid var(--border);padding-top:14px;}
+
+@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;padding:24px 20px 60px;}
+  .grid3,.grid2,.compare-grid{grid-template-columns:1fr;}.steps5{grid-template-columns:repeat(2,1fr);}}
+@media print{.sidebar,.top-header{display:none!important;}.main{margin:0;padding:20px;}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></symbol>
+</defs></svg>
+
+<div class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title">플로우페이 프로세스</span>
+  <div class="right">
+    <a class="lo" href="dashboard.html" style="text-decoration:none;">← 대시보드</a>
+    <span class="who" id="whoChip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> —</span>
+    <button class="lo" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+
+<nav class="sidebar">
+  <div class="sidebar-title">목차</div>
+  <a class="nav-item chapter" href="#ch1">1. 진행 단계 한눈에 보기</a>
+  <a class="nav-item chapter" href="#ch2">2. 거래 구조</a>
+  <a class="nav-item chapter" href="#ch3">3. 신청 단계</a>
+  <a class="nav-item chapter" href="#ch4">4. 심사 단계</a>
+  <a class="nav-item chapter" href="#ch5">5. 서비스 단계</a>
+  <a class="nav-item chapter" href="#ch6">6. 납품 진행 단계</a>
+  <a class="nav-item chapter" href="#ch7">7. 사후관리 단계</a>
+  <a class="nav-item chapter" href="#ch8">8. FlowPay FAQ</a>
+</nav>
+
+<main class="main">
+  <div class="hero">
+    <div class="hero-sub">NEW HIRE TRAINING · 276 HOLDINGS Sales Academy</div>
+    <h1>플로우페이 — <span class="hl">신청부터 사후관리까지</span> 전체 프로세스</h1>
+    <p>플로우페이 거래는 신청 · 심사 · 서비스 · 납품 · 결제 · 사후관리의 큰 흐름으로 진행됩니다. 거래 구조와 각 단계의 담당 부서, 필요한 서류와 시스템을 한 흐름으로 익혀 실무에서 단계를 정확히 안내할 수 있게 합니다.</p>
+    <div class="hero-meta">
+      <span class="hero-tag">단계는 정확하게</span><span class="hero-tag">담당은 명확하게</span><span class="hero-tag">서류는 빠짐없이</span>
+    </div>
+  </div>
+
+  <div class="notice-bar">
+    <span class="nb-icon"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg></span>
+    <div><strong>학습 목표</strong> — 신입사원이 플로우페이 진행 단계와 거래 구조를 이해하고, 각 단계의 담당 부서·필요 서류·진행 방식을 정확히 안내할 수 있게 합니다. 각 장 끝의 <strong>핵심 요약</strong>을 확인하면 진도가 계정에 기록됩니다.</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="pdot-wrap"><div class="pdot" id="pdot0"><span>1</span></div><div class="pdot-label">진행개요</div></div>
+    <div class="pline" id="pline0"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot1"><span>2</span></div><div class="pdot-label">거래구조</div></div>
+    <div class="pline" id="pline1"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot2"><span>3</span></div><div class="pdot-label">신청</div></div>
+    <div class="pline" id="pline2"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot3"><span>4</span></div><div class="pdot-label">심사</div></div>
+    <div class="pline" id="pline3"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot4"><span>5</span></div><div class="pdot-label">서비스</div></div>
+    <div class="pline" id="pline4"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot5"><span>6</span></div><div class="pdot-label">납품</div></div>
+    <div class="pline" id="pline5"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot6"><span>7</span></div><div class="pdot-label">사후관리</div></div>
+    <div class="pline" id="pline6"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot7"><span>8</span></div><div class="pdot-label">FAQ</div></div>
+  </div>
+
+  <!-- CH1 -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header"><div class="chapter-num">1</div>
+      <div class="chapter-title">진행 단계 한눈에 보기<span>신청 → 심사 → 서비스 → 납품 → 결제 → 사후관리</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>플로우페이 진행은 크게 <strong>6개 단계</strong>로 구성됩니다. 신청과 심사는 온라인으로, 서비스·납품·결제·사후관리는 오프라인으로 진행됩니다. 각 단계가 어디서 어떻게 진행되는지를 먼저 큰 그림으로 익힙니다.</p>
+      <table class="tbl"><tr><th>단계</th><th>구분</th><th>진행 방식</th></tr>
+        <tr><td>1. 신청</td><td>앞단</td><td>온라인 진행</td></tr>
+        <tr><td>2. 심사</td><td>앞단</td><td>온라인 진행</td></tr>
+        <tr><td>3. 서비스</td><td>실행</td><td>오프라인 진행</td></tr>
+        <tr><td>4. 납품</td><td>실행</td><td>오프라인 진행</td></tr>
+        <tr><td>5. 결제</td><td>실행</td><td>오프라인 진행</td></tr>
+        <tr><td>6. 사후관리</td><td>마감</td><td>오프라인 진행</td></tr></table>
+      <div class="box-key"><div class="box-label">앞단 영업 흐름</div>
+        본 거래 진행 이전에 다음의 영업 흐름이 선행됩니다.
+        <ul class="bullets"><li>기획</li><li>마케팅</li><li>영업(상담)</li><li>실사</li></ul>
+      </div>
+      <div class="box-tip"><strong>기억할 구분</strong> — 신청·심사는 <strong>온라인</strong>, 서비스·납품·결제·사후관리는 <strong>오프라인</strong>으로 진행됩니다.</div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn0" onclick="openTip(0)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 1장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH2 -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header"><div class="chapter-num">2</div>
+      <div class="chapter-title">거래 구조<span>매입처 · 플로우페이(276홀딩스 당사) · 고객사 · 매출처</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>플로우페이 거래에는 네 주체가 등장합니다. <strong>매입처</strong>, <strong>플로우페이(276홀딩스 당사)</strong>, <strong>고객사</strong>, <strong>매출처</strong>입니다. 자금과 물품이 이 네 주체 사이에서 7단계로 흐릅니다.</p>
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">주체 1</div><h5>매입처</h5><p>물품을 공급하는 측. 당사가 선결제하고 물품을 받습니다.</p></div>
+        <div class="mini-card"><div class="lbl">주체 2</div><h5>플로우페이 (276홀딩스 당사)</h5><p>거래 중심에서 선결제와 물품공급을 수행합니다.</p></div>
+        <div class="mini-card"><div class="lbl">주체 3</div><h5>고객사</h5><p>신청 주체. 당사로부터 물품을 받아 매출처에 판매합니다.</p></div>
+        <div class="mini-card"><div class="lbl">주체 4</div><h5>매출처</h5><p>고객사로부터 물품을 구매하고 결제하는 최종 판매처입니다.</p></div>
+      </div>
+      <table class="tbl"><tr><th>순서</th><th>흐름</th><th>내용</th></tr>
+        <tr><td>①</td><td>고객사 → 플로우페이</td><td>신청</td></tr>
+        <tr><td>②</td><td>플로우페이 → 매입처</td><td>선결제</td></tr>
+        <tr><td>③</td><td>매입처 → 플로우페이</td><td>물품공급</td></tr>
+        <tr><td>④</td><td>플로우페이 → 고객사</td><td>물품공급</td></tr>
+        <tr><td>⑤</td><td>고객사 → 매출처</td><td>판매</td></tr>
+        <tr><td>⑥</td><td>매출처 → 고객사</td><td>결제</td></tr>
+        <tr><td>⑦</td><td>고객사 → 플로우페이</td><td>결제</td></tr></table>
+      <div class="box-dark"><h4>구조의 핵심</h4>
+        <p>플로우페이는 매입처에 <strong>선결제</strong>하여 물품을 확보하고, 이를 고객사에 공급합니다. 고객사는 매출처에 판매해 결제를 받은 뒤 플로우페이에 결제합니다. 당사가 거래의 중심에서 자금 흐름을 만들어주는 구조입니다.</p></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn1" onclick="openTip(1)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 2장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH3 -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header"><div class="chapter-num">3</div>
+      <div class="chapter-title">신청 단계<span>담당: 영업부 · 고객사 온라인 진행</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>신청 단계는 <strong>고객사</strong>가 <strong>온라인</strong>으로 진행하며, 대응 담당은 <strong>영업부</strong>입니다. 진행 흐름은 회원가입 → 신청서 작성 → 서류 업로드 → 신청완료입니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr)">
+        <div class="s5"><div class="n">1</div><h5>회원가입</h5><p>고객사가 포털에 회원으로 가입합니다.</p></div>
+        <div class="s5"><div class="n">2</div><h5>신청서 작성</h5><p>거래 신청서를 작성합니다.</p></div>
+        <div class="s5"><div class="n">3</div><h5>서류 업로드</h5><p>매입처·고객사·매출처 서류를 업로드합니다.</p></div>
+        <div class="s5"><div class="n">4</div><h5>신청완료</h5><p>업로드 완료 후 신청이 접수됩니다.</p></div>
+      </div>
+      <div class="box-key"><div class="box-label">서류 업로드 항목</div>
+        <ul class="bullets"><li>매입처 정보 / 서류</li><li>고객사 정보 / 서류</li><li>매출처 정보 / 서류</li><li><b>'WECHECK' 고객사 서류 스크래핑</b></li></ul>
+      </div>
+      <div class="box-tip"><strong>딜 생성 시작</strong> — 이 시점에 세일즈맵 <strong>'딜'</strong> 생성이 시작됩니다.</div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn2" onclick="openTip(2)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 3장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH4 -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header"><div class="chapter-num">4</div>
+      <div class="chapter-title">심사 단계<span>당사 온라인 진행 · 대응: 영업부 / 심사부</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>심사 단계는 <strong>당사</strong>가 <strong>온라인</strong>으로 진행합니다. 기업분석 → 재무/비재무 확인 → 서류확인/검토 → 추가 보완 서류 요청의 흐름이며, 보완점이 없으면 마지막 단계는 생략됩니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr)">
+        <div class="s5"><div class="n">1</div><h5>기업분석</h5><p>초기 서류 심사를 진행합니다.</p></div>
+        <div class="s5"><div class="n">2</div><h5>재무/비재무 확인</h5><p>재무·비재무 자료를 확인합니다.</p></div>
+        <div class="s5"><div class="n">3</div><h5>서류확인/검토</h5><p>제출 서류를 확인·검토합니다.</p></div>
+        <div class="s5"><div class="n">4</div><h5>추가 보완 요청</h5><p>보완점이 없으면 생략됩니다.</p></div>
+      </div>
+      <div class="grid2">
+        <div class="box-key"><div class="box-label">재무 / 비재무 확인</div>
+          <ul class="bullets"><li>재무제표 3개년</li><li>매입 세금계산서 합계표 2개년</li><li>매출 세금계산서 합계표 2개년</li><li>최근 자료 추가요청</li></ul></div>
+        <div class="box-key"><div class="box-label">서류확인 / 검토</div>
+          <ul class="bullets"><li>매입처 / 고객사 / 매출처 정보 및 서류</li><li>세금완납증명서 (국세 / 지방세)</li><li>4대보험 납부 확인</li></ul></div>
+      </div>
+      <div class="box-tip"><strong>추가 보완 서류 요청</strong> — 미비 / 오류 서류, 날짜 / 금액 수정이 대상입니다.</div>
+      <table class="tbl"><tr><th>세부 단계</th><th>담당 부서</th></tr>
+        <tr><td>기업분석 ~ 서류확인 / 검토</td><td>심사부</td></tr>
+        <tr><td>추가 보완 서류 요청</td><td>영업부</td></tr></table>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn3" onclick="openTip(3)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 4장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH5 -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header"><div class="chapter-num">5</div>
+      <div class="chapter-title">서비스 단계<span>오프라인 · 영업부 / 심사부 / 운영부</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>서비스 단계는 <strong>오프라인</strong>으로 진행되며, 영업부·심사부·운영부가 함께 대응합니다. 조건 협의 → 협의 완료 → 서비스 약정 → 서비스 진행의 순서로 진행됩니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr)">
+        <div class="s5"><div class="n">1</div><h5>조건 협의</h5><p>거래 조건을 협의합니다.</p></div>
+        <div class="s5"><div class="n">2</div><h5>협의 완료</h5><p>거절 / 취소 시 진행 불가.</p></div>
+        <div class="s5"><div class="n">3</div><h5>서비스 약정</h5><p>약정계약서를 작성·접수합니다.</p></div>
+        <div class="s5"><div class="n">4</div><h5>서비스 진행</h5><p>모두싸인으로 서류를 진행합니다.</p></div>
+      </div>
+      <div class="grid2">
+        <div class="box-key"><div class="box-label">조건 협의 항목</div>
+          <ul class="bullets"><li>매입 날짜 / 금액</li><li>결제액 / 결제일</li><li>마진율 / 사용 기간</li><li>담보 / 연대보증</li></ul></div>
+        <div class="box-warning"><strong>협의 완료</strong>
+          <ul class="bullets"><li>거절 또는 취소 시 서비스 진행이 불가합니다.</li><li>협의 완료 후 약정 단계로 넘어갑니다.</li></ul></div>
+      </div>
+      <div class="box-tip"><strong>현장 실사</strong> — 영업부가 현장 실사를 진행합니다.</div>
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">서비스 약정 ('약정계약서')</div><h5>작성·접수</h5>
+          <ul class="bullets"><li>표준거래약정서 + 인감증명서</li><li>서식 다운로드 후 스캔본 업로드</li><li>원본 우편물 발송 및 수신</li></ul></div>
+        <div class="mini-card"><div class="lbl">서비스 진행 ('모두싸인')</div><h5>작성</h5>
+          <ul class="bullets"><li>발주서 (276 → 매입처)</li><li>발주서 (고객사 → 276)</li><li>거래명세서 (276 → 고객사)</li><li>매입 / 매출 세금계산서 수발신</li></ul></div>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn4" onclick="openTip(4)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 5장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH6 -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-header"><div class="chapter-num">6</div>
+      <div class="chapter-title">납품 진행 단계<span>운영부 · 오프라인</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>납품 진행 단계는 <strong>운영부</strong>가 <strong>오프라인</strong>으로 진행합니다. 납품 진행 → 입고일 협의 → 입고일 입고 확인 / 날인 후 발송 → 납품 완료의 순서입니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr)">
+        <div class="s5"><div class="n">1</div><h5>납품 진행</h5><p>납품 절차를 시작합니다.</p></div>
+        <div class="s5"><div class="n">2</div><h5>입고일 협의</h5><p>입고 일정을 협의합니다.</p></div>
+        <div class="s5"><div class="n">3</div><h5>입고 확인 / 발송</h5><p>입고 확인·날인 후 발송합니다.</p></div>
+        <div class="s5"><div class="n">4</div><h5>납품 완료</h5><p>납품이 완료됩니다.</p></div>
+      </div>
+      <div class="box-key"><div class="box-label">입고 확인 시 필요 자료</div>
+        <ul class="bullets"><li>거래명세서 / 입고사진 (고객사 → 276)</li><li>입고 완료 후 입고확인증(거래명세서) 및 입고 사진 필요</li></ul>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn5" onclick="openTip(5)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 6장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH7 -->
+  <section class="chapter" id="ch7">
+    <div class="chapter-header"><div class="chapter-num">7</div>
+      <div class="chapter-title">사후관리 단계<span>운영부 · 당사 온라인</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>사후관리 단계는 <strong>운영부</strong>가 <strong>당사 온라인</strong>으로 진행합니다. 자료저장 → 채권등록 → 결제 일정 / 내역 시트 입력 → 계산서 관리·안내메세지 예약의 순서입니다.</p>
+      <div class="steps5" style="grid-template-columns:repeat(4,1fr)">
+        <div class="s5"><div class="n">1</div><h5>자료저장</h5><p>거래 자료를 저장합니다.</p></div>
+        <div class="s5"><div class="n">2</div><h5>채권등록</h5><p>전자 채권을 등록합니다.</p></div>
+        <div class="s5"><div class="n">3</div><h5>결제 일정/내역</h5><p>시트에 결제 정보를 입력합니다.</p></div>
+        <div class="s5"><div class="n">4</div><h5>계산서 관리</h5><p>안내메세지를 예약합니다.</p></div>
+      </div>
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">채권등록</div><h5>전자 채권등록</h5>
+          <ul class="bullets"><li>거래명세서 확인 (총 매출금 확인)</li><li>전자 채권등록</li><li>당사 / 고객사 정보 등록</li></ul></div>
+        <div class="mini-card"><div class="lbl">결제 일정 / 내역</div><h5>시트 입력</h5>
+          <ul class="bullets"><li>세일즈맵 / 구글 시트 기입</li><li>결제대기 / 완료-지연</li></ul></div>
+        <div class="mini-card"><div class="lbl">계산서 관리</div><h5>안내·예약</h5>
+          <ul class="bullets"><li>캘린더 결제일 등록</li><li>카톡메세지 일정 안내</li></ul></div>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn6" onclick="openTip(6)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 7장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH8 -->
+  <section class="chapter" id="ch8">
+    <div class="chapter-header"><div class="chapter-num">8</div>
+      <div class="chapter-title">FlowPay FAQ<span>자주 묻는 질문 — 단정 어려운 항목은 케이스별 확인</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="section-title">자주 묻는 질문 (FAQ)</div>
+      <div class="faq-item"><div class="faq-q">Q. 매입처가 여러 업체인데 가능한가요?</div><div class="faq-a">가능합니다. 매입처가 2곳 이상이면 매입처를 추가 등록합니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 이미 납품을 받았는데 가능한가요?</div><div class="faq-a">케이스별 확인이 필요합니다. 원칙은 매입 단계부터 거래에 참여하는 구조입니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 수수료가 어떻게 되나요?</div><div class="faq-a">신용도·결제 유예 기간을 기준으로 산정되며, 60일 기준 약 5~7% 수준입니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 상환기간(결제기간)은 언제까지 가능한가요?</div><div class="faq-a">국내는 1주~최대 90일이며, 수출은 3개월 이상도 가능합니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 개인사업자도 신청 가능한가요?</div><div class="faq-a">가능합니다. 매출처에 따라 B2B / B2C로 구분됩니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 25년 신규사업자도 가능한가요?</div><div class="faq-a">가능합니다. 단, 재무현황 파악을 위한 최근 자료를 요청할 수 있습니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 심사기간은 얼마나 걸리나요?</div><div class="faq-a">영업일 기준 7일 내외 소요됩니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 특별히 거절 사유가 있나요?</div><div class="faq-a">서류 불일치·신용 리스크 등 케이스별로 확인됩니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 결제일에 결제를 못하면 어떻게 되나요?</div><div class="faq-a">연체 / 지연으로 처리되며, 사전 안내가 필요합니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 매출채권유동화와 무엇이 다른가요?</div><div class="faq-a">유동화는 납품 후 채권을 현금화하는 구조이고, 플로우페이는 매입 단계부터 거래에 직접 참여하는 구조입니다.</div></div>
+      <div class="box-key"><div class="box-label">답변 원칙</div>
+        <ul class="bullets"><li><b>케이스별 확인</b> — 단정이 어려운 항목은 확인 후 안내합니다.</li><li><b>원칙 먼저</b> — 플로우페이는 매입 단계부터 참여하는 구조임을 기준으로 설명합니다.</li><li><b>사전 안내</b> — 결제 지연·거절 가능성은 미리 안내합니다.</li></ul>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn7" onclick="openTip(7)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 8장 핵심 요약</button></div>
+  </section>
+
+  <div class="src-note">출처: 플로우페이 프로세스 신입교육 (276홀딩스). 사내 교육용으로 재구성.</div>
+</main>
+
+<!-- ══ 핵심 요약 모달 ══ -->
+<div class="modal-overlay" id="tipModal">
+  <div class="modal-box">
+    <span class="tip-chip" id="tipChip">핵심 요약</span>
+    <div class="tip-chapter-title" id="tipTitle"></div>
+    <ul class="tip-list" id="tipList"></ul>
+    <button class="tip-complete-btn" id="tipCompleteBtn" onclick="completeTip()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 완료 — 다음 장으로 이동</button>
+  </div>
+</div>
+
+<!-- ══ 교육 완료 바 (모든 핵심요약 확인 시 노출) ══ -->
+<div class="done-bar" id="doneBar">
+  <span class="msg"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:#43A047;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 모든 핵심요약을 확인했습니다 — 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+/* ───── 세션 가드 (계정 기반) ───── */
+let SESSION=null;
+try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+let studentName=(SESSION&&SESSION.name)||'';
+
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const CHAPTER_NAMES=['진행 단계 한눈에 보기','거래 구조','신청 단계','심사 단계','서비스 단계','납품 진행 단계','사후관리 단계','FlowPay FAQ'];
+const TIPS=[
+ ['플로우페이 진행은 6단계: 신청 → 심사 → 서비스 → 납품 → 결제 → 사후관리',
+  '신청·심사 = 온라인 / 서비스·납품·결제·사후관리 = 오프라인',
+  '앞단 영업 흐름: 기획 · 마케팅 · 영업(상담) · 실사'],
+ ['거래 주체 4곳: 매입처 · 플로우페이(276홀딩스 당사) · 고객사 · 매출처',
+  '흐름 7단계: ①신청 ②선결제 ③물품공급(매입처→276) ④물품공급(276→고객사) ⑤판매 ⑥결제(매출처→고객사) ⑦결제(고객사→276)',
+  '핵심: 당사가 매입처에 선결제 후 고객사에 공급, 고객사는 판매 후 당사에 결제'],
+ ['신청 = 고객사 온라인 진행 / 담당 영업부',
+  '흐름: 회원가입 → 신청서 작성 → 서류 업로드 → 신청완료',
+  '업로드: 매입처·고객사·매출처 정보/서류, WECHECK 고객사 서류 스크래핑',
+  '이 시점에 세일즈맵 "딜" 생성 시작'],
+ ['심사 = 당사 온라인 / 대응 영업부·심사부',
+  '흐름: 기업분석 → 재무·비재무 확인 → 서류확인/검토 → 추가 보완(보완점 없으면 생략)',
+  '재무·비재무: 재무제표 3개년, 매입·매출 세금계산서 합계표 각 2개년',
+  '담당: 기업분석~검토는 심사부, 추가보완은 영업부'],
+ ['서비스 = 오프라인 / 영업부·심사부·운영부',
+  '흐름: 조건 협의 → 협의 완료(거절·취소 시 진행 불가) → 서비스 약정 → 서비스 진행',
+  '조건 협의: 매입 날짜·금액, 결제액·결제일, 마진율·사용 기간, 담보·연대보증',
+  '약정=표준거래약정서+인감증명서(스캔 업로드+원본 우편) / 진행=모두싸인(발주서·거래명세서·세금계산서)'],
+ ['납품 진행 = 운영부 오프라인',
+  '흐름: 납품 진행 → 입고일 협의 → 입고 확인/날인 후 발송 → 납품 완료',
+  '입고 확인: 거래명세서/입고사진(고객사→276), 입고확인증(거래명세서) 및 입고 사진 필요'],
+ ['사후관리 = 운영부 당사 온라인',
+  '흐름: 자료저장 → 채권등록 → 결제 일정/내역 시트 입력 → 계산서 관리·안내메세지 예약',
+  '채권등록: 거래명세서 확인(총 매출금), 전자 채권등록, 당사/고객사 정보 등록',
+  '결제 일정: 세일즈맵/구글 시트 기입(결제대기·완료-지연), 캘린더 결제일+카톡 안내'],
+ ['매입처 다수 가능(2곳 이상이면 추가 등록), 이미 납품받은 건은 케이스별 확인',
+  '수수료: 신용도·유예기간 기준 60일 약 5~7% / 상환 국내 1주~90일, 수출 3개월 이상도 가능',
+  '개인사업자·25년 신규사업자 가능(신규는 최근 자료 요청), 심사 영업일 7일 내외',
+  '유동화(납품 후 채권 현금화)와 달리 플로우페이는 매입 단계부터 직접 참여']
+];
+const TOTAL=CHAPTER_NAMES.length;
+let completedChapters=[];
+
+function openTip(idx){
+  document.getElementById('tipChip').textContent=(idx+1)+'장 핵심 요약';
+  document.getElementById('tipTitle').textContent=CHAPTER_NAMES[idx];
+  document.getElementById('tipList').innerHTML=TIPS[idx].map(t=>'<li>'+t+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=false;
+  btn.textContent=idx<TOTAL-1?'✓ 완료 — 다음 장으로 이동':'✓ 학습 완료 — 대시보드로';
+  window._tipIdx=idx;
+  document.getElementById('tipModal').classList.add('open');
+}
+function completeTip(){
+  const idx=window._tipIdx;
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:idx+1,chapterName:'[플로우페이 프로세스] '+CHAPTER_NAMES[idx]})}).catch(()=>{});
+  if(!completedChapters.includes(idx))completedChapters.push(idx);
+  try{localStorage.setItem('flowprocess_completed',JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  document.getElementById('tipModal').classList.remove('open');
+  setTimeout(()=>{
+    if(idx<TOTAL-1){const nx=document.getElementById('ch'+(idx+2));if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'});}
+    else{ const db=document.getElementById('doneBar'); if(db){db.classList.add('show'); db.scrollIntoView({behavior:'smooth'});} }
+  },250);
+}
+function updateProgress(){
+  for(let i=0;i<TOTAL;i++){
+    const done=completedChapters.includes(i);
+    const d=document.getElementById('pdot'+i),l=document.getElementById('pline'+i),sb=document.getElementById('sbtn'+i);
+    if(d)d.classList.toggle('done',done);
+    if(l)l.classList.toggle('done',done);
+    if(sb&&done){sb.classList.add('done-btn');sb.textContent='✓ '+(i+1)+'장 완료';}
+  }
+  const db=document.getElementById('doneBar');
+  if(db) db.classList.toggle('show', completedChapters.length>=TOTAL);
+}
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'[플로우페이 프로세스] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem('flowprocess_finished','1');}catch(e){}
+  alert('플로우페이 프로세스 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+function logout(){try{localStorage.removeItem('lms_session');}catch(e){}location.replace('index.html');}
+
+window.addEventListener('scroll',function(){
+  const sections=document.querySelectorAll('[id]');const navItems=document.querySelectorAll('.nav-item');
+  let top=window.scrollY+90,cur='';
+  sections.forEach(s=>{if(s.offsetTop<=top)cur=s.id;});
+  navItems.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));
+});
+
+window.addEventListener('DOMContentLoaded',function(){
+  if(!SESSION||!SESSION.name)return;
+  document.getElementById('whoChip').innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+studentName;
+  try{completedChapters=JSON.parse(localStorage.getItem('flowprocess_completed')||'[]');}catch(e){completedChapters=[];}
+  updateProgress();
+});
+</script>
+</body>
+</html>

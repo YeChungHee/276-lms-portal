@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매출채권 | 276홀딩스 영업지원팀</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--brand:#1A237E;--accent:#3949AB;--blue:#1565C0;--green:#2E7D32;--red:#C62828;
+  --yellow:#F57F17;--tan:#8D7B68;--bg:#F5F6FA;--card:#fff;--border:#E0E3EF;--text:#202124;--muted:#666;--sidebar:262px;}
+html{scroll-behavior:smooth;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;}
+
+.top-header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
+  background:linear-gradient(135deg,#0D1547,#1A237E,#3949AB);display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.top-header .brand{color:#fff;font-size:13px;opacity:.8;}
+.top-header .title{color:#fff;font-size:16px;font-weight:700;}
+.top-header .right{display:flex;align-items:center;gap:12px;}
+.top-header .who{background:rgba(255,255,255,.18);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;}
+.top-header .lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;
+  font-size:11.5px;padding:5px 11px;border-radius:7px;cursor:pointer;font-family:inherit;}
+
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar);background:#fff;
+  border-right:2px solid var(--border);overflow-y:auto;z-index:90;padding:20px 0 40px;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#C5CAE9;border-radius:4px;}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--brand);letter-spacing:1px;text-transform:uppercase;
+  padding:0 20px 12px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.nav-item{display:block;padding:9px 20px;font-size:13px;color:#444;text-decoration:none;
+  border-left:3px solid transparent;transition:all .15s;cursor:pointer;}
+.nav-item:hover{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);}
+.nav-item.active{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);font-weight:500;}
+.nav-item.chapter{font-weight:600;margin-top:8px;}
+.nav-item.sub{padding-left:32px;font-size:12.5px;color:#666;}
+.nav-back{margin:4px 20px 12px;display:block;font-size:12.5px;color:var(--accent);text-decoration:none;}
+
+.main{margin-left:var(--sidebar);margin-top:56px;padding:40px 48px 80px;max-width:980px;}
+
+.hero{background:linear-gradient(135deg,#0D1547,#283593);color:#fff;border-radius:16px;padding:40px 44px;
+  margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:rgba(255,255,255,.06);border-radius:50%;}
+.hero-sub{font-size:13px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:12px;line-height:1.3;}
+.hero h1 .hl{color:#9FA8DA;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:600px;}
+.hero-meta{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+
+.notice-bar{background:linear-gradient(135deg,#FFF8E1,#FFFDE7);border:1px solid #FFD600;border-radius:10px;
+  padding:12px 20px;margin-bottom:32px;font-size:13px;color:#5D4037;display:flex;align-items:flex-start;gap:10px;line-height:1.6;}
+.notice-bar .nb-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+
+.progress-wrap{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:16px 20px;margin-bottom:32px;box-shadow:0 2px 8px rgba(26,35,126,.06);overflow-x:auto;}
+.pdot-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.pdot{width:32px;height:32px;border-radius:50%;background:#E0E3EF;color:#666;display:flex;align-items:center;
+  justify-content:center;font-weight:700;font-size:13px;}
+.pdot.done{background:#43A047;color:#fff;}
+.pdot.done span{display:none;}
+.pdot.done::after{content:'✓';font-size:15px;}
+.pdot-label{font-size:10.5px;color:#666;margin-top:6px;text-align:center;width:62px;line-height:1.25;}
+.pline{flex:1;min-width:18px;height:3px;background:#E0E3EF;margin:0 3px 22px;border-radius:2px;}
+.pline.done{background:#43A047;}
+
+.chapter{margin-bottom:58px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.chapter-num{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));
+  color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-title{font-size:24px;font-weight:700;color:var(--brand);}
+.chapter-title span{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px;}
+.chapter-border{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent);margin-bottom:24px;}
+
+.section{margin-bottom:28px;}
+.section-title{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:12px;padding-bottom:6px;
+  border-bottom:2px solid #BBDEFB;display:flex;align-items:center;gap:8px;}
+.section p{margin-bottom:10px;}
+
+.box-key{background:#E8EAF6;border-left:5px solid var(--brand);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;}
+.box-key .box-label{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.box-tip{background:#FFF8E1;border-left:5px solid #F9A825;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-warning{background:#FFEBEE;border-left:5px solid #E53935;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-dark{background:#1F2433;color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;}
+.box-dark h4{font-size:16px;margin-bottom:8px;}
+.box-dark p{font-size:13.5px;opacity:.9;line-height:1.6;}
+
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.mini-card{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.mini-card h5{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:6px;}
+.mini-card p{font-size:12.5px;color:#555;line-height:1.5;}
+.mini-card .lbl{font-size:11px;color:#999;font-weight:700;letter-spacing:.5px;margin-bottom:4px;}
+
+.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;}
+.s5{background:#F0F1F8;border-radius:10px;padding:14px;border:1px solid var(--border);}
+.s5 .n{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.s5 h5{font-size:14px;color:var(--brand);margin-bottom:5px;}
+.s5 p{font-size:12px;color:#555;line-height:1.4;}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.compare-card{background:#fff;border-radius:10px;padding:18px;border:2px solid var(--border);}
+.compare-card.a{border-top:4px solid var(--accent);}
+.compare-card.b{border-top:4px solid var(--tan);}
+.compare-card h4{font-size:15px;font-weight:700;margin-bottom:10px;}
+.compare-card .row{font-size:13px;padding:7px 0;border-bottom:1px solid #F2F2F2;}
+.compare-card .row:last-child{border-bottom:none;}
+.compare-card .row b{color:var(--brand);}
+
+.tbl-wrap{overflow-x:auto;margin:16px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+table.tbl th{background:var(--brand);color:#fff;padding:11px 16px;text-align:left;font-weight:600;}
+table.tbl td{padding:10px 16px;border-bottom:1px solid #EEF0F8;vertical-align:top;}
+table.tbl tr:nth-child(even) td{background:#F5F6FA;}
+
+.faq-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px 18px;margin-bottom:10px;}
+.faq-q{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:5px;}
+.faq-a{font-size:13px;color:#444;line-height:1.55;}
+
+ul.bullets{list-style:none;padding:0;margin:8px 0;}
+ul.bullets li{font-size:13.5px;padding:5px 0 5px 20px;position:relative;color:#444;}
+ul.bullets li::before{content:'•';position:absolute;left:4px;color:var(--accent);font-weight:700;}
+
+.ch-summary{text-align:center;margin:6px 0 4px;padding-top:10px;border-top:1px dashed var(--border);}
+.summary-btn{background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff;border:none;padding:12px 32px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(26,35,126,.25);transition:filter .15s;}
+.summary-btn:hover{filter:brightness(1.1);}
+.summary-btn.done-btn{background:linear-gradient(135deg,#43A047,#388E3C);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(13,21,71,.55);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;padding:20px;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:18px;padding:30px 32px;max-width:540px;width:100%;transform:scale(.92);
+  transition:transform .2s;max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.tip-chip{display:inline-block;background:#E8EAF6;color:var(--brand);font-size:12px;font-weight:700;padding:5px 14px;border-radius:99px;margin-bottom:14px;}
+.tip-chapter-title{font-size:22px;font-weight:700;color:var(--brand);margin-bottom:16px;}
+.tip-list{list-style:none;padding:0;margin-bottom:20px;}
+.tip-list li{font-size:14px;padding:11px 0;border-bottom:1px solid #EEF0F8;padding-left:28px;position:relative;line-height:1.5;}
+.tip-list li::before{content:'✓';color:#43A047;position:absolute;left:0;}
+.tip-complete-btn{width:100%;background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:15px;
+  border-radius:12px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+.tip-complete-btn:disabled{opacity:.6;cursor:default;}
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);
+  padding:14px 32px;display:none;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 -3px 14px rgba(0,0,0,.1);z-index:80;}
+.done-bar.show{display:flex;}
+.done-bar .msg{font-size:13.5px;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:8px;}
+.done-final{background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:13px 34px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(46,125,50,.3);}
+.done-final:hover{filter:brightness(1.08);}
+@media(max-width:860px){.done-bar{left:0;padding:12px 16px;}}
+
+[id]{scroll-margin-top:72px;}
+.src-note{font-size:11.5px;color:#999;margin-top:40px;border-top:1px solid var(--border);padding-top:14px;}
+
+@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;padding:24px 20px 60px;}
+  .grid3,.grid2,.compare-grid{grid-template-columns:1fr;}.steps5{grid-template-columns:repeat(2,1fr);}}
+@media print{.sidebar,.top-header{display:none!important;}.main{margin:0;padding:20px;}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></symbol>
+</defs></svg>
+
+<div class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title">매출채권</span>
+  <div class="right">
+    <a class="lo" href="dashboard.html" style="text-decoration:none;">← 대시보드</a>
+    <span class="who" id="whoChip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> —</span>
+    <button class="lo" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+
+<nav class="sidebar">
+  <div class="sidebar-title">목차</div>
+  <a class="nav-item chapter" href="#ch1">1. 전자어음 할인이란?</a>
+  <a class="nav-item chapter" href="#ch2">2. 고객은 왜 문의하는가</a>
+  <a class="nav-item chapter" href="#ch3">3. 핵심 용어 4가지</a>
+  <a class="nav-item chapter" href="#ch4">4. 진행 5단계</a>
+  <a class="nav-item chapter" href="#ch5">5. 상담 전 체크리스트</a>
+  <a class="nav-item chapter" href="#ch6">6. 팩토링·외담대 비교</a>
+  <a class="nav-item chapter" href="#ch7">7. FAQ·금지표현·롤플레이</a>
+</nav>
+
+<main class="main">
+  <div class="hero">
+    <div class="hero-sub">NEW HIRE TRAINING · 276 HOLDINGS Sales Academy</div>
+    <h1>매출채권 — <span class="hl">전자어음 할인 기본기</span>를 한 번에</h1>
+    <p>상품 정의, 고객 상황 파악, 핵심 용어, 진행 단계, 상담 체크리스트, 주의 표현과 롤플레이까지 한 흐름으로 익힙니다. 목적은 "잘 파는 것"이 아니라 상품을 안전하게 설명하고 상담을 정확히 시작하는 기본기입니다.</p>
+    <div class="hero-meta">
+      <span class="hero-tag">정의는 짧게</span><span class="hero-tag">확인은 정확하게</span><span class="hero-tag">답변은 안전하게</span>
+    </div>
+  </div>
+
+  <div class="notice-bar">
+    <span class="nb-icon"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg></span>
+    <div><strong>학습 목표</strong> — 신입사원이 전자어음 할인을 한 문장으로 설명하고, 고객 상황을 정확히 파악해 상담을 안전하게 시작할 수 있게 합니다. 각 장 끝의 <strong>핵심 요약</strong>을 확인하면 진도가 계정에 기록됩니다.</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="pdot-wrap"><div class="pdot" id="pdot0"><span>1</span></div><div class="pdot-label">정의</div></div>
+    <div class="pline" id="pline0"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot1"><span>2</span></div><div class="pdot-label">고객 상황</div></div>
+    <div class="pline" id="pline1"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot2"><span>3</span></div><div class="pdot-label">핵심 용어</div></div>
+    <div class="pline" id="pline2"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot3"><span>4</span></div><div class="pdot-label">진행 5단계</div></div>
+    <div class="pline" id="pline3"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot4"><span>5</span></div><div class="pdot-label">체크리스트</div></div>
+    <div class="pline" id="pline4"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot5"><span>6</span></div><div class="pdot-label">비교</div></div>
+    <div class="pline" id="pline5"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot6"><span>7</span></div><div class="pdot-label">FAQ·실무</div></div>
+  </div>
+
+  <!-- CH1 -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header"><div class="chapter-num">1</div>
+      <div class="chapter-title">전자어음 할인이란?<span>만기 전에 대금을 현금화하는 서비스</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <p>전자어음 할인은 이미 수취한 전자어음을 만기 전에 현금으로 바꿔 자금 흐름을 앞당기는 상품입니다. 신입사원은 이 상품을 <strong>"대출 설명"이 아니라 "현금 시점 조정"</strong>의 관점으로 먼저 이해해야 합니다.</p>
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">고객이 가진 것</div><h5>발행 완료된 전자어음</h5></div>
+        <div class="mini-card"><div class="lbl">고객이 원하는 것</div><h5>만기 전 현금 확보</h5></div>
+        <div class="mini-card"><div class="lbl">우리가 확인할 것</div><h5>금액·만기일·발행사·서류</h5></div>
+      </div>
+      <div class="box-key"><div class="box-label">외워야 하는 기본 문장</div>
+        "전자어음 할인은 이미 받은 전자어음을 만기 전에 현금으로 바꿔 자금 흐름을 앞당기는 서비스입니다."
+        <ul class="bullets"><li>첫 문장은 짧고 단정하게 말합니다.</li><li>금리보다 현금화 시점을 먼저 설명합니다.</li><li>대출 용어는 고객이 물을 때만 보조로 씁니다.</li></ul>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn0" onclick="openTip(0)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 1장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH2 -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header"><div class="chapter-num">2</div>
+      <div class="chapter-title">고객은 왜 문의하는가<span>매출은 잡혔는데 현금이 늦다</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">PAIN POINT 1</div><h5>대금은 예정돼 있지만 현금은 아직 없습니다</h5><p>전자어음을 수취했더라도 만기 전까지는 운영자금 공백이 생길 수 있습니다.</p></div>
+        <div class="mini-card"><div class="lbl">PAIN POINT 2</div><h5>재고·급여·세금은 기다려주지 않습니다</h5><p>고객은 금융상품보다 지금 필요한 지급 일정을 먼저 생각합니다.</p></div>
+      </div>
+      <div class="box-dark"><h4>첫 질문은 금액보다 시점입니다.</h4>
+        <p>상담 초반에는 "얼마가 필요하신가요?"보다 <strong>"언제 자금이 필요하신가요?"</strong>를 먼저 물어야 합니다. 전자어음 할인은 결국 만기까지 기다려야 하는 시간을 줄여주는 상품이기 때문입니다.</p></div>
+      <table class="tbl"><tr><th>순서</th><th>먼저 확인할 질문</th></tr>
+        <tr><td>질문 1</td><td>자금이 정확히 언제 필요하신가요?</td></tr>
+        <tr><td>질문 2</td><td>전자어음의 만기일은 언제인가요?</td></tr>
+        <tr><td>질문 3</td><td>지금 가장 불편한 자금 이슈가 무엇인가요?</td></tr></table>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn1" onclick="openTip(1)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 2장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH3 -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header"><div class="chapter-num">3</div>
+      <div class="chapter-title">신입이 먼저 익혀야 할 핵심 용어<span>발행사 · 수취사 · 만기일 · 배서</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="grid2">
+        <div class="mini-card"><h5>발행사</h5><p>전자어음을 발행한 회사입니다. 신용도와 지급 가능성을 볼 때 중요한 기준입니다.</p></div>
+        <div class="mini-card"><h5>수취사</h5><p>전자어음을 직접 받은 회사입니다. 실제 할인 진행 당사자가 누구인지 확인합니다.</p></div>
+        <div class="mini-card"><h5>만기일</h5><p>전자어음이 실제로 결제되는 날짜입니다. 상담에서 가장 먼저 보는 핵심 정보입니다.</p></div>
+        <div class="mini-card"><h5>배서</h5><p>전자어음을 다른 회사에 넘기는 과정입니다. 직접수취인지 배서수취인지 구분할 때 필요합니다.</p></div>
+      </div>
+      <div class="grid2">
+        <div class="box-tip"><strong>헷갈리기 쉬운 포인트</strong>
+          <ul class="bullets"><li>발행사와 수취사는 다를 수 있습니다.</li><li>만기일은 할인 가능 여부와 조건에 직접 연결됩니다.</li><li>배서 여부에 따라 확인 서류와 흐름이 달라질 수 있습니다.</li></ul></div>
+        <div class="box-key"><div class="box-label">교육 중 반복할 문장</div>
+          <ul class="bullets"><li>"발행사, 수취사, 만기일을 먼저 확인합니다."</li><li>"직접 받은 어음인지, 배서로 받은 어음인지 구분합니다."</li><li>"조건 설명 전에 기본 정보를 먼저 정리합니다."</li></ul></div>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn2" onclick="openTip(2)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 3장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH4 -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header"><div class="chapter-num">4</div>
+      <div class="chapter-title">진행 구조는 다섯 단계<span>발행 → 수취 → 의뢰 → 현금화 → 만기결제</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="steps5">
+        <div class="s5"><div class="n">1</div><h5>발행</h5><p>발행사가 전자어음을 발행하고 금융결제원에 등록합니다.</p></div>
+        <div class="s5"><div class="n">2</div><h5>수취</h5><p>고객이 전자어음을 직접 수취하거나 배서를 통해 받습니다.</p></div>
+        <div class="s5"><div class="n">3</div><h5>할인 의뢰</h5><p>어음액·만기일·발행사 정보와 기본 서류를 전달합니다.</p></div>
+        <div class="s5"><div class="n">4</div><h5>현금화</h5><p>조건 확인 후 입금액과 진행 방식이 확정됩니다.</p></div>
+        <div class="s5"><div class="n">5</div><h5>만기 결제</h5><p>만기일에는 금융결제원을 통한 자동 지급제시로 정산됩니다.</p></div>
+      </div>
+      <div class="grid2">
+        <div class="mini-card"><div class="lbl">HOW TO TEACH IT</div><h5>고객에게는 더 단순하게</h5><p>실제 상담에서는 "자료 확인 → 조건 안내 → 입금" 정도로 짧게 전달해도 충분합니다. 내부 교육에서는 5단계를 정확히 알고, 외부 설명에서는 짧게 번역하는 것이 핵심입니다.</p></div>
+        <div class="mini-card"><div class="lbl">REMEMBER</div><h5>직접수취 / 배서수취</h5><p>구조 차이는 있지만 고객에게는 진행 단계가 크게 달라 보이지 않도록 설명하는 것이 좋습니다. 신입은 내부적으로만 차이를 알고 있으면 됩니다.</p></div>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn3" onclick="openTip(3)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 4장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH5 -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header"><div class="chapter-num">5</div>
+      <div class="chapter-title">상담 시작 전 체크리스트<span>대상 여부와 기본 서류</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">REQUIRED INFO</div><h5>필수 확인 정보</h5>
+          <ul class="bullets"><li>발행사명 + 사업자번호</li><li>수취사명 + 사업자번호</li><li>어음액 + 만기일</li></ul></div>
+        <div class="mini-card"><div class="lbl">DOCUMENTS</div><h5>기본 첨부서류</h5>
+          <ul class="bullets"><li>매출세금계산서</li><li>사업자등록증</li><li>통장사본</li></ul></div>
+        <div class="mini-card"><div class="lbl">SALES FLOW</div><h5>권장 확인 순서</h5>
+          <ul class="bullets"><li>전자어음 여부 확인</li><li>만기일과 금액 확인</li><li>발행사 / 수취사 정보 확인</li></ul></div>
+      </div>
+      <div class="box-dark"><h4>권장 기본 멘트</h4>
+        <p>"우선 전자어음 금액과 만기일, 발행사 정보를 확인해보겠습니다. 기본 서류만 준비되면 진행 가능 여부와 조건을 빠르게 안내드릴 수 있습니다."</p></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn4" onclick="openTip(4)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 5장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH6 -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-header"><div class="chapter-num">6</div>
+      <div class="chapter-title">헷갈리기 쉬운 두 가지<span>팩토링과 외담대는 이렇게 구분합니다</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section">
+      <div class="compare-grid">
+        <div class="compare-card a"><h4>VS 팩토링과의 차이</h4>
+          <div class="row"><b>전자어음 할인</b> — 어음을 담보로 만기 전 현금화하는 구조이며 비용 효율을 우선 설명합니다.</div>
+          <div class="row"><b>팩토링</b> — 채권 매각 구조이며 리스크 이전과 재무구조 관리가 핵심입니다.</div>
+          <div class="row"><b>신입 포인트</b> — 싸게 당길지, 리스크까지 넘길지 선택 기준을 먼저 말합니다.</div></div>
+        <div class="compare-card b"><h4>VS 외담대와의 차이</h4>
+          <div class="row"><b>전자어음</b> — 20자리 숫자 기반 식별, 어음 구조로 이해하면 됩니다.</div>
+          <div class="row"><b>외담대</b> — 은행 대출 구조이며 영문자 포함 여부, 채권 기준 표기를 함께 확인합니다.</div>
+          <div class="row"><b>신입 포인트</b> — 외담대인지 전자어음인지 먼저 구분해야 상담 방향이 정확해집니다.</div></div>
+      </div>
+      <div class="grid2">
+        <div class="box-dark"><h4>권장 답변</h4><p>"팩토링은 리스크 이전까지 포함한 구조이고, 전자어음 할인은 만기 전 현금화에 초점이 있습니다. 외담대는 은행 대출 구조라 먼저 상품 구분이 필요합니다."</p></div>
+        <div class="box-warning"><strong>피해야 할 설명</strong>
+          <ul class="bullets"><li>세 상품을 같은 상품처럼 설명하지 않습니다.</li><li>비교 우위만 강조하지 않고 구분 기준을 먼저 말합니다.</li><li>헷갈릴 때는 구조보다 구분 포인트를 먼저 제시합니다.</li></ul></div>
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn5" onclick="openTip(5)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 6장 핵심 요약</button></div>
+  </section>
+
+  <!-- CH7 -->
+  <section class="chapter" id="ch7">
+    <div class="chapter-header"><div class="chapter-num">7</div>
+      <div class="chapter-title">FAQ · 금지 표현 · 롤플레이<span>짧게 답하고, 필요한 건 확인 후 안내</span></div></div>
+    <div class="chapter-border"></div>
+
+    <div class="section">
+      <div class="section-title">자주 묻는 질문 (FAQ)</div>
+      <div class="faq-item"><div class="faq-q">Q. 얼마나 빨리 진행되나요?</div><div class="faq-a">기본 정보와 서류가 정리되면 가능 여부와 조건 안내를 빠르게 시작할 수 있습니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 일부만 결제할 수 있나요?</div><div class="faq-a">전자어음은 일부 결제가 인정되지 않아 만기에는 전액 기준으로 처리됩니다.</div></div>
+      <div class="faq-item"><div class="faq-q">Q. 잔액이 부족하면 어떻게 되나요?</div><div class="faq-a">지급거절 또는 부도 상태로 표시될 수 있으므로 사전 안내가 필요합니다.</div></div>
+      <div class="box-key"><div class="box-label">답변 원칙</div>
+        <ul class="bullets"><li><b>짧게 답하기</b> — 장황한 구조 설명보다 핵심 결과를 먼저 말합니다.</li><li><b>확인 후 안내</b> — 단정 금지. 조건·수수료·일정은 확인 후 다시 안내한다고 말합니다.</li><li><b>기록 남기기</b> — 고객이 묻는 질문은 CRM이나 교육 노트에 바로 남깁니다.</li></ul></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">신입이 특히 조심해야 할 표현 — 과장·단정·혼동 금지</div>
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">DO NOT 1</div><h5>승인을 단정하지 않습니다</h5><ul class="bullets"><li>"무조건 됩니다"라고 말하지 않습니다.</li><li>"확인 후 가능 여부를 안내드리겠습니다"로 정리합니다.</li></ul></div>
+        <div class="mini-card"><div class="lbl">DO NOT 2</div><h5>상품을 섞어 설명하지 않습니다</h5><ul class="bullets"><li>전자어음·팩토링·외담대를 같은 말처럼 쓰지 않습니다.</li><li>구분이 애매하면 먼저 자료를 확인합니다.</li></ul></div>
+        <div class="mini-card"><div class="lbl">DO NOT 3</div><h5>확인 전 수수료를 확정하지 않습니다</h5><ul class="bullets"><li>정확한 조건은 어음 정보 확인 후 안내합니다.</li><li>수수료보다 진행 가능성과 구조를 먼저 설명합니다.</li></ul></div>
+      </div>
+      <div class="box-dark"><h4>안전한 기본 문장</h4><p>"지금 주신 정보 기준으로는 방향을 설명드릴 수 있고, 정확한 가능 여부와 조건은 어음 정보와 서류 확인 후 안내드리겠습니다."</p></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">실제 상담 롤플레이 — 오프닝·확인 질문·마무리</div>
+      <div class="grid3">
+        <div class="mini-card"><div class="lbl">OPENING</div><h5>오프닝 멘트</h5><ul class="bullets"><li>"전자어음을 만기 전에 현금화하는 구조입니다."</li><li>"필요하신 자금 시점에 맞춰 안내드릴 수 있습니다."</li></ul></div>
+        <div class="mini-card"><div class="lbl">DISCOVERY</div><h5>확인 질문</h5><ul class="bullets"><li>"만기일이 언제인가요?"</li><li>"금액과 발행사는 어떻게 되나요?"</li><li>"언제까지 자금이 필요하신가요?"</li></ul></div>
+        <div class="mini-card"><div class="lbl">CLOSE</div><h5>마무리 제안</h5><ul class="bullets"><li>"기본 정보 주시면 가능 여부를 빠르게 확인해드리겠습니다."</li><li>"조건과 입금 예상 금액을 안내드리겠습니다."</li></ul></div>
+      </div>
+      <div class="box-key"><div class="box-label">오늘 기억할 3가지</div>
+        <ul class="bullets"><li>전자어음 할인은 만기 전 현금화 상품이다.</li><li>상담은 금액보다 만기일과 자금 필요 시점부터 본다.</li><li>확인 전에는 승인과 조건을 단정하지 않는다.</li></ul></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn6" onclick="openTip(6)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 7장 핵심 요약</button></div>
+  </section>
+
+  <div class="src-note">출처: 전자어음 할인 신입교육 (276홀딩스 · 예충희 영업이사). 사내 교육용으로 재구성.</div>
+</main>
+
+<!-- ══ 핵심 요약 모달 ══ -->
+<div class="modal-overlay" id="tipModal">
+  <div class="modal-box">
+    <span class="tip-chip" id="tipChip">핵심 요약</span>
+    <div class="tip-chapter-title" id="tipTitle"></div>
+    <ul class="tip-list" id="tipList"></ul>
+    <button class="tip-complete-btn" id="tipCompleteBtn" onclick="completeTip()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 완료 — 다음 장으로 이동</button>
+  </div>
+</div>
+
+<!-- ══ 교육 완료 바 (모든 핵심요약 확인 시 노출) ══ -->
+<div class="done-bar" id="doneBar">
+  <span class="msg"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:#43A047;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 모든 핵심요약을 확인했습니다 — 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+/* ───── 세션 가드 (계정 기반) ───── */
+let SESSION=null;
+try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+let studentName=(SESSION&&SESSION.name)||'';
+
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const CHAPTER_NAMES=['전자어음 할인 정의','고객은 왜 문의하는가','핵심 용어 4가지','진행 5단계','상담 전 체크리스트','팩토링·외담대 비교','FAQ·금지표현·롤플레이'];
+const TIPS=[
+ ['전자어음 할인 = 이미 받은 전자어음을 만기 전에 현금화하는 서비스(대출 아님)',
+  '관점: "대출 설명"이 아니라 "현금 시점 조정"으로 먼저 이해',
+  '확인 4요소: 금액 · 만기일 · 발행사 · 서류'],
+ ['고객 문의 이유 = 매출은 잡혔는데 현금이 늦다(운영자금 공백)',
+  '첫 질문은 금액보다 시점 — "언제 자금이 필요하신가요?"',
+  '확인 질문 순서: ① 필요 시점 ② 만기일 ③ 가장 불편한 자금 이슈'],
+ ['핵심 용어: 발행사(발행한 회사) · 수취사(직접 받은 회사) · 만기일(결제일) · 배서(타사에 넘김)',
+  '발행사와 수취사는 다를 수 있음',
+  '직접수취인지 배서수취인지 먼저 구분 → 확인 서류·흐름이 달라짐'],
+ ['진행 5단계: 발행 → 수취 → 할인 의뢰 → 현금화 → 만기 결제',
+  '만기일엔 금융결제원 자동 지급제시로 정산',
+  '내부는 5단계 정확히, 고객에겐 "자료 확인 → 조건 안내 → 입금"으로 짧게'],
+ ['필수 확인: 발행사·수취사 사업자번호, 어음액+만기일',
+  '기본 서류: 매출세금계산서 · 사업자등록증 · 통장사본',
+  '권장 순서: 전자어음 여부 → 만기일·금액 → 발행사/수취사 정보'],
+ ['전자어음 할인(만기 전 현금화) ≠ 팩토링(채권 매각·리스크 이전) ≠ 외담대(은행 대출)',
+  '헷갈릴 때는 구조보다 구분 포인트를 먼저 제시',
+  '세 상품을 같은 말처럼 설명하지 않기'],
+ ['답변 원칙: 짧게 답하기 · 확인 후 안내(단정 금지) · 기록 남기기',
+  '금지: 승인 단정("무조건 됩니다") · 상품 혼동 · 확인 전 수수료 확정',
+  '오늘의 3가지: ①만기 전 현금화 상품 ②금액보다 만기일·시점 ③확인 전 단정 금지']
+];
+const TOTAL=CHAPTER_NAMES.length;
+let completedChapters=[];
+
+function openTip(idx){
+  document.getElementById('tipChip').textContent=(idx+1)+'장 핵심 요약';
+  document.getElementById('tipTitle').textContent=CHAPTER_NAMES[idx];
+  document.getElementById('tipList').innerHTML=TIPS[idx].map(t=>'<li>'+t+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=false;
+  btn.textContent=idx<TOTAL-1?'✓ 완료 — 다음 장으로 이동':'✓ 학습 완료 — 대시보드로';
+  window._tipIdx=idx;
+  document.getElementById('tipModal').classList.add('open');
+}
+function completeTip(){
+  const idx=window._tipIdx;
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:idx+1,chapterName:'[매출채권] '+CHAPTER_NAMES[idx]})}).catch(()=>{});
+  if(!completedChapters.includes(idx))completedChapters.push(idx);
+  try{localStorage.setItem('enote_completed',JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  document.getElementById('tipModal').classList.remove('open');
+  setTimeout(()=>{
+    if(idx<TOTAL-1){const nx=document.getElementById('ch'+(idx+2));if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'});}
+    else{ const db=document.getElementById('doneBar'); if(db){db.classList.add('show'); db.scrollIntoView({behavior:'smooth'});} }
+  },250);
+}
+function updateProgress(){
+  for(let i=0;i<TOTAL;i++){
+    const done=completedChapters.includes(i);
+    const d=document.getElementById('pdot'+i),l=document.getElementById('pline'+i),sb=document.getElementById('sbtn'+i);
+    if(d)d.classList.toggle('done',done);
+    if(l)l.classList.toggle('done',done);
+    if(sb&&done){sb.classList.add('done-btn');sb.textContent='✓ '+(i+1)+'장 완료';}
+  }
+  const db=document.getElementById('doneBar');
+  if(db) db.classList.toggle('show', completedChapters.length>=TOTAL);
+}
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'[매출채권] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem('enote_finished','1');}catch(e){}
+  alert('매출채권 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+function logout(){try{localStorage.removeItem('lms_session');}catch(e){}location.replace('index.html');}
+
+window.addEventListener('scroll',function(){
+  const sections=document.querySelectorAll('[id]');const navItems=document.querySelectorAll('.nav-item');
+  let top=window.scrollY+90,cur='';
+  sections.forEach(s=>{if(s.offsetTop<=top)cur=s.id;});
+  navItems.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));
+});
+
+window.addEventListener('DOMContentLoaded',function(){
+  if(!SESSION||!SESSION.name)return;
+  document.getElementById('whoChip').innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+studentName;
+  try{completedChapters=JSON.parse(localStorage.getItem('enote_completed')||'[]');}catch(e){completedChapters=[];}
+  updateProgress();
+});
+</script>
+</body>
+</html>

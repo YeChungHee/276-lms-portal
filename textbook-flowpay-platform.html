@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플로우페이 플랫폼 사용하기 | 276홀딩스 영업지원팀</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --brand:#1A237E;        /* FlowPay navy */
+  --accent:#3949AB;
+  --blue:#1565C0;
+  --green:#2E7D32;
+  --red:#C62828;
+  --yellow:#F57F17;
+  --tan:#8D7B68;
+  --bg:#F5F6FA;
+  --card:#FFFFFF;
+  --border:#E0E3EF;
+  --text:#202124;
+  --muted:#666;
+  --sidebar:262px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;}
+
+/* 헤더 */
+.top-header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
+  background:linear-gradient(135deg,#0D1547,#1A237E,#3949AB);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.top-header .brand{color:white;font-size:13px;opacity:.8;}
+.top-header .title{color:white;font-size:16px;font-weight:700;}
+.top-header .badge{background:rgba(255,255,255,.2);color:white;font-size:11px;padding:3px 12px;border-radius:99px;}
+.top-header .right{display:flex;align-items:center;gap:10px;}
+.top-header .who{background:rgba(255,255,255,.18);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;}
+.top-header .lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:11.5px;padding:5px 11px;border-radius:7px;cursor:pointer;font-family:inherit;}
+.top-header .lo:hover{background:rgba(255,255,255,.25);}
+.nav-back{display:block;margin:4px 20px 12px;font-size:12.5px;color:var(--accent);text-decoration:none;}
+
+/* 사이드바 */
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar);background:white;
+  border-right:2px solid var(--border);overflow-y:auto;z-index:90;padding:20px 0 40px;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#C5CAE9;border-radius:4px;}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--brand);letter-spacing:1px;text-transform:uppercase;
+  padding:0 20px 12px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.nav-item{display:block;padding:9px 20px;font-size:13px;color:#444;text-decoration:none;
+  border-left:3px solid transparent;transition:all .15s;cursor:pointer;}
+.nav-item:hover{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);}
+.nav-item.active{background:#E8EAF6;color:var(--brand);border-left-color:var(--brand);font-weight:500;}
+.nav-item.chapter{font-weight:600;font-size:13px;margin-top:8px;}
+.nav-item.sub{padding-left:32px;font-size:12.5px;color:#666;}
+.nav-divider{height:1px;background:var(--border);margin:8px 0;}
+
+/* 메인 */
+.main{margin-left:var(--sidebar);margin-top:56px;padding:40px 48px 80px;max-width:980px;}
+
+/* 히어로 */
+.hero{background:linear-gradient(135deg,#0D1547,#283593);color:white;border-radius:16px;
+  padding:40px 44px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;
+  background:rgba(255,255,255,.06);border-radius:50%;}
+.hero-sub{font-size:13px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:12px;line-height:1.3;}
+.hero h1 .hl{color:#9FA8DA;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:560px;}
+.hero-meta{margin-top:20px;display:flex;gap:16px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+
+/* 안내 배너 */
+.notice-bar{background:linear-gradient(135deg,#FFF8E1,#FFFDE7);border:1px solid #FFD600;border-radius:10px;
+  padding:12px 20px;margin-bottom:32px;font-size:13px;color:#5D4037;display:flex;align-items:flex-start;gap:10px;line-height:1.6;}
+.notice-bar .nb-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+
+/* 챕터 */
+.chapter{margin-bottom:60px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.chapter-num{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));
+  color:white;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-title{font-size:24px;font-weight:700;color:var(--brand);}
+.chapter-title span{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px;}
+.chapter-border{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent);margin-bottom:24px;}
+
+/* 섹션 */
+.section{margin-bottom:30px;}
+.section-title{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:12px;padding-bottom:6px;
+  border-bottom:2px solid #BBDEFB;display:flex;align-items:center;gap:8px;}
+.section p{margin-bottom:10px;}
+
+/* 카드 */
+.card{background:white;border-radius:12px;padding:22px 26px;margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(26,35,126,.07);border:1px solid var(--border);}
+
+/* 강조 박스 */
+.box-key{background:#E8EAF6;border-left:5px solid var(--brand);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;}
+.box-key .box-label{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.box-tip{background:#FFF8E1;border-left:5px solid #F9A825;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-warning{background:#FFEBEE;border-left:5px solid #E53935;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;}
+.box-formula{background:#E8F5E9;border-left:5px solid #43A047;border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;}
+.box-formula .formula{font-family:'Courier New',monospace;font-size:15px;font-weight:600;color:#1B5E20;margin:6px 0;}
+
+/* 테이블 */
+.tbl-wrap{overflow-x:auto;margin:16px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+table.tbl th{background:var(--brand);color:white;padding:11px 16px;text-align:left;font-weight:600;}
+table.tbl td{padding:10px 16px;border-bottom:1px solid #EEF0F8;vertical-align:top;}
+table.tbl tr:nth-child(even) td{background:#F5F6FA;}
+table.tbl tr:hover td{background:#E8EAF6;}
+.badge-o{background:#E8F5E9;color:#2E7D32;padding:2px 10px;border-radius:4px;font-weight:600;font-size:13px;}
+.badge-x{background:#FFEBEE;color:#C62828;padding:2px 10px;border-radius:4px;font-weight:600;font-size:13px;}
+
+/* 자금흐름 다이어그램 */
+.flow-diagram{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin:20px 0;}
+.flow-node{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;text-align:center;flex-shrink:0;}
+.flow-node.fp{background:var(--brand);color:white;}
+.flow-node.cust{background:var(--tan);color:white;}
+.flow-node.plain{background:#F0F1F8;color:#333;border:1px solid var(--border);}
+.flow-arrow{display:flex;flex-direction:column;align-items:center;font-size:12px;color:#555;min-width:70px;}
+.flow-arrow .lbl{font-size:11px;}
+.flow-arrow .ar{font-size:18px;color:var(--accent);}
+
+/* 스텝 */
+.steps{display:flex;flex-direction:column;gap:0;margin:16px 0;}
+.step{display:flex;align-items:flex-start;gap:16px;padding:14px 0;}
+.step:not(:last-child){border-bottom:1px dashed var(--border);}
+.step-num{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:var(--brand);color:white;
+  font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px;}
+.step-desc{font-size:13.5px;color:#555;line-height:1.6;}
+
+/* 9단계 그리드 */
+.grid-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;}
+.gs-item{background:#F0F1F8;border-radius:10px;padding:12px 14px;border:1px solid var(--border);}
+.gs-item.last{background:#FFF8E1;border-color:#FFD600;}
+.gs-num{font-weight:700;color:var(--brand);font-size:14px;}
+.gs-item.last .gs-num{color:#F57F17;}
+.gs-txt{font-size:12.5px;color:#444;margin-top:4px;line-height:1.4;}
+
+/* 비교 그리드 */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.compare-card{background:white;border-radius:10px;padding:18px;border:2px solid var(--border);}
+.compare-card.b2b{border-top:4px solid var(--brand);}
+.compare-card.b2c{border-top:4px solid var(--yellow);}
+.compare-card.left{border-top:4px solid var(--green);}
+.compare-card.right{border-top:4px solid var(--accent);}
+.compare-card h4{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.compare-card .sub{font-size:13px;color:#666;margin-bottom:10px;}
+.compare-card ul{list-style:none;padding:0;}
+.compare-card li{font-size:13.5px;padding:5px 0;border-bottom:1px solid #F5F5F5;color:#444;}
+.compare-card li:last-child{border-bottom:none;}
+.compare-card li::before{content:'· ';color:var(--brand);font-weight:700;}
+
+/* 3열 그리드 */
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.mini-card{background:white;border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.mini-card.ok{background:#F1F8E9;border-color:#C5E1A5;}
+.mini-card.lock{background:#F5F6FA;}
+.mini-card.danger{background:#FFEBEE;border-color:#FFCDD2;}
+.mini-card h5{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:6px;}
+.mini-card.danger h5{color:var(--red);}
+.mini-card p{font-size:12.5px;color:#555;line-height:1.5;}
+
+/* 태그 */
+.tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;margin-right:4px;}
+.tag-b2b{background:#E8EAF6;color:#283593;border:1px solid #C5CAE9;}
+.tag-b2c{background:#FFF8E1;color:#E65100;border:1px solid #FFE082;}
+.tag-scene{background:var(--brand);color:white;}
+
+/* FAQ */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.faq-item{background:white;border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.faq-q{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:6px;display:flex;gap:8px;}
+.faq-q .qn{background:var(--brand);color:white;width:22px;height:22px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.faq-a{font-size:13px;color:#444;line-height:1.55;padding-left:30px;}
+
+/* 진도 버튼 */
+.complete-bar{position:sticky;bottom:0;background:white;border-top:2px solid var(--border);
+  padding:14px 0;margin-top:30px;display:flex;justify-content:flex-end;gap:12px;align-items:center;}
+.complete-bar .hint{font-size:13px;color:#888;margin-right:auto;}
+.btn{padding:10px 22px;border-radius:8px;border:none;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-primary{background:var(--brand);color:white;}
+.btn-primary:hover{background:#0D1547;}
+
+[id]{scroll-margin-top:72px;}
+.src-note{font-size:11.5px;color:#999;margin-top:40px;border-top:1px solid var(--border);padding-top:14px;}
+
+/* 진도 표시기 */
+.progress-wrap{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:16px 24px;margin-bottom:32px;box-shadow:0 2px 8px rgba(26,35,126,.06);}
+.pdot-wrap{display:flex;flex-direction:column;align-items:center;}
+.pdot{width:34px;height:34px;border-radius:50%;background:#E0E3EF;color:#666;display:flex;align-items:center;
+  justify-content:center;font-weight:700;font-size:13px;}
+.pdot.done{background:#43A047;color:#fff;}
+.pdot.done span{display:none;}
+.pdot.done::after{content:'✓';font-size:15px;}
+.pdot-label{font-size:11px;color:#666;margin-top:6px;text-align:center;width:70px;line-height:1.3;}
+.pline{flex:1;height:3px;background:#E0E3EF;margin:0 4px 22px;border-radius:2px;}
+.pline.done{background:#43A047;}
+
+/* 핵심요약 버튼 */
+.ch-summary{text-align:center;margin:6px 0 4px;padding-top:10px;border-top:1px dashed var(--border);}
+.summary-btn{background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff;border:none;
+  padding:12px 32px;border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  box-shadow:0 3px 10px rgba(26,35,126,.25);transition:filter .15s;}
+.summary-btn:hover{filter:brightness(1.1);}
+.summary-btn.done-btn{background:linear-gradient(135deg,#43A047,#388E3C);}
+
+/* 모달 */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,21,71,.55);display:flex;align-items:center;
+  justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;padding:20px;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:18px;padding:30px 32px;max-width:540px;width:100%;
+  transform:scale(.92);transition:transform .2s;max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.tip-chip{display:inline-block;background:#E8EAF6;color:var(--brand);font-size:12px;font-weight:700;
+  padding:5px 14px;border-radius:99px;margin-bottom:14px;}
+.tip-chapter-title{font-size:22px;font-weight:700;color:var(--brand);margin-bottom:16px;}
+.tip-list{list-style:none;padding:0;margin-bottom:20px;}
+.tip-list li{font-size:14px;padding:11px 0;border-bottom:1px solid #EEF0F8;padding-left:28px;position:relative;line-height:1.5;}
+.tip-list li::before{content:'✓';color:#43A047;position:absolute;left:0;}
+.tip-complete-btn{width:100%;background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;
+  padding:15px;border-radius:12px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+.tip-complete-btn:disabled{opacity:.6;cursor:default;}
+/* 교육 완료 바 */
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);
+  padding:14px 32px;display:none;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 -3px 14px rgba(0,0,0,.1);z-index:80;}
+.done-bar.show{display:flex;}
+.done-bar .msg{font-size:13.5px;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:8px;}
+.done-final{background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:13px 34px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(46,125,50,.3);}
+.done-final:hover{filter:brightness(1.08);}
+@media(max-width:860px){.done-bar{left:0;padding:12px 16px;}}
+.name-box{text-align:center;}
+.name-box h2{font-size:22px;color:var(--brand);margin-bottom:8px;}
+.name-box .sub{font-size:13px;color:#666;margin-bottom:18px;line-height:1.6;}
+.name-input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;
+  font-family:inherit;font-size:15px;outline:none;margin-bottom:14px;}
+.name-input:focus{border-color:var(--brand);}
+.name-start-btn{width:100%;background:var(--brand);color:#fff;border:none;padding:14px;border-radius:12px;
+  font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+
+@media(max-width:860px){
+  .sidebar{display:none;}
+  .main{margin-left:0;padding:24px 20px 60px;}
+  .compare-grid,.faq-grid,.grid3{grid-template-columns:1fr;}
+  .grid-steps{grid-template-columns:repeat(2,1fr);}
+  .flow-diagram{flex-direction:column;}
+}
+@media print{.sidebar,.top-header,.complete-bar{display:none!important;}.main{margin:0;padding:20px;}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></symbol>
+<symbol id="ic-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+<symbol id="ic-clip" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+<symbol id="ic-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+<symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+<symbol id="ic-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><polyline points="1 20 1 14 7 14"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+</defs></svg>
+
+<div class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title">플로우페이 플랫폼 사용하기</span>
+  <div class="right">
+    <a class="lo" href="dashboard.html" style="text-decoration:none;">← 대시보드</a>
+    <span class="who" id="whoChip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> —</span>
+    <button class="lo" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+
+<nav class="sidebar">
+  <div class="sidebar-title">목차</div>
+  <a class="nav-item chapter" href="#ch1">1. 플로우페이는 어떤 서비스인가</a>
+  <a class="nav-item chapter" href="#ch2">2. 자금 흐름과 이용 유형</a>
+  <a class="nav-item sub" href="#fund-flow">· 자금 흐름 7단계</a>
+  <a class="nav-item sub" href="#types">· B2B vs B2C</a>
+  <a class="nav-item chapter" href="#ch3">3. 신청 프로세스 시연 (4단계)</a>
+  <a class="nav-item sub" href="#scene1">· 준비 단계</a>
+  <a class="nav-item sub" href="#scene2">· 1단계 이용 유형</a>
+  <a class="nav-item sub" href="#scene3">· 2단계 매입 정보</a>
+  <a class="nav-item sub" href="#scene4">· 3단계 사업장 정보</a>
+  <a class="nav-item sub" href="#docs">· 서류 자동/직접 제출</a>
+  <a class="nav-item sub" href="#scene5">· 4단계 매출·결제유예</a>
+  <a class="nav-item sub" href="#concept">· 매입처·사업장·매출처</a>
+  <a class="nav-item chapter" href="#ch4">4. 신청 완료 후 (심사·약정·서명)</a>
+  <a class="nav-item sub" href="#status">· 진행 상태 확인</a>
+  <a class="nav-item sub" href="#edit">· 수정 / 취소</a>
+  <a class="nav-item sub" href="#resubmit">· 이어작성 vs 재신청</a>
+  <a class="nav-item sub" href="#review">· 심사 결과 응답</a>
+  <a class="nav-item sub" href="#sign">· 모두싸인 전자서명</a>
+  <a class="nav-item chapter" href="#ch5">5. 자주 받는 문의 (FAQ)</a>
+</nav>
+
+<main class="main">
+
+  <div class="hero">
+    <div class="hero-sub">신규 입사자 온보딩 세션</div>
+    <h1>플로우페이 <span class="hl">플랫폼</span> 사용하기</h1>
+    <p>고객 화면으로 알아보는 우리 서비스 — 한 명의 고객을 처음부터 끝까지 따라가 봅니다. 신청 프로세스 시연이 핵심이며, 가상 고객 한 명을 처음부터 끝까지 따라가며 화면을 함께 봅니다.</p>
+    <div class="hero-meta">
+      <span class="hero-tag">01 서비스 정의</span>
+      <span class="hero-tag">02 자금 흐름·이용 유형</span>
+      <span class="hero-tag">03 신청 4단계</span>
+      <span class="hero-tag">04 심사·약정·서명</span>
+      <span class="hero-tag">05 FAQ</span>
+    </div>
+  </div>
+
+  <div class="notice-bar">
+    <span class="nb-icon"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg></span>
+    <div><strong>학습 목표</strong> — 고객이 <strong>flowpoint.kr</strong>에 접속해 플로우페이를 신청하고, 심사·약정·서명까지 완료하는 전 과정을 화면 단위로 이해합니다. 신입사원이 고객 문의에 즉시 응대할 수 있는 수준이 목표입니다.</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="pdot-wrap"><div class="pdot" id="pdot0"><span>1</span></div><div class="pdot-label">서비스 정의</div></div>
+    <div class="pline" id="pline0"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot1"><span>2</span></div><div class="pdot-label">자금흐름·유형</div></div>
+    <div class="pline" id="pline1"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot2"><span>3</span></div><div class="pdot-label">신청 4단계</div></div>
+    <div class="pline" id="pline2"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot3"><span>4</span></div><div class="pdot-label">심사·약정·서명</div></div>
+    <div class="pline" id="pline3"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot4"><span>5</span></div><div class="pdot-label">FAQ</div></div>
+  </div>
+
+  <!-- ========== CH 1 ========== -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header">
+      <div class="chapter-num">1</div>
+      <div class="chapter-title">플로우페이는 어떤 서비스인가요?<span>B2B 거래의 흐름이 막힘없이 이어지도록</span></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section">
+      <p>플로우페이는 <strong>우리 고객을 대신해 매입처에 매입 대금을 먼저 결제</strong>해 주고, 고객사는 매출 대금이 들어오면 플로우페이에 결제하는 구조의 B2B 거래 지원 서비스입니다.</p>
+      <div class="grid3">
+        <div class="mini-card"><h5>매입 결제</h5><p>우리 고객을 대신해 매입처에 매입 대금을 먼저 결제해 드려요.</p></div>
+        <div class="mini-card"><h5>결제 유예</h5><p>고객은 매출 대금이 들어오면 플로우페이에 결제하는 구조입니다.</p></div>
+        <div class="mini-card ok"><h5>완결형</h5><p>신청부터 약정·서명까지 플로우포인트 위에서 완결돼요.</p></div>
+      </div>
+      <div class="box-key">
+        <div class="box-label">핵심 포지셔닝</div>
+        플로우페이는 <strong>대출(금융상품)이 아니라 유통 서비스</strong>입니다. 매입 단계부터 거래에 직접 참여하며, 여신한도와 무관해 결산상 부채로 인식되지 않습니다.
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn0" onclick="openTip(0)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 1장 핵심 요약</button></div>
+  </section>
+
+  <!-- ========== CH 2 ========== -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header">
+      <div class="chapter-num">2</div>
+      <div class="chapter-title">자금 흐름과 두 가지 이용 유형<span>플로우페이가 끼어드는 자리</span></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="fund-flow">
+      <div class="section-title">자금 흐름 — 플로우페이가 끼어드는 자리</div>
+      <p>플로우페이가 매입처에 대금을 먼저 결제하고, 고객사는 매출 후 계약된 날짜에 갚는 구조입니다.</p>
+      <div class="flow-diagram">
+        <div class="flow-node plain">매입처</div>
+        <div class="flow-arrow"><span class="lbl">③ 물품공급 →</span><span class="ar">⇄</span><span class="lbl">② 선결제 ←</span></div>
+        <div class="flow-node fp">플로우페이</div>
+        <div class="flow-arrow"><span class="lbl">④ 물품공급 →</span><span class="ar">⇄</span><span class="lbl">① 신청 ←</span></div>
+        <div class="flow-node cust">고객사</div>
+        <div class="flow-arrow"><span class="lbl">⑤ 판매 →</span><span class="ar">⇄</span><span class="lbl">⑥ 결제 ←</span></div>
+        <div class="flow-node plain">최종 매출처</div>
+      </div>
+      <div class="box-formula">
+        <div class="box-label" style="color:#1B5E20;font-size:12px;font-weight:700;">⑦ 결제</div>
+        고객사는 최종 매출처로부터 대금을 받은 뒤, 계약된 날짜에 플로우페이에 결제합니다.
+      </div>
+    </div>
+
+    <div class="section" id="types">
+      <div class="section-title">두 가지 이용 유형 — 신청서가 갈라지는 첫 분기</div>
+      <p>매출처가 누구냐에 따라 이후 모든 입력 항목이 달라집니다.</p>
+      <div class="compare-grid">
+        <div class="compare-card b2b">
+          <h4><span class="tag tag-b2b">B2B</span> 기업 간 거래를 하는 사업자</h4>
+          <div class="sub">매출처가 기업·정부·공공기관인 경우<br>예시: OEM 업체, 의료기기 유통, 철강 스크랩</div>
+          <ul>
+            <li>사업장 정보: 매입 담당자 정보</li>
+            <li>매출 정보: 매출처 사업자번호 · 결제 유예 기간</li>
+            <li>자동 제출 인증서: 법인 공동인증서</li>
+          </ul>
+        </div>
+        <div class="compare-card b2c">
+          <h4><span class="tag tag-b2c">B2C</span> 개인 소비자를 대상으로 하는 사업자</h4>
+          <div class="sub">매출처가 개인 소비자인 경우<br>예시: 키즈카페, 커피숍, 프랜차이즈 음식점</div>
+          <ul>
+            <li>사업장 정보: 사장님 정보 (심사 활용)</li>
+            <li>매출 정보: 판매 물품·가게 월 매출·결제 유예 기간</li>
+            <li>자동 제출 인증서: 사업자 + 대표자 개인 2종</li>
+          </ul>
+        </div>
+      </div>
+      <div class="box-tip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bulb"/></svg><strong>분류 한 문장</strong> — "누구에게 파시나요?" → 기업 / 정부 / 공공기관이면 <strong>B2B</strong>, 개인 소비자면 <strong>B2C</strong>.</div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn1" onclick="openTip(1)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 2장 핵심 요약</button></div>
+  </section>
+
+  <!-- ========== CH 3 ========== -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header">
+      <div class="chapter-num">3</div>
+      <div class="chapter-title">신청 프로세스 시연 — 4단계 따라가기<span>처음 알게 된 순간부터 거래 완료까지</span></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section">
+      <p>고객 여정은 크게 3개 스테이지로 나뉩니다.</p>
+      <div class="grid3">
+        <div class="mini-card"><h5>STAGE 01 · 시작하기</h5><p>플로우포인트 가입 → 플로우페이 신청하기 진입. 준비할 서류 안내까지.</p></div>
+        <div class="mini-card"><h5>STAGE 02 · 신청 프로세스</h5><p>B2B/B2C → 매입 → 사업장 → 매출. 4단계 신청서 작성.</p></div>
+        <div class="mini-card ok"><h5>STAGE 03 · 신청 완료 후</h5><p>진행 상태 확인 → 심사 결과 응답 → 모두싸인 약정·서명까지.</p></div>
+      </div>
+    </div>
+
+    <div class="section" id="scene1">
+      <div class="section-title"><span class="tag tag-scene">Scene 1</span> 신청 전 준비 단계</div>
+      <p><strong>flowpoint.kr 접속 → 로그인 → 플로우페이 신청하기.</strong> 고객이 플로우페이를 처음 만나는 순간입니다.</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">필수 서류</div><div class="step-desc">사업자등록증 · 통장사본 · 매입/매출 관련 거래 서류</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">선택 서류</div><div class="step-desc">심사에 도움이 되는 추가 서류 (가이드 페이지 참고)</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">미회원이면 회원가입부터</div><div class="step-desc">flowpoint.kr 회원가입 후 [플로우페이 신청하기] 진입</div></div></div>
+      </div>
+      <div class="box-tip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bulb"/></svg><strong>이 단계 최다 문의</strong> — "신청하려는데 뭐가 필요해요?" → 전화 설명보다 <strong>가이드 페이지 링크</strong>부터 보내주세요. 참고로 결제 유예기간은 약 30일~90일입니다.</div>
+    </div>
+
+    <div class="section" id="scene2">
+      <div class="section-title"><span class="tag tag-scene">Scene 2</span> 1단계 — 이용 유형 선택</div>
+      <p><strong>첫 단추가 가장 중요해요.</strong> B2B / B2C 선택에 따라 이후 모든 입력 항목이 달라집니다.</p>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg>잘못 선택하면 사업장 정보·매출 정보가 전혀 다른 항목으로 바뀝니다. <strong>고객사들이 많이 실수하는 케이스</strong>입니다.</div>
+    </div>
+
+    <div class="section" id="scene3">
+      <div class="section-title"><span class="tag tag-scene">Scene 3</span> 2단계 — 매입 물품정보 + 매입처 정보</div>
+      <p><strong>무엇을, 얼마에, 언제 받을 것인지</strong> 그리고 <strong>누구에게서 사오는지 + 거래 증빙</strong>을 입력합니다.</p>
+      <div class="compare-grid">
+        <div class="compare-card left">
+          <h4>① 매입 물품정보</h4>
+          <ul>
+            <li>물품 카테고리 + 이름 (여러 물품이면 "OO 외" 형식)</li>
+            <li>부가세 유형 + 총 합계액 (과세 10% / 면세 0% / 영세 0% · 세액 자동 계산)</li>
+            <li>물품 받고 싶은 날 (기본: 신청일 +10일 이후 · 재거래는 다음날부터)</li>
+            <li>매입 주기 (여러 물품일 때는 전체 평균 주기)</li>
+          </ul>
+        </div>
+        <div class="compare-card right">
+          <h4>② 매입처 정보 + 서류</h4>
+          <ul>
+            <li>매입처명 · 사업자등록번호 (2곳 이상이면 추가 · 1년 이상 거래 이력 표기)</li>
+            <li>담당자 정보 (거래 시 연락용)</li>
+            <li>매입 관련 서류 업로드 (발주서·견적서 등 · zip 제외 · 10MB / 항목당 5개)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="box-key">
+        <div class="box-label">기억할 표현</div>
+        매입처 = <strong>"돈을 줄 회사"</strong> — 이 표현만 기억하면 한결 쉬워요.
+      </div>
+      <div class="box-tip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bulb"/></svg><strong>자주 받는 문의</strong> — "매입처 서류는 어디서 받아요?" → 매입처에서 받아야 합니다. "심사가 반려됐어요" → 입력 금액 ↔ 서류상 금액 불일치 가능성을 먼저 확인하세요. 받고 싶은 날 규칙이 가장 헷갈리는 부분인데, 심사가 최대 7영업일이라서 그렇습니다.</div>
+    </div>
+
+    <div class="section" id="scene4">
+      <div class="section-title"><span class="tag tag-scene">Scene 4</span> 3단계 — 사업장 정보 입력</div>
+      <p><strong>우리 고객사 본인의 정보.</strong> B2B/B2C에 따라 입력 항목이 갈라져요.</p>
+      <div class="compare-grid">
+        <div class="compare-card b2b">
+          <h4><span class="tag tag-b2b">B2B</span> 매입 담당자 정보</h4>
+          <ul>
+            <li>용도: 세금계산서 발급</li>
+            <li>용도: 발주서·거래명세서 발급</li>
+          </ul>
+        </div>
+        <div class="compare-card b2c">
+          <h4><span class="tag tag-b2c">B2C</span> 사장님 정보</h4>
+          <ul>
+            <li>용도: 심사에 활용</li>
+            <li>용도: 세금계산서·발주서·거래명세서 발급</li>
+          </ul>
+        </div>
+      </div>
+      <div class="box-tip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bulb"/></svg>매입처·매출처와 혼동하지 않게 안내하세요. <strong>"사업장 = 신청하시는 분 본인 회사"</strong>로 시작하면 거의 안 헷갈려요.</div>
+    </div>
+
+    <div class="section" id="docs">
+      <div class="section-title">사업장 서류 — 자동 제출 vs 직접 제출</div>
+      <p>두 방식 모두 알아두세요.</p>
+      <div class="compare-grid">
+        <div class="compare-card left">
+          <h4><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-zap"/></svg> 자동 제출</h4>
+          <div class="sub">공동인증서로 정보 자동 수집 (스크래핑)</div>
+          <ul>
+            <li>B2B: 법인 공동인증서 1종</li>
+            <li>B2C: 사업자 공동인증서 + 대표자 개인 공동인증서 2종</li>
+            <li>절차: 약관 동의 → 주소 → 위체크 → 인증 → 스크래핑 · 총 3회 반복</li>
+            <li>추가 업로드: 스크래핑 성공 시 주주명부 · 주거래 통장 사본</li>
+          </ul>
+        </div>
+        <div class="compare-card right">
+          <h4><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-clip"/></svg> 직접 제출</h4>
+          <div class="sub">고객이 직접 서류 업로드</div>
+          <ul>
+            <li>[이전 서류 불러오기] · 단, 세금 정보는 매번 새로 받아야 함</li>
+            <li>[발급처 바로가기] 버튼으로 발급 기관 이동 가능</li>
+            <li>제출 서류: 지방세·국세·4대보험 납부확인서 · 재무제표 · 매입처별/매출처별 세금계산서 합계표 · 주주명부 · 주거래 통장 사본 · 법인등기부등본</li>
+          </ul>
+        </div>
+      </div>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg><strong>"자동 제출이 안 돼요" 1순위 원인 두 가지:</strong> 공동인증서 보안 프로그램 미설치 / 팝업 차단. 이 두 가지부터 물어보세요.</div>
+
+      <div class="section-title" style="margin-top:24px;">자동 제출은 9단계 절차예요</div>
+      <p>고객이 가장 번거롭게 느끼는 부분. 충분히 안내하면 이탈이 줄어요.</p>
+      <div class="grid-steps">
+        <div class="gs-item"><div class="gs-num">01</div><div class="gs-txt">자동 제출 클릭</div></div>
+        <div class="gs-item"><div class="gs-num">02</div><div class="gs-txt">약관 동의</div></div>
+        <div class="gs-item"><div class="gs-num">03</div><div class="gs-txt">사업장 주소 입력</div></div>
+        <div class="gs-item"><div class="gs-num">04</div><div class="gs-txt">위체크 약관 동의</div></div>
+        <div class="gs-item"><div class="gs-num">05</div><div class="gs-txt">공동인증서 인증</div></div>
+        <div class="gs-item"><div class="gs-num">06</div><div class="gs-txt">스크래핑 대기</div></div>
+        <div class="gs-item"><div class="gs-num">07</div><div class="gs-txt">Step 4–6 3회 반복</div></div>
+        <div class="gs-item"><div class="gs-num">08</div><div class="gs-txt">주주명부 + 통장 사본 업로드</div></div>
+        <div class="gs-item last"><div class="gs-num">09</div><div class="gs-txt">실패 시 → 직접 제출 / 재시도</div></div>
+      </div>
+      <div class="box-tip">평균 소요 <strong>10~15분</strong> (3회 반복 포함). 사전 확인 사항: 보안 프로그램 · 팝업 차단.</div>
+    </div>
+
+    <div class="section" id="scene5">
+      <div class="section-title"><span class="tag tag-scene">Scene 5</span> 4단계 — 매출 정보 + 결제 유예 기간</div>
+      <p><strong>납품 정보 + 갚을 시점 정하기.</strong> 결제 유예 기간 = "물품 받은 날부터 우리에게 갚는 날까지".</p>
+      <div class="compare-grid">
+        <div class="compare-card b2b">
+          <h4><span class="tag tag-b2b">B2B</span></h4>
+          <ul><li>매출처명·사업자번호</li><li>매출 대금 받는 날</li><li>결제 유예 기간</li></ul>
+        </div>
+        <div class="compare-card b2c">
+          <h4><span class="tag tag-b2c">B2C</span></h4>
+          <ul><li>판매 물품·판매금액 (대표 1개)</li><li>가게 월 매출 (평균)</li><li>결제 유예 기간</li></ul>
+        </div>
+      </div>
+      <div class="box-formula">
+        <div class="formula">D-day (물품 받은 날) ───── D+N (우리에게 갚는 날)</div>
+        N = 매출 대금이 들어오는 시점에 맞춰 고객이 선택 (심사 후 변동 가능)
+      </div>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg>결제 유예 기간은 <strong>심사 후 변동될 수 있다</strong>는 점을 미리 안내하세요. 심사 기간에 따라 더 축소될 수도, 더 길어질 수도 있어요.</div>
+    </div>
+
+    <div class="section" id="concept">
+      <div class="section-title">개념 정리 — 매입처 · 사업장 · 매출처</div>
+      <p>고객사가 가장 헷갈려하는 세 주체입니다.</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>구분</th><th>누구?</th><th>우리 화면에서</th></tr>
+          <tr><td><strong>매입처</strong></td><td>A사 — 물품을 공급하는 회사 (돈을 받는 곳)</td><td>2단계에서 입력</td></tr>
+          <tr><td><strong>사업장</strong></td><td>우리 고객사 본인 (가공·유통하는 중간 거치)</td><td>3단계에서 입력</td></tr>
+          <tr><td><strong>매출처</strong></td><td>B사 또는 개인 소비자 (완성품을 사가는 곳 · 돈을 주는 곳)</td><td>4단계에서 입력</td></tr>
+        </table>
+      </div>
+      <div class="box-key">
+        <div class="box-label">한 줄 요약</div>
+        매입처(A사) → <strong>물품 공급</strong> → 사업장(우리 고객) → <strong>납품</strong> → 매출처(B사/소비자)
+      </div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn2" onclick="openTip(2)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 3장 핵심 요약</button></div>
+  </section>
+
+  <!-- ========== CH 4 ========== -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header">
+      <div class="chapter-num">4</div>
+      <div class="chapter-title">신청 완료 후 — 심사 · 약정 · 서명<span>진행 상태 확인부터 모두싸인까지</span></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="status">
+      <div class="section-title"><span class="tag tag-scene">Scene 6-1</span> 모든 게 시작되는 곳 — 신청내역</div>
+      <p>동선: <strong>플로우포인트 › 플로우페이 › 신청내역 › 행 클릭.</strong> 이 동선만 기억하면 돼요.</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">접수 완료</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">초기서류심사</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">추가보완요청</div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-title">세부협의</div></div></div>
+        <div class="step"><div class="step-num">5</div><div><div class="step-title">진행 확정</div></div></div>
+      </div>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg>가장 많이 오는 문의 "언제 결과 나와요?" → 상태값별로 다음에 무엇이 오는지 알아두면 응대 속도가 빨라져요. <strong>"O일 안에 나옵니다" 같은 단정은 금지</strong> — 케이스마다 다릅니다.</div>
+    </div>
+
+    <div class="section" id="edit">
+      <div class="section-title"><span class="tag tag-scene">Scene 6-2</span> 수정 / 취소 — 언제까지 바꿀 수 있을까?</div>
+      <p>상태값과 시점에 따라 결정돼요. "지금 상태가 뭐예요?"부터 물어보세요.</p>
+      <div class="grid3">
+        <div class="mini-card ok"><h5>수정 가능</h5><p>초기서류심사 또는 추가보완요청 단계에서만. 신청내역 → [수정] 버튼 → 매입·고객사·매출 탭에서 수정 → 저장하기</p></div>
+        <div class="mini-card lock"><h5><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-lock"/></svg> 수정 불가</h5><p>이후 단계에서는 조회만 가능. [수정] 버튼이 사라지고 내용을 확인만 할 수 있어요.</p></div>
+        <div class="mini-card danger"><h5><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-trash"/></svg> 신청 취소</h5><p>신청 완료 후 <strong>2일 동안만</strong> 셀프 가능. 이후엔 고객센터(contact@276holdings.com)로 1:1 문의 안내</p></div>
+      </div>
+    </div>
+
+    <div class="section" id="resubmit">
+      <div class="section-title"><span class="tag tag-scene">Scene 6-3</span> 이어작성 vs 재신청 — 완전히 다른 두 개념</div>
+      <p>이름이 비슷해서 신규 입사자가 가장 자주 혼동하는 지점입니다.</p>
+      <div class="compare-grid">
+        <div class="compare-card left">
+          <h4><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-edit"/></svg> 이어작성</h4>
+          <div class="sub">작성 중이던 신청서를 이어서 쓰기</div>
+          <ul><li>임시저장된 신청서가 있을 때</li><li>[신청하기] 진입 → 임시저장 목록 → [이어작성] 버튼</li><li>마지막 작성 부분부터 계속</li></ul>
+        </div>
+        <div class="compare-card right">
+          <h4><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-refresh"/></svg> 재신청</h4>
+          <div class="sub">기존 신청을 바탕으로 새로 시작</div>
+          <ul><li>완료된 신청 기반. 신청내역 표 → [재신청] 버튼</li><li>기존 내용 그대로 + 아래 항목만 재입력</li><li>재입력 항목: 매입 물품(물품 받고 싶은 날), 사업장 서류(국세·지방세·4대보험 납부확인서)</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="review">
+      <div class="section-title"><span class="tag tag-scene">Scene 6-4</span> 심사 결과는 알림톡으로 와요</div>
+      <p>기한 내 응답하지 않으면 자동 취소 — 이 안내가 누락되면 큰일.</p>
+      <div class="grid3">
+        <div class="mini-card"><h5>01 심사 완료</h5><p>담당자 연락처로 알림톡 발송</p></div>
+        <div class="mini-card"><h5>02 진행 조건 확인</h5><p>결제 유예 기간 등 심사 결과 반영</p></div>
+        <div class="mini-card"><h5>03 진행 확정 / 취소 선택</h5><p>알림톡 또는 플랫폼(세부협의 상태)</p></div>
+      </div>
+      <div class="grid3">
+        <div class="mini-card"><h5>⏱ 응답 기한</h5><p><strong>6영업일</strong> (알림톡 수신일 기준)</p></div>
+        <div class="mini-card danger"><h5>미응답 시</h5><p><strong>자동 취소</strong> — 이 안내가 누락되면 고객이 무방비로 취소돼버려요</p></div>
+        <div class="mini-card"><h5>대리 응답</h5><p>스스로 응답 어려운 경우 관리자가 대리 응답 (고객센터 연락)</p></div>
+      </div>
+    </div>
+
+    <div class="section" id="sign">
+      <div class="section-title"><span class="tag tag-scene">Scene 6-5 · 6-6</span> 모두싸인 — 거래 약정서 + 발주서·거래명세서</div>
+      <p><strong>거래 약정서는 전자서명 + 등기우편을 둘 다 해야 끝납니다.</strong> 우편 누락이 의외로 잦아요. 꼭 강조해서 안내하세요.</p>
+      <div class="compare-grid">
+        <div class="compare-card b2b">
+          <h4>거래 약정서 — 법인</h4>
+          <ul><li>인증: 법인 공동인증서</li><li>도장: 법인 인감도장 이미지</li><li>등기우편: 법인인감증명서 + 대표자 인감증명서 각 1부</li></ul>
+        </div>
+        <div class="compare-card b2c">
+          <h4>거래 약정서 — 연대보증인</h4>
+          <ul><li>인증: 모바일 본인인증</li><li>도장: 개인 인감도장 이미지</li><li>등기우편: 대표자 인감증명서 1부</li></ul>
+        </div>
+      </div>
+      <div class="box-key">
+        <div class="box-label">등기우편 주소</div>
+        서울특별시 영등포구 의사당대로 83(오투타워), 19층 104호 — <strong>인감증명서는 발급일 기준 최근 3개월 이내만 유효</strong>
+      </div>
+
+      <p style="margin-top:18px;"><strong>발주서·거래명세서는 우편 없이 모두싸인 한 번으로</strong> 끝납니다. 단, 거래명세서는 실제 입고 후에만 서명할 수 있어요.</p>
+      <div class="compare-grid">
+        <div class="compare-card left">
+          <h4>발주서</h4>
+          <div class="sub">진행 확정 직후</div>
+          <ul><li>이메일 → [내용 확인하고 서명하기]</li><li>본인 인증 → 법인 공동인증서</li><li>내용 확인 후 일반 도장 이미지 업로드</li><li>모든 내용 동의 → 서명 완료</li></ul>
+        </div>
+        <div class="compare-card right">
+          <h4>거래명세서</h4>
+          <div class="sub">실제 입고 완료 후만</div>
+          <ul><li>발주서와 동일한 모두싸인 흐름</li><li>문서 내용 확인 + 필수 사항 기재</li><li>입고 증빙 사진 업로드 필수</li><li>일반 도장 이미지 업로드 → 서명 완료</li></ul>
+        </div>
+      </div>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg><strong>거래명세서는 반드시 입고 완료 후 서명 — 미리 서명 절대 안 됨.</strong> 발주서·거래명세서는 거래약정서와 달리 등기우편 제출이 생략 가능하며, 일반 도장도 무방합니다.</div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn3" onclick="openTip(3)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 4장 핵심 요약</button></div>
+  </section>
+
+  <!-- ========== CH 5 ========== -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header">
+      <div class="chapter-num">5</div>
+      <div class="chapter-title">자주 받는 문의 (FAQ)<span>이용 가이드 하단 FAQ 기준 — 고객에게 그대로 안내해도 좋은 답변</span></div>
+    </div>
+    <div class="chapter-border"></div>
+    <div class="faq-grid">
+      <div class="faq-item"><div class="faq-q"><span class="qn">1</span> 마진율은 어떻게 되나요?</div><div class="faq-a">신용도와 결제 유예 기간 기준 — 60일 기준 약 5~7% 수준이에요.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">5</span> 개인사업자도 신청 가능한가요?</div><div class="faq-a">가능해요 — 매출처에 따라 B2B / B2C 플로우페이로 신청하면 됩니다.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">2</span> 신청 가능한 물품 종류는?</div><div class="faq-a">업종·품목 제한 없음(식자재·원료·비료·전자부품·철강 등). 규제·별도 라이선스 품목만 제한.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">6</span> 신규 사업자도 가능한가요?</div><div class="faq-a">가능해요 — 단, 재무현황 파악을 위한 최근 자료를 요청할 수 있어요.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">3</span> 결제 주기는 어떻게 되나요?</div><div class="faq-a">국내는 1주~최대 90일, 기존 납품·결제 주기에 따라 협의. 수출은 3개월 이상도 가능.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">7</span> 플로우페이는 대출(금융상품)인가요?</div><div class="faq-a">아니요. 여신한도와 무관한 유통 서비스로, 결산상 부채로 인식되지 않아요.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">4</span> 신청 완료 후 언제 공급받나요?</div><div class="faq-a">최초 신청은 영업일 7일 내외(심사·계약 후 첫 공급), 재신청은 결제 후 당일도 가능.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="qn">8</span> 매출채권 유동화와 무엇이 다른가요?</div><div class="faq-a">유동화는 납품 후 채권 현금화, 플로우페이는 매입 단계부터 거래에 직접 참여(양수도·통보 없이).</div></div>
+    </div>
+    <div class="ch-summary"><button class="summary-btn" id="sbtn4" onclick="openTip(4)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 5장 핵심 요약</button></div>
+  </section>
+
+  <div class="src-note">
+    출처: 플로우페이 신규 입사자 온보딩 (Figma Slides, 2026-05-28). 본 교과서는 사내 교육용으로 슬라이드 내용을 재구성한 것입니다.
+  </div>
+
+</main>
+
+<!-- ══ 핵심 요약 모달 ══ -->
+<div class="modal-overlay" id="tipModal">
+  <div class="modal-box">
+    <span class="tip-chip" id="tipChip">핵심 요약</span>
+    <div class="tip-chapter-title" id="tipTitle"></div>
+    <ul class="tip-list" id="tipList"></ul>
+    <button class="tip-complete-btn" id="tipCompleteBtn" onclick="completeTip()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 완료 — 다음 장으로 이동</button>
+  </div>
+</div>
+
+<!-- ══ 교육 완료 바 (모든 핵심요약 확인 시 노출) ══ -->
+<div class="done-bar" id="doneBar">
+  <span class="msg"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:#43A047;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 모든 핵심요약을 확인했습니다 — 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+/* ═══ 진도 기록 백엔드 (핀테크 교과서와 동일 Apps Script) ═══ */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const CHAPTER_NAMES = ['플로우페이 서비스 정의','자금 흐름과 이용 유형','신청 프로세스 시연 (4단계)','신청 완료 후 (심사·약정·서명)','자주 받는 문의 (FAQ)'];
+const TIPS = [
+ ['플로우페이 = 고객 대신 매입처에 대금을 먼저 결제하는 B2B 유통 서비스',
+  '대출(금융상품) 아님 → 여신한도 무관, 결산상 부채로 인식되지 않음',
+  '핵심 3요소: 매입 결제 · 결제 유예 · 완결형(플로우포인트 위에서 완결)'],
+ ['자금 흐름: 매입처 →(선결제)← 플로우페이 ⇄ 고객사 ⇄ 최종 매출처',
+  '두 가지 이용 유형 — B2B(기업·정부·공공) / B2C(개인 소비자)',
+  '이용 유형 선택에 따라 이후 모든 입력 항목이 달라짐 (첫 단추가 가장 중요)'],
+ ['신청 4단계: ① 이용 유형 → ② 매입(물품+매입처) → ③ 사업장 → ④ 매출·결제 유예',
+  '서류 제출: 자동 제출(공동인증서 스크래핑·9단계) vs 직접 제출',
+  '자동 제출 실패 1순위: 보안 프로그램 미설치 / 팝업 차단',
+  '매입처=2단계 · 사업장=3단계 · 매출처=4단계 에서 입력'],
+ ['신청내역 동선: 플로우포인트 › 플로우페이 › 신청내역 › 행 클릭',
+  '신청 취소 셀프 = 신청 완료 후 2일 이내 (이후 고객센터)',
+  '심사 결과는 알림톡 → 응답 기한 6영업일, 미응답 시 자동 취소',
+  '거래약정서 = 전자서명 + 등기우편 둘 다 / 거래명세서 = 입고 완료 후 서명'],
+ ['마진율: 60일 기준 약 5~7% 수준',
+  '신청 물품 종류 제한 없음(규제·라이선스 품목만 제한) · 신규·개인사업자도 가능',
+  '플로우페이는 대출이 아니며, 매출채권 유동화와도 다름(매입 단계부터 직접 참여)']
+];
+const TOTAL = CHAPTER_NAMES.length;
+const QUIZ_URL = 'quiz-flowpay-platform.html';
+
+/* ═══ 세션 가드 (계정 기반) ═══ */
+let SESSION=null;
+try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+let studentName=(SESSION&&SESSION.name)||'';
+let completedChapters = [];
+let currentTipChapter = 0;
+function logout(){try{localStorage.removeItem('lms_session');}catch(e){}location.replace('index.html');}
+
+/* 핵심 요약 모달 */
+function openTip(idx){
+  currentTipChapter=idx;
+  document.getElementById('tipChip').textContent=(idx+1)+'장 핵심 요약';
+  document.getElementById('tipTitle').textContent=CHAPTER_NAMES[idx];
+  document.getElementById('tipList').innerHTML=TIPS[idx].map(t=>'<li>'+t+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=false;
+  btn.textContent=idx<TOTAL-1?'✓ 완료 — 다음 장으로 이동':'✓ 학습 완료 — 퀴즈 풀기';
+  document.getElementById('tipModal').classList.add('open');
+}
+function completeTip(){
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  /* 진도 POST (fire & forget) — 관리자 학습진도 페이지에 기록 */
+  fetch(APPS_SCRIPT_URL,{
+    method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName||'미입력',
+      chapter:currentTipChapter+1,chapterName:'[플로우페이 플랫폼] '+CHAPTER_NAMES[currentTipChapter]})
+  }).catch(()=>{});
+  if(!completedChapters.includes(currentTipChapter))completedChapters.push(currentTipChapter);
+  try{localStorage.setItem('flowpay_completed',JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  document.getElementById('tipModal').classList.remove('open');
+  setTimeout(()=>{
+    if(currentTipChapter<TOTAL-1){
+      const nx=document.getElementById('ch'+(currentTipChapter+2));
+      if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'});
+    } else {
+      const db=document.getElementById('doneBar'); if(db){db.classList.add('show'); db.scrollIntoView({behavior:'smooth'});}
+    }
+  },250);
+}
+
+/* 진도 dots + 버튼 상태 */
+function updateProgress(){
+  for(let i=0;i<TOTAL;i++){
+    const done=completedChapters.includes(i);
+    const d=document.getElementById('pdot'+i);
+    const l=document.getElementById('pline'+i);
+    if(d)d.classList.toggle('done',done);
+    if(l)l.classList.toggle('done',done);
+    const sb=document.getElementById('sbtn'+i);
+    if(sb&&done){sb.classList.add('done-btn');sb.textContent='✓ '+(i+1)+'장 완료';}
+  }
+  const db=document.getElementById('doneBar');
+  if(db) db.classList.toggle('show', completedChapters.length>=TOTAL);
+}
+
+/* 교육 완료 — 모든 핵심요약 확인 후 */
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'[플로우페이 플랫폼] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem('flowpay_finished','1');}catch(e){}
+  alert('플로우페이 플랫폼 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+
+/* 사이드바 스크롤 스파이 */
+window.addEventListener('scroll',function(){
+  const sections=document.querySelectorAll('[id]');
+  const navItems=document.querySelectorAll('.nav-item');
+  let top=window.scrollY+90,current='';
+  sections.forEach(s=>{if(s.offsetTop<=top)current=s.id;});
+  navItems.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+current));
+});
+
+/* 초기화 */
+window.addEventListener('DOMContentLoaded',function(){
+  if(!SESSION||!SESSION.name)return;
+  const wc=document.getElementById('whoChip'); if(wc) wc.innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+studentName;
+  try{completedChapters=JSON.parse(localStorage.getItem('flowpay_completed')||'[]');}catch(e){completedChapters=[];}
+  updateProgress();
+});
+</script>
+</body>
+</html>

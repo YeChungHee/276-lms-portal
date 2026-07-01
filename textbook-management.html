@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기업경영관리 교과서 | 276홀딩스 영업지원팀</title>
+<style>
+/* ── 리셋 & 기본 ──────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --brand:#673AB7;
+  --accent:#9C27B0;
+  --blue:#1565C0;
+  --green:#2E7D32;
+  --red:#C62828;
+  --yellow:#F57F17;
+  --bg:#F8F5FF;
+  --card:#FFFFFF;
+  --border:#E8E0F7;
+  --text:#202124;
+  --muted:#666;
+  --sidebar:260px;
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.7;
+}
+
+/* ── 상단 헤더 ───────────────────────────────── */
+.top-header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:56px;
+  background:linear-gradient(135deg,#4A148C,#673AB7,#9C27B0);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.top-header .brand{color:white;font-size:13px;opacity:.8;}
+.top-header .title{color:white;font-size:16px;font-weight:700;}
+.top-header .badge{
+  background:rgba(255,255,255,.2);color:white;
+  font-size:11px;padding:3px 12px;border-radius:99px;
+}
+.top-header .header-right{display:flex;align-items:center;gap:10px;}
+.top-header .dash-link{
+  color:white;font-size:12px;text-decoration:none;
+  background:rgba(255,255,255,.12);padding:5px 12px;border-radius:99px;
+  transition:background .15s;
+}
+.top-header .dash-link:hover{background:rgba(255,255,255,.25);}
+.top-header .user-chip{
+  background:rgba(255,255,255,.2);color:white;
+  font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;
+}
+.top-header .logout-btn{
+  background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.35);
+  font-size:12px;padding:5px 14px;border-radius:99px;cursor:pointer;
+  font-family:inherit;transition:background .15s;
+}
+.top-header .logout-btn:hover{background:rgba(255,255,255,.28);}
+
+/* ── 사이드바 ─────────────────────────────────── */
+.sidebar{
+  position:fixed;top:56px;left:0;bottom:0;
+  width:var(--sidebar);
+  background:white;
+  border-right:2px solid var(--border);
+  overflow-y:auto;
+  z-index:90;
+  padding:20px 0 40px;
+}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#D1C4E9;border-radius:4px;}
+.sidebar-title{
+  font-size:11px;font-weight:700;color:var(--brand);
+  letter-spacing:1px;text-transform:uppercase;
+  padding:0 20px 12px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:8px;
+}
+.nav-item{
+  display:block;padding:9px 20px;
+  font-size:13px;color:#444;
+  text-decoration:none;
+  border-left:3px solid transparent;
+  transition:all .15s;
+  cursor:pointer;
+}
+.nav-item:hover{background:#F3E5F5;color:var(--brand);border-left-color:var(--brand);}
+.nav-item.active{background:#EDE7F6;color:var(--brand);border-left-color:var(--brand);font-weight:500;}
+.nav-item.chapter{font-weight:600;font-size:13px;margin-top:8px;}
+.nav-item.sub{padding-left:32px;font-size:12.5px;color:#666;}
+.nav-divider{height:1px;background:var(--border);margin:8px 0;}
+
+/* ── 메인 콘텐츠 ──────────────────────────────── */
+.main{
+  margin-left:var(--sidebar);
+  margin-top:56px;
+  padding:40px 48px 80px;
+  max-width:960px;
+}
+
+/* ── 히어로 ───────────────────────────────────── */
+.hero{
+  background:linear-gradient(135deg,#4A148C,#7B1FA2);
+  color:white;border-radius:16px;
+  padding:40px 44px;margin-bottom:48px;
+  position:relative;overflow:hidden;
+}
+.hero::after{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:220px;height:220px;
+  background:rgba(255,255,255,.06);border-radius:50%;
+}
+.hero-sub{font-size:13px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:12px;line-height:1.3;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:500px;}
+.hero-meta{margin-top:20px;display:flex;gap:16px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+
+/* ── 챕터 섹션 ────────────────────────────────── */
+.chapter{margin-bottom:60px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+.chapter-num{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--brand),var(--accent));
+  color:white;font-size:18px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.chapter-title{font-size:24px;font-weight:700;color:var(--brand);}
+.chapter-title span{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px;}
+.chapter-border{
+  height:3px;border-radius:2px;
+  background:linear-gradient(90deg,var(--brand),transparent);
+  margin-bottom:24px;
+}
+
+/* ── 섹션 ─────────────────────────────────────── */
+.section{margin-bottom:32px;}
+.section-title{
+  font-size:17px;font-weight:700;color:var(--blue);
+  margin-bottom:12px;padding-bottom:6px;
+  border-bottom:2px solid #BBDEFB;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ── 카드 ─────────────────────────────────────── */
+.card{
+  background:white;border-radius:12px;
+  padding:22px 26px;margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(103,58,183,.08);
+  border:1px solid var(--border);
+}
+
+/* ── 강조 박스 ────────────────────────────────── */
+.box-key{
+  background:#EDE7F6;border-left:5px solid var(--brand);
+  border-radius:0 10px 10px 0;
+  padding:16px 20px;margin:16px 0;
+}
+.box-key .box-label{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.box-tip{
+  background:#FFF8E1;border-left:5px solid #F9A825;
+  border-radius:0 10px 10px 0;
+  padding:14px 18px;margin:14px 0;
+  font-size:14px;
+}
+.box-warning{
+  background:#FFEBEE;border-left:5px solid #E53935;
+  border-radius:0 10px 10px 0;
+  padding:14px 18px;margin:14px 0;
+  font-size:14px;
+}
+.box-formula{
+  background:#E8F5E9;border-left:5px solid #43A047;
+  border-radius:0 10px 10px 0;
+  padding:16px 20px;margin:16px 0;
+}
+.box-formula .formula{font-family:'Courier New',monospace;font-size:16px;font-weight:600;color:#1B5E20;margin:6px 0;}
+.box-formula .example{font-size:13px;color:#388E3C;margin-top:8px;}
+
+/* ── 테이블 ───────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;margin:16px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+table.tbl th{
+  background:#4A148C;color:white;
+  padding:11px 16px;text-align:left;font-weight:600;
+}
+table.tbl td{
+  padding:10px 16px;border-bottom:1px solid #F0EBF8;
+  vertical-align:top;
+}
+table.tbl tr:nth-child(even) td{background:#F8F5FF;}
+table.tbl tr:hover td{background:#EDE7F6;}
+table.tbl .center{text-align:center;}
+.badge-o{background:#E8F5E9;color:#2E7D32;padding:2px 10px;border-radius:4px;font-weight:600;font-size:13px;}
+.badge-x{background:#FFEBEE;color:#C62828;padding:2px 10px;border-radius:4px;font-weight:600;font-size:13px;}
+.badge-y{background:#FFF8E1;color:#F57F17;padding:2px 10px;border-radius:4px;font-weight:500;font-size:13px;}
+
+/* ── 프로세스 스텝 ────────────────────────────── */
+.steps{display:flex;flex-direction:column;gap:0;margin:16px 0;}
+.step{display:flex;align-items:flex-start;gap:16px;padding:14px 0;}
+.step:not(:last-child){border-bottom:1px dashed var(--border);}
+.step-num{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:var(--brand);color:white;
+  font-size:14px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:2px;
+}
+.step-body{}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px;}
+.step-desc{font-size:13.5px;color:#555;line-height:1.6;}
+
+/* ── 비교 그리드 ──────────────────────────────── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.compare-card{
+  background:white;border-radius:10px;padding:18px;
+  border:2px solid var(--border);
+}
+.compare-card.left{border-top:4px solid var(--brand);}
+.compare-card.right{border-top:4px solid #E91E63;}
+.compare-card h4{font-size:15px;font-weight:700;margin-bottom:12px;}
+.compare-card ul{list-style:none;padding:0;}
+.compare-card li{font-size:13.5px;padding:5px 0;border-bottom:1px solid #F5F5F5;color:#444;}
+.compare-card li:last-child{border-bottom:none;}
+.compare-card li::before{content:'· ';color:var(--brand);}
+
+/* ── 태그 라벨 ────────────────────────────────── */
+.tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:4px;font-weight:600;margin-right:4px;}
+.tag-b2b{background:#E8EAF6;color:#3949AB;}
+.tag-b2c{background:#FCE4EC;color:#C62828;}
+.tag-법{background:#E0F7FA;color:#00838F;}
+.tag-회계{background:#FFF3E0;color:#E65100;}
+
+/* ── 용어집 ───────────────────────────────────── */
+#glossary{scroll-margin-top:72px;}
+.glossary-search{
+  width:100%;padding:12px 18px;font-size:15px;
+  border:2px solid var(--border);border-radius:10px;
+  font-family:inherit;outline:none;margin-bottom:20px;
+  transition:border-color .2s;
+}
+.glossary-search:focus{border-color:var(--brand);}
+.glossary-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.gitem{
+  background:white;border-radius:8px;padding:14px 16px;
+  border:1px solid var(--border);
+  transition:box-shadow .15s;
+}
+.gitem:hover{box-shadow:0 3px 10px rgba(103,58,183,.12);}
+.gitem.hidden{display:none;}
+.gterm{font-size:14px;font-weight:700;color:var(--brand);margin-bottom:5px;}
+.gterm .eng{font-size:12px;color:#888;font-weight:400;margin-left:6px;}
+.gdef{font-size:13px;color:#444;line-height:1.55;}
+.gcat{display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;margin-bottom:6px;}
+.gc-기초{background:#E8EAF6;color:#3949AB;}
+.gc-어음{background:#E0F7FA;color:#00838F;}
+.gc-채권{background:#FCE4EC;color:#C62828;}
+.gc-플로우{background:#E8F5E9;color:#2E7D32;}
+.gc-규제{background:#FFF3E0;color:#E65100;}
+
+/* ── 스크롤 앵커 ──────────────────────────────── */
+.chapter,.section,[id]{scroll-margin-top:72px;}
+
+/* ── 반응형 ───────────────────────────────────── */
+@media(max-width:860px){
+  .sidebar{display:none;}
+  .main{margin-left:0;padding:24px 20px 60px;}
+  .compare-grid{grid-template-columns:1fr;}
+  .glossary-grid{grid-template-columns:1fr;}
+}
+@media print{
+  .sidebar,.top-header{display:none!important;}
+  .main{margin:0;padding:20px;}
+}
+
+/* ── 학습 안내 배너 ──────────────────────────── */
+.notice-bar{
+  background:linear-gradient(135deg,#FFF8E1,#FFFDE7);
+  border:1px solid #FFD600;border-radius:10px;
+  padding:12px 20px;margin-bottom:28px;
+  font-size:13px;color:#5D4037;
+  display:flex;align-items:flex-start;gap:10px;
+  line-height:1.6;
+}
+.notice-bar .nb-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.notice-bar strong{color:#4E342E;}
+
+/* ── 진도 표시기 ─────────────────────────────── */
+.progress-wrap{
+  display:flex;align-items:center;gap:0;
+  background:white;border-radius:12px;padding:16px 24px;
+  border:1px solid var(--border);margin-bottom:40px;
+  box-shadow:0 2px 8px rgba(103,58,183,.06);
+}
+.pdot{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:#E0E0E0;color:#999;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .35s,color .35s;position:relative;
+}
+.pdot.done{background:#43A047;color:white;}
+.pdot.done::after{content:'✓';font-size:14px;}
+.pdot.done span{display:none;}
+.pdot-label{
+  font-size:10px;color:#999;text-align:center;margin-top:4px;
+  position:absolute;top:38px;white-space:nowrap;
+}
+.pline{flex:1;height:3px;background:#E0E0E0;transition:background .35s;}
+.pline.done{background:#43A047;}
+.progress-wrap .pdot-wrap{display:flex;flex-direction:column;align-items:center;}
+
+/* ── 핵심 요약 버튼 ──────────────────────────── */
+.summary-wrap{
+  text-align:center;
+  padding:28px 0 8px;
+  border-top:2px dashed var(--border);
+  margin-top:32px;
+}
+.summary-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 32px;
+  background:linear-gradient(135deg,#673AB7,#9C27B0);
+  color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 14px rgba(103,58,183,.35);
+  transition:transform .15s,box-shadow .15s;
+  font-family:inherit;
+}
+.summary-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(103,58,183,.45);}
+.summary-btn.done-btn{background:linear-gradient(135deg,#43A047,#388E3C);}
+
+/* ── 모달 공통 ───────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{
+  background:white;border-radius:16px;width:100%;max-width:520px;
+  padding:28px 30px 24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  transform:scale(.93);transition:transform .2s;
+  max-height:90vh;overflow-y:auto;
+}
+.modal-overlay.open .modal-box{transform:scale(1);}
+
+/* ── Tip 팝업 ────────────────────────────────── */
+.tip-chip{
+  display:inline-block;background:#EDE7F6;color:var(--brand);
+  font-size:11px;font-weight:700;padding:3px 14px;
+  border-radius:99px;margin-bottom:10px;letter-spacing:.5px;
+}
+.tip-chapter-title{font-size:19px;font-weight:700;color:var(--brand);margin-bottom:16px;}
+.tip-list{list-style:none;padding:0;margin:0 0 22px;}
+.tip-list li{
+  font-size:14px;color:#333;
+  padding:8px 0;border-bottom:1px solid #F0EBF8;
+  display:flex;align-items:flex-start;gap:8px;line-height:1.55;
+}
+.tip-list li:last-child{border-bottom:none;}
+.tip-list li::before{content:'✓';color:#43A047;flex-shrink:0;font-size:13px;margin-top:1px;}
+.tip-complete-btn{
+  display:block;width:100%;padding:14px;
+  background:linear-gradient(135deg,#388E3C,#43A047);
+  color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:opacity .15s;
+}
+.tip-complete-btn:hover{opacity:.9;}
+.tip-complete-btn:disabled{background:#bdbdbd;cursor:not-allowed;}
+
+/* ── 이름 입력 모달 ──────────────────────────── */
+.name-box{text-align:center;padding:8px 0;}
+.name-box h2{font-size:21px;color:var(--brand);margin-bottom:8px;}
+.name-box .sub{font-size:13px;color:#666;margin-bottom:24px;line-height:1.6;}
+.name-input{
+  display:block;width:100%;padding:13px 16px;font-size:16px;
+  border:2px solid var(--border);border-radius:10px;
+  font-family:inherit;outline:none;margin-bottom:12px;
+  text-align:center;transition:border-color .2s;
+}
+.name-input:focus{border-color:var(--brand);}
+.name-start-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--brand),var(--accent));
+  color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+
+/* ── 퀴즈 신청 섹션 ──────────────────────────── */
+#quizRequestSection{
+  display:none;
+  background:white;border-radius:16px;padding:36px 32px;
+  border:2px solid #43A047;text-align:center;
+  margin-top:48px;
+  box-shadow:0 4px 16px rgba(56,142,60,.15);
+}
+#quizRequestSection.visible{display:block;}
+#quizRequestSection h3{font-size:22px;color:#2E7D32;margin-bottom:8px;}
+#quizRequestSection .desc{font-size:14px;color:#555;margin-bottom:20px;line-height:1.6;}
+.req-name-badge{
+  display:inline-block;background:#F8F5FF;border:1px solid var(--border);
+  border-radius:8px;padding:10px 20px;font-size:15px;font-weight:700;
+  color:var(--brand);margin-bottom:18px;
+}
+.req-btn{
+  display:inline-block;padding:14px 36px;
+  background:linear-gradient(135deg,#2E7D32,#43A047);
+  color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+.pending-box{
+  display:none;background:#FFF8E1;border:1px solid #FFD600;
+  border-radius:10px;padding:16px 20px;margin-top:16px;
+  font-size:14px;color:#5D4037;line-height:1.6;
+}
+.pending-box.visible{display:block;}
+.check-btn{
+  display:inline-block;margin-top:12px;padding:11px 24px;
+  background:#673AB7;color:white;border:none;border-radius:8px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+}
+.quiz-go-btn{
+  display:none;margin-top:14px;padding:14px 36px;
+  background:linear-gradient(135deg,#673AB7,#9C27B0);
+  color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+  box-shadow:0 4px 14px rgba(103,58,183,.35);
+}
+.quiz-go-btn.visible{display:inline-block;}
+
+/* ── 교육 완료 바 ────────────────────────────── */
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);
+  padding:14px 32px;display:none;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 -3px 14px rgba(0,0,0,.1);z-index:80;}
+.done-bar.show{display:flex;}
+.done-bar .msg{font-size:13.5px;color:var(--brand);font-weight:600;display:flex;align-items:center;gap:8px;}
+.done-final{background:linear-gradient(135deg,#43A047,#2E7D32);color:#fff;border:none;padding:13px 34px;
+  border-radius:99px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(46,125,50,.3);}
+.done-final:hover{filter:brightness(1.08);}
+@media(max-width:860px){.done-bar{left:0;padding:12px 16px;}}
+</style>
+</head>
+
+<body>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></symbol>
+</defs></svg>
+
+<!-- ══════════════════ TOP HEADER ══════════════════ -->
+<header class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 기업경영관리 교과서</span>
+  <div class="header-right">
+    <a class="dash-link" href="dashboard.html">&#x2190; 대시보드</a>
+    <span class="user-chip" id="userChip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> -</span>
+    <button class="logout-btn" onclick="logout()">로그아웃</button>
+  </div>
+</header>
+
+<!-- ══════════════════ SIDEBAR ══════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 목차</div>
+  <a class="nav-item chapter" href="#ch1">1장. 경영관리 기초</a>
+  <a class="nav-item sub" href="#ch1-1">1-1. 기업경영관리란?</a>
+  <a class="nav-item sub" href="#ch1-2">1-2. 핀테크 경영관리의 특징</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item chapter" href="#ch2">2장. 핵심 숫자와 손익구조</a>
+  <a class="nav-item sub" href="#ch2-1">2-1. 경영관리 5대 숫자</a>
+  <a class="nav-item sub" href="#ch2-2">2-2. 손익 구조 이해</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item chapter" href="#ch3">3장. 현금흐름과 운영</a>
+  <a class="nav-item sub" href="#ch3-1">3-1. 현금흐름과 운전자본</a>
+  <a class="nav-item sub" href="#ch3-2">3-2. 서비스 운영 프로세스</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item chapter" href="#ch4">4장. 리스크 · 컴플라이언스</a>
+  <a class="nav-item sub" href="#ch4-1">4-1. 리스크 관리</a>
+  <a class="nav-item sub" href="#ch4-2">4-2. 컴플라이언스 · 내부통제</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item chapter" href="#ch5">5장. 데이터와 실무 적용</a>
+  <a class="nav-item sub" href="#ch5-1">5-1. 데이터 기반 의사결정</a>
+  <a class="nav-item sub" href="#ch5-2">5-2. 경영관리 실무 예시</a>
+  <a class="nav-item sub" href="#ch5-3">5-3. 업무 체크리스트</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item chapter" href="#glossary"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 용어집</a>
+</nav>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+<main class="main">
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <div class="hero-sub">276홀딩스 영업지원팀 · 신입사원 온보딩 교육 교재</div>
+    <h1>기업경영관리 교과서</h1>
+    <p>핀테크 / B2B 금융 서비스 신입사원을 위한 경영관리 기본기를 학습합니다.<br>회사의 숫자, 리스크, 고객, 프로세스를 함께 보는 눈을 기르고, 각 장 완료 후 <strong>[<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 핵심 요약]</strong>을 클릭한 뒤 5장 완독 후 퀴즈를 신청하세요.</p>
+    <div class="hero-meta">
+      <span class="hero-tag"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 5개 챕터</span>
+      <span class="hero-tag"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 용어집 28개</span>
+      <span class="hero-tag"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bulb"/></svg> 권장 학습 90분</span>
+    </div>
+  </div>
+
+  <!-- ══ 학습 안내 배너 ══ -->
+  <div class="notice-bar">
+    <span class="nb-icon"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg></span>
+    <span>
+      <strong>학습 안내 — </strong>
+      각 장을 학습한 후 하단의 <strong>[<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 핵심 요약]</strong> 버튼을 클릭하세요.
+      Tip 팝업에서 핵심 내용을 확인하고 <strong>[<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 완료]</strong>를 누르면 학습 진도가 기록되며 다음 장으로 이동합니다.
+      <strong>5장 모두 완료 후</strong> 퀴즈 응시를 신청할 수 있습니다.
+      관리자 승인 후 퀴즈 입장 버튼이 활성화됩니다.
+    </span>
+  </div>
+
+  <!-- ══ 학습 진도 표시 ══ -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="pdot-wrap"><div class="pdot" id="pdot0"><span>1</span><div class="pdot-label">기초</div></div></div>
+    <div class="pline" id="pline0"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot1"><span>2</span><div class="pdot-label">숫자·손익</div></div></div>
+    <div class="pline" id="pline1"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot2"><span>3</span><div class="pdot-label">현금·운영</div></div></div>
+    <div class="pline" id="pline2"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot3"><span>4</span><div class="pdot-label">리스크</div></div></div>
+    <div class="pline" id="pline3"></div>
+    <div class="pdot-wrap"><div class="pdot" id="pdot4"><span>5</span><div class="pdot-label">데이터·실무</div></div></div>
+  </div>
+
+  <!-- ════════════════ 1장: 경영관리 기초 ════════════════ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header">
+      <div class="chapter-num">1</div>
+      <div><div class="chapter-title">경영관리 기초<span>Management Fundamentals</span></div></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="ch1-1">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bulb"/></svg> 1-1. 기업경영관리란 무엇인가?</div>
+      <div class="card">
+        <div class="box-key">
+          <div class="box-label">핵심 정의</div>
+          <strong>기업경영관리</strong>는 회사가 <strong>목표를 세우고</strong>, 실행 결과를 <strong>숫자로 확인</strong>하며, <strong>위험을 줄이고</strong>, 다음 의사결정을 더 정확하게 만드는 활동입니다.
+        </div>
+        <p>핀테크기업에서는 단순히 매출만 보는 것이 아니라 <strong>거래 구조 · 현금흐름 · 신용위험 · 규제 준수 · 데이터 품질 · 고객 경험</strong>을 함께 봐야 합니다.</p>
+        <br>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <tr><th>경영관리의 핵심 질문</th><th>확인해야 할 내용</th></tr>
+            <tr><td>회사가 돈을 벌고 있는가?</td><td>매출, 수수료, 마진율, 비용, 손익</td></tr>
+            <tr><td>현금이 막히지 않는가?</td><td>입금 예정, 지급 예정, 미수금, 정산 주기</td></tr>
+            <tr><td>위험은 통제되고 있는가?</td><td>연체, 부실 가능성, 거래 이상 징후</td></tr>
+            <tr><td>프로세스는 반복 가능하게 운영되는가?</td><td>신청, 심사, 계약, 정산, 회수 절차</td></tr>
+            <tr><td>고객은 계속 이용할 이유가 있는가?</td><td>재이용률, 만족도, 이탈 사유</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="ch1-2">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 1-2. 핀테크기업 경영관리의 특징</div>
+      <p style="margin-bottom:8px;">일반 제조업·유통업의 경영관리는 재고·원가·판매량 중심입니다. 핀테크기업은 여기에 <strong>금융 리스크</strong>와 <strong>기술 운영 리스크</strong>가 더해집니다.</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>구분</th><th>일반 기업</th><th>핀테크기업</th></tr>
+          <tr><td><strong>수익 구조</strong></td><td>제품 판매, 용역 제공</td><td>수수료, 이자성 수익, 플랫폼 이용료, 데이터 기반 서비스</td></tr>
+          <tr><td><strong>주요 자산</strong></td><td>재고, 설비, 영업망</td><td>고객 데이터, 거래 데이터, 신용평가 모델, 파트너 네트워크</td></tr>
+          <tr><td><strong>핵심 리스크</strong></td><td>원가 상승, 판매 부진</td><td>연체, 부실, 규제 위반, 개인정보 사고, 시스템 장애</td></tr>
+          <tr><td><strong>관리 포인트</strong></td><td>생산성, 판매량, 원가</td><td>거래 안정성, 심사 품질, 현금흐름, 컴플라이언스</td></tr>
+        </table>
+      </div>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg> 핀테크 경영관리는 <strong>"얼마나 팔았나"</strong>보다 <strong>"얼마나 안전하게 남겼나"</strong>를 함께 봅니다.</div>
+    </div>
+
+  <div class="summary-wrap">
+    <button class="summary-btn" id="sbtn0" onclick="openTip(0)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 1장 핵심 요약</button>
+  </div>
+  </section>
+
+  <!-- ════════════════ 2장: 핵심 숫자와 손익구조 ════════════════ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header">
+      <div class="chapter-num">2</div>
+      <div><div class="chapter-title">핵심 숫자와 손익구조<span>Key Numbers &amp; P&amp;L Structure</span></div></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="ch2-1">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 2-1. 경영관리자가 보는 5대 숫자</div>
+      <div class="card">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-body">
+            <div class="step-title">매출</div>
+            <div class="step-desc">회사가 고객에게 서비스를 제공하고 얻은 총수익. 핀테크에서는 <strong>거래금액 전체가 아니라</strong> 회사가 실제 취득하는 <strong>수수료·서비스 수익</strong>이 매출입니다.</div>
+          </div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body">
+            <div class="step-title">마진율</div>
+            <div class="step-desc">매출에서 비용을 제외하고 얼마나 남는지 보여주는 지표. 자금조달 비용·결제수수료·보증료·심사비용·인건비가 영향을 줍니다.</div>
+          </div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body">
+            <div class="step-title">현금흐름</div>
+            <div class="step-desc">손익상 이익이 나도 현금이 늦게 들어오면 운영이 어려워집니다. 고객 정산일·파트너 지급일·상환일이 엇갈려 특히 중요합니다.</div>
+          </div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body">
+            <div class="step-title">연체율</div>
+            <div class="step-desc">약속한 결제일에 돈이 들어오지 않은 비율. 높아지면 수익성뿐 아니라 신용평가 모델·투자자 신뢰·파트너 계약에도 영향을 줍니다.</div>
+          </div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-body">
+            <div class="step-title">재이용률</div>
+            <div class="step-desc">한 번의 거래보다 반복 이용이 중요. 재이용률이 높다는 것은 고객이 서비스 가치를 체감하고 있다는 뜻입니다.</div>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="box-formula">
+        <div class="formula">마진율 = (매출 - 직접비용) / 매출 × 100</div>
+        <div class="formula">연체율 = 연체 금액 / 전체 상환 예정 금액 × 100</div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>매출 인식 예시</th><th>금액</th></tr>
+          <tr><td>고객 거래금액</td><td>100,000,000원</td></tr>
+          <tr><td>수수료율</td><td>5%</td></tr>
+          <tr><td><strong>회사 매출</strong></td><td><strong>5,000,000원</strong></td></tr>
+        </table>
+      </div>
+      <div class="box-tip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg> <strong>거래금액과 매출을 구분</strong>하세요. 거래금액이 커도 수수료율·회수율·비용 구조가 나쁘면 실제 이익은 작을 수 있습니다.</div>
+    </div>
+
+    <div class="section" id="ch2-2">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 2-2. 손익 구조 이해</div>
+      <div class="card">
+        <strong>핀테크기업 손익 흐름</strong><br><br>
+        <div class="box-formula">
+          <div class="formula">거래금액 → 수수료 수익 → (− 자금조달 비용) → (− 운영 비용) → (− 리스크 비용) = 영업이익</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>주요 비용 항목</th><th>설명</th></tr>
+          <tr><td>자금 조달 비용</td><td>외부에서 자금을 조달할 때 발생하는 비용</td></tr>
+          <tr><td>결제 / 정산 비용</td><td>PG, 은행, 플랫폼 연동 수수료</td></tr>
+          <tr><td>심사 비용</td><td>신용조회, 서류 검증, 데이터 수집 비용</td></tr>
+          <tr><td>리스크 비용</td><td>연체, 부실, 회수 비용</td></tr>
+          <tr><td>운영 비용</td><td>인건비, 시스템 운영, 고객 응대 비용</td></tr>
+          <tr><td>마케팅 비용</td><td>리드 발굴, 광고, 제휴 영업 비용</td></tr>
+        </table>
+      </div>
+      <div class="box-warning"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg> 신입사원 포인트 — 거래금액이 크다고 반드시 좋은 거래는 아닙니다. 수수료율이 높아도 부실 가능성이 크면 위험한 거래이며, 매출보다 중요한 것은 <strong>회수 가능한 매출</strong>입니다.</div>
+    </div>
+
+  <div class="summary-wrap">
+    <button class="summary-btn" id="sbtn1" onclick="openTip(1)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 2장 핵심 요약</button>
+  </div>
+  </section>
+
+  <!-- ════════════════ 3장: 현금흐름과 운영 ════════════════ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header">
+      <div class="chapter-num">3</div>
+      <div><div class="chapter-title">현금흐름과 운영 프로세스<span>Cash Flow &amp; Operations</span></div></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="ch3-1">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 3-1. 현금흐름과 운전자본</div>
+      <div class="box-key">
+        <div class="box-label">핵심 정의</div>
+        <strong>운전자본</strong>은 회사가 일상 운영을 지속하기 위해 필요한 자금입니다.
+      </div>
+      <div class="box-formula">
+        <div class="formula">운전자본 = 매출채권 + 재고자산 − 매입채무</div>
+        <div class="example">핀테크기업에서는 재고보다 <strong>정산 예정 금액 · 미수금 · 지급 예정 금액</strong>이 더 중요한 관리 대상이 됩니다.</div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>현금흐름이 중요한 상황</th><th>관리 포인트</th></tr>
+          <tr><td>고객 결제는 60일 뒤</td><td>그 전에 회사가 지급해야 할 돈이 있는지 확인</td></tr>
+          <tr><td>파트너에게 즉시 지급</td><td>회사 보유 현금 또는 조달 한도 확인</td></tr>
+          <tr><td>거래가 급증</td><td>매출 증가와 함께 선집행 자금도 증가</td></tr>
+          <tr><td>연체 발생</td><td>회수 계획, 충당금, 신규 한도 제한 검토</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section" id="ch3-2">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 3-2. 핀테크 서비스 운영 프로세스</div>
+      <p style="margin-bottom:8px;">경영관리는 프로세스가 끊기지 않도록 보는 역할도 합니다. 기본 운영 흐름은 다음과 같습니다.</p>
+      <div class="card">
+        <div class="steps"><div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">리드 발굴</div></div></div><div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">상담</div></div></div><div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">서류 접수</div></div></div><div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">심사</div></div></div><div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">한도/조건 산정</div></div></div><div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">계약</div></div></div><div class="step"><div class="step-num">7</div><div class="step-body"><div class="step-title">거래 실행</div></div></div><div class="step"><div class="step-num">8</div><div class="step-body"><div class="step-title">정산</div></div></div><div class="step"><div class="step-num">9</div><div class="step-body"><div class="step-title">회수</div></div></div><div class="step"><div class="step-num">10</div><div class="step-body"><div class="step-title">사후 모니터링</div></div></div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>단계</th><th>주요 지표</th></tr>
+          <tr><td>리드 발굴</td><td>신규 리드 수, 유효 리드 비율</td></tr>
+          <tr><td>상담</td><td>상담 완료율, 니즈 적합도</td></tr>
+          <tr><td>서류 접수</td><td>필수 서류 누락률, 접수 소요 시간</td></tr>
+          <tr><td>심사</td><td>승인율, 반려 사유, 심사 리드타임</td></tr>
+          <tr><td>계약</td><td>계약 전환율, 전자서명 완료율</td></tr>
+          <tr><td>실행</td><td>거래금액, 수수료, 실행 오류</td></tr>
+          <tr><td>정산</td><td>정산 지연 건수, 입금 확인율</td></tr>
+          <tr><td>회수</td><td>연체율, 회수율, 부실률</td></tr>
+        </table>
+      </div>
+    </div>
+
+  <div class="summary-wrap">
+    <button class="summary-btn" id="sbtn2" onclick="openTip(2)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 3장 핵심 요약</button>
+  </div>
+  </section>
+
+  <!-- ════════════════ 4장: 리스크 · 컴플라이언스 ════════════════ -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header">
+      <div class="chapter-num">4</div>
+      <div><div class="chapter-title">리스크 · 컴플라이언스<span>Risk &amp; Compliance</span></div></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="ch4-1">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg> 4-1. 리스크 관리</div>
+      <p style="margin-bottom:8px;">핀테크기업의 리스크는 대부분 <strong>숫자와 프로세스</strong>에서 먼저 나타납니다. 경영관리자는 이상 징후를 빠르게 발견해야 합니다.</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>리스크</th><th>설명</th><th>관리 방법</th></tr>
+          <tr><td><strong>신용 리스크</strong></td><td>고객이 약속한 금액을 갚지 못할 위험</td><td>심사 기준, 한도 관리, 사후 모니터링</td></tr>
+          <tr><td><strong>운영 리스크</strong></td><td>내부 실수, 승인 누락, 계약 오류</td><td>체크리스트, 권한 분리, 이중 검토</td></tr>
+          <tr><td><strong>유동성 리스크</strong></td><td>필요한 시점에 현금이 부족한 위험</td><td>입출금 예측, 조달 한도 관리</td></tr>
+          <tr><td><strong>규제 리스크</strong></td><td>법규·약관·개인정보 위반</td><td>컴플라이언스 점검, 기록 관리</td></tr>
+          <tr><td><strong>기술 리스크</strong></td><td>시스템 장애, 데이터 오류, 보안 사고</td><td>모니터링, 백업, 접근 권한 관리</td></tr>
+        </table>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <strong><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg> 리스크 신호 예시</strong>
+        <ul style="margin:10px 0 0 18px;font-size:14px;color:#444;line-height:1.9;">
+          <li>특정 업종의 연체가 갑자기 증가한다.</li>
+          <li>서류 보완 요청이 반복된다.</li>
+          <li>거래 실행 후 정산 확인이 늦어진다.</li>
+          <li>동일 고객이 짧은 기간에 한도를 반복 사용한다.</li>
+          <li>영업팀 설명과 계약서 조건이 다르다.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="ch4-2">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 4-2. 컴플라이언스와 내부통제</div>
+      <div class="box-key">
+        <div class="box-label">핵심 정의</div>
+        <strong>컴플라이언스</strong>는 법과 규정을 지키는 활동이고, <strong>내부통제</strong>는 회사 안에서 실수와 부정을 줄이기 위한 장치입니다.
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>신입사원이 지켜야 할 기본 원칙</th><th>설명</th></tr>
+          <tr><td>기록 우선</td><td>상담, 조건, 승인, 변경 내역을 남긴다</td></tr>
+          <tr><td>권한 분리</td><td>영업, 심사, 승인, 정산 역할을 구분한다</td></tr>
+          <tr><td>고객정보 보호</td><td>필요한 정보만 수집하고 접근 권한을 제한한다</td></tr>
+          <tr><td>예외 처리 보고</td><td>예외 승인, 조건 변경, 수기 처리 건은 반드시 공유한다</td></tr>
+          <tr><td>증빙 기반 판단</td><td>구두 설명보다 서류, 데이터, 시스템 기록을 우선한다</td></tr>
+        </table>
+      </div>
+    </div>
+
+  <div class="summary-wrap">
+    <button class="summary-btn" id="sbtn3" onclick="openTip(3)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 4장 핵심 요약</button>
+  </div>
+  </section>
+
+  <!-- ════════════════ 5장: 데이터와 실무 적용 ════════════════ -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header">
+      <div class="chapter-num">5</div>
+      <div><div class="chapter-title">데이터와 실무 적용<span>Data &amp; Practice</span></div></div>
+    </div>
+    <div class="chapter-border"></div>
+
+    <div class="section" id="ch5-1">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 5-1. 데이터 기반 의사결정</div>
+      <p style="margin-bottom:8px;">핀테크기업은 데이터가 곧 경쟁력입니다. 다만 데이터가 많다고 좋은 의사결정이 되는 것은 아니며, <strong>정확한 기준으로 수집하고 해석</strong>해야 합니다.</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>좋은 데이터의 조건</th><th>설명</th></tr>
+          <tr><td>정확성</td><td>실제 사실과 일치해야 함</td></tr>
+          <tr><td>완전성</td><td>필수 항목이 빠지지 않아야 함</td></tr>
+          <tr><td>최신성</td><td>오래된 정보가 의사결정을 흐리지 않아야 함</td></tr>
+          <tr><td>추적성</td><td>누가, 언제, 왜 변경했는지 확인 가능해야 함</td></tr>
+          <tr><td>활용성</td><td>영업, 심사, 정산, 회수 판단에 쓰일 수 있어야 함</td></tr>
+        </table>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <tr><th>대시보드 영역</th><th>지표</th></tr>
+          <tr><td>성장</td><td>거래금액, 매출, 신규 고객 수</td></tr>
+          <tr><td>수익성</td><td>수수료율, 마진율, 고객별 손익</td></tr>
+          <tr><td>리스크</td><td>연체율, 부실률, 한도 소진율</td></tr>
+          <tr><td>운영</td><td>처리 시간, 오류 건수, 서류 누락률</td></tr>
+          <tr><td>고객</td><td>재이용률, 이탈률, VOC</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section" id="ch5-2">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 5-2. 핀테크기업 경영관리 실무 예시</div>
+
+      <div class="card">
+        <strong>예시 1. 거래는 늘었는데 현금이 부족한 경우</strong>
+        <div class="compare-grid" style="margin-top:12px;">
+          <div class="compare-card left">
+            <h4>가능한 원인</h4>
+            <ul>
+              <li>고객 결제일보다 회사 지급일이 빠르다</li>
+              <li>신규 거래 실행 급증으로 선집행 자금 증가</li>
+              <li>일부 고객의 정산이 지연되고 있다</li>
+              <li>외부 조달 한도가 충분하지 않다</li>
+            </ul>
+          </div>
+          <div class="compare-card right">
+            <h4>확인해야 할 자료</h4>
+            <ul>
+              <li>일자별 입금 / 지급 예정표</li>
+              <li>고객별 연체 현황</li>
+              <li>거래 실행 예정 목록</li>
+              <li>조달 한도 잔액</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <strong>예시 2. 매출은 높지만 이익이 낮은 경우</strong>
+        <div class="compare-grid" style="margin-top:12px;">
+          <div class="compare-card left">
+            <h4>가능한 원인</h4>
+            <ul>
+              <li>자금 조달 비용이 높다</li>
+              <li>수수료율이 낮게 책정되었다</li>
+              <li>연체 및 회수 비용이 증가했다</li>
+              <li>수기 처리·고객 대응 비용이 크다</li>
+            </ul>
+          </div>
+          <div class="compare-card right">
+            <h4>개선 방향</h4>
+            <ul>
+              <li>고객군별 마진율 분석</li>
+              <li>고위험 거래 조건 재설계</li>
+              <li>반복 업무 자동화</li>
+              <li>심사 기준과 영업 조건 정렬</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <strong>예시 3. 영업팀과 심사팀 판단이 다른 경우</strong>
+        <p style="margin-top:8px;font-size:14px;color:#555;">영업팀은 고객의 <strong>성장 가능성</strong>을, 심사팀은 <strong>회수 가능성과 리스크</strong>를 봅니다. 두 관점은 충돌이 아니라 보완 관계입니다.</p>
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="tag tag-b2b">발주서·납품 가능성</span>
+          <span class="tag tag-b2b">원청·매출처 신용도</span>
+          <span class="tag tag-b2b">과거 상환 이력</span>
+          <span class="tag tag-b2b">거래 구조 증빙</span>
+          <span class="tag tag-b2b">감당 가능 리스크 한도</span>
+        </div>
+      </div>
+      <div class="box-tip"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-alert"/></svg> 영업(성장 가능성)과 심사(회수 가능성)는 <strong>충돌이 아닌 보완 관계</strong>입니다. 두 관점을 함께 봐야 안전한 거래가 됩니다.</div>
+    </div>
+
+    <div class="section" id="ch5-3">
+      <div class="section-title"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 5-3. 신입사원 업무 체크리스트</div>
+      <div class="card">
+        <strong>매일 확인</strong>
+        <ul style="margin:8px 0 0 18px;font-size:14px;color:#444;line-height:1.8;">
+          <li>신규 상담 및 접수 현황 / 심사 대기 건수</li>
+          <li>거래 실행 예정 금액 / 당일 입금·지급 예정</li>
+          <li>연체 또는 정산 지연 건</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <strong>매주 확인</strong>
+        <ul style="margin:8px 0 0 18px;font-size:14px;color:#444;line-height:1.8;">
+          <li>신규 고객 수와 계약 전환율</li>
+          <li>고객별 거래금액과 수수료 수익</li>
+          <li>업종별 승인율·연체율 / 처리 리드타임 / 주요 예외 승인 내역</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <strong>매월 확인</strong>
+        <ul style="margin:8px 0 0 18px;font-size:14px;color:#444;line-height:1.8;">
+          <li>월 매출과 마진율 / 고객별 손익</li>
+          <li>현금흐름 실적과 예측 차이</li>
+          <li>부실 가능 거래 목록 / 프로세스 개선 과제</li>
+        </ul>
+      </div>
+      <div class="box-key" style="margin-top:16px;">
+        <div class="box-label">핵심 요약</div>
+        좋은 경영관리는 숫자를 보는 것에서 끝나지 않고, <strong>프로세스와 행동 개선</strong>으로 연결됩니다. 손익이 좋아 보여도 현금흐름이 막히면 운영 리스크가 커지며, <strong>연체율·회수율</strong>은 핀테크기업의 건강 상태를 보여주는 핵심 지표입니다.
+      </div>
+    </div>
+
+  <div class="summary-wrap">
+    <button class="summary-btn" id="sbtn4" onclick="openTip(4)"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bookmark"/></svg> 5장 핵심 요약</button>
+  </div>
+  </section>
+
+  <!-- ════════════════ 용어집 ════════════════ -->
+  <section class="chapter" id="glossary">
+    <div class="chapter-header">
+      <div class="chapter-num"><svg width="22" height="22" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg></div>
+      <div><div class="chapter-title">용어집<span>Glossary — 경영관리 핵심 용어 28개</span></div></div>
+    </div>
+    <div class="chapter-border"></div>
+    <input type="text" class="glossary-search" id="glossSearch" placeholder="용어 검색..." oninput="filterGlossary(this.value)">
+    <div class="glossary-grid" id="glossGrid">
+      <div class="gitem" data-text="기업경영관리  기초">
+        <div><span class="gcat gc-기초">기초</span></div>
+        <div class="gterm">기업경영관리</div>
+        <div class="gdef">목표 설정→결과를 숫자로 확인→위험 축소→의사결정 개선으로 이어지는 활동.</div>
+      </div>
+      <div class="gitem" data-text="매출 revenue 기초">
+        <div><span class="gcat gc-기초">기초</span></div>
+        <div class="gterm">매출 <span class="eng">Revenue</span></div>
+        <div class="gdef">서비스 제공으로 얻은 총수익. 핀테크는 거래금액이 아닌 수수료·서비스 수익이 매출.</div>
+      </div>
+      <div class="gitem" data-text="거래금액 gmv 기초">
+        <div><span class="gcat gc-기초">기초</span></div>
+        <div class="gterm">거래금액 <span class="eng">GMV</span></div>
+        <div class="gdef">고객이 거래한 전체 금액. 매출과 구분해야 함 — 거래금액이 커도 이익은 작을 수 있음.</div>
+      </div>
+      <div class="gitem" data-text="마진율 margin 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">마진율 <span class="eng">Margin</span></div>
+        <div class="gdef">(매출 − 직접비용) / 매출 × 100. 자금조달비·수수료·심사비·인건비가 영향.</div>
+      </div>
+      <div class="gitem" data-text="현금흐름 cash flow 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">현금흐름 <span class="eng">Cash Flow</span></div>
+        <div class="gdef">실제 현금의 들어오고 나감. 손익상 이익이 나도 현금이 늦으면 운영 곤란.</div>
+      </div>
+      <div class="gitem" data-text="연체율  숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">연체율</div>
+        <div class="gdef">연체 금액 / 전체 상환 예정 금액 × 100. 수익성·신용모델·투자자 신뢰에 영향.</div>
+      </div>
+      <div class="gitem" data-text="재이용률 retention 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">재이용률 <span class="eng">Retention</span></div>
+        <div class="gdef">고객이 서비스를 반복 이용하는 비율. 서비스 가치 체감의 간접 지표.</div>
+      </div>
+      <div class="gitem" data-text="영업이익  숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">영업이익</div>
+        <div class="gdef">수수료 수익에서 자금조달·운영·리스크 비용을 차감한 이익.</div>
+      </div>
+      <div class="gitem" data-text="운전자본 working capital 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">운전자본 <span class="eng">Working Capital</span></div>
+        <div class="gdef">매출채권 + 재고자산 − 매입채무. 일상 운영에 필요한 자금.</div>
+      </div>
+      <div class="gitem" data-text="매출채권 ar 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">매출채권 <span class="eng">AR</span></div>
+        <div class="gdef">상품·서비스 제공 후 아직 받지 못한 대금.</div>
+      </div>
+      <div class="gitem" data-text="매입채무 ap 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">매입채무 <span class="eng">AP</span></div>
+        <div class="gdef">공급사·파트너에게 아직 지급하지 않은 대금.</div>
+      </div>
+      <div class="gitem" data-text="자금 조달 비용  숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">자금 조달 비용</div>
+        <div class="gdef">외부에서 자금을 조달할 때 발생하는 비용. 마진율을 낮추는 요인.</div>
+      </div>
+      <div class="gitem" data-text="리스크 비용  숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">리스크 비용</div>
+        <div class="gdef">연체·부실·회수에 따라 발생하는 비용.</div>
+      </div>
+      <div class="gitem" data-text="미수금  숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">미수금</div>
+        <div class="gdef">받기로 했으나 아직 입금되지 않은 금액.</div>
+      </div>
+      <div class="gitem" data-text="정산 settlement 숫자">
+        <div><span class="gcat gc-플로우">숫자</span></div>
+        <div class="gterm">정산 <span class="eng">Settlement</span></div>
+        <div class="gdef">거래 후 대금을 확정하여 지급·수취하는 절차.</div>
+      </div>
+      <div class="gitem" data-text="회수 collection 프로세스">
+        <div><span class="gcat gc-어음">프로세스</span></div>
+        <div class="gterm">회수 <span class="eng">Collection</span></div>
+        <div class="gdef">실행한 거래 대금을 약속한 시점에 돌려받는 단계.</div>
+      </div>
+      <div class="gitem" data-text="리드 lead 프로세스">
+        <div><span class="gcat gc-어음">프로세스</span></div>
+        <div class="gterm">리드 <span class="eng">Lead</span></div>
+        <div class="gdef">잠재 고객. 신규 리드 수·유효 리드 비율로 관리.</div>
+      </div>
+      <div class="gitem" data-text="계약 전환율  프로세스">
+        <div><span class="gcat gc-어음">프로세스</span></div>
+        <div class="gterm">계약 전환율</div>
+        <div class="gdef">상담·심사를 거쳐 실제 계약으로 이어진 비율.</div>
+      </div>
+      <div class="gitem" data-text="심사 리드타임  프로세스">
+        <div><span class="gcat gc-어음">프로세스</span></div>
+        <div class="gterm">심사 리드타임</div>
+        <div class="gdef">접수부터 심사 완료까지 걸리는 시간.</div>
+      </div>
+      <div class="gitem" data-text="충당금 provision 프로세스">
+        <div><span class="gcat gc-어음">프로세스</span></div>
+        <div class="gterm">충당금 <span class="eng">Provision</span></div>
+        <div class="gdef">연체·부실에 대비해 미리 적립해 두는 금액.</div>
+      </div>
+      <div class="gitem" data-text="신용 리스크 credit risk 리스크">
+        <div><span class="gcat gc-채권">리스크</span></div>
+        <div class="gterm">신용 리스크 <span class="eng">Credit Risk</span></div>
+        <div class="gdef">고객이 약속 금액을 갚지 못할 위험. 심사·한도·모니터링으로 관리.</div>
+      </div>
+      <div class="gitem" data-text="운영 리스크 operational 리스크">
+        <div><span class="gcat gc-채권">리스크</span></div>
+        <div class="gterm">운영 리스크 <span class="eng">Operational</span></div>
+        <div class="gdef">내부 실수·승인 누락·계약 오류. 체크리스트·권한분리·이중검토로 관리.</div>
+      </div>
+      <div class="gitem" data-text="유동성 리스크 liquidity 리스크">
+        <div><span class="gcat gc-채권">리스크</span></div>
+        <div class="gterm">유동성 리스크 <span class="eng">Liquidity</span></div>
+        <div class="gdef">필요한 시점에 현금이 부족한 위험. 입출금 예측·조달 한도로 관리.</div>
+      </div>
+      <div class="gitem" data-text="부실률  리스크">
+        <div><span class="gcat gc-채권">리스크</span></div>
+        <div class="gterm">부실률</div>
+        <div class="gdef">회수가 사실상 어려워진 거래의 비율.</div>
+      </div>
+      <div class="gitem" data-text="한도 소진율  리스크">
+        <div><span class="gcat gc-채권">리스크</span></div>
+        <div class="gterm">한도 소진율</div>
+        <div class="gdef">부여된 한도 중 실제 사용된 비율. 리스크 지표.</div>
+      </div>
+      <div class="gitem" data-text="컴플라이언스 compliance 규제">
+        <div><span class="gcat gc-규제">규제</span></div>
+        <div class="gterm">컴플라이언스 <span class="eng">Compliance</span></div>
+        <div class="gdef">법규·약관·개인정보 보호 등을 준수하는 활동.</div>
+      </div>
+      <div class="gitem" data-text="내부통제 internal control 규제">
+        <div><span class="gcat gc-규제">규제</span></div>
+        <div class="gterm">내부통제 <span class="eng">Internal Control</span></div>
+        <div class="gdef">회사 안의 실수·부정을 줄이는 장치. 권한 분리가 핵심.</div>
+      </div>
+      <div class="gitem" data-text="추적성 traceability 규제">
+        <div><span class="gcat gc-규제">규제</span></div>
+        <div class="gterm">추적성 <span class="eng">Traceability</span></div>
+        <div class="gdef">누가·언제·왜 변경했는지 확인 가능한 데이터 속성.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 퀴즈 신청 섹션 ══ -->
+  <div id="quizRequestSection">
+    <h3><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 학습 완료! 퀴즈 응시 신청</h3>
+    <p class="desc">
+      5개 장 학습을 완료하셨습니다!<br>
+      아래 버튼을 눌러 퀴즈 응시를 신청하면 관리자가 확인 후 승인합니다.
+    </p>
+    <div class="req-name-badge" id="requestNameDisplay"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> 로딩 중...</div><br>
+    <button class="req-btn" id="requestBtn" onclick="submitQuizRequest()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 퀴즈 응시 신청하기</button>
+    <div class="pending-box" id="pendingBox">
+      <svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 신청이 완료되었습니다. 관리자 승인 후 퀴즈 입장 버튼이 활성화됩니다.<br>
+      <button class="check-btn" id="checkBtn" onclick="checkApproval()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 퀴즈 입장 확인</button>
+      <br><button class="quiz-go-btn" id="quizGoBtn" onclick="goToQuiz()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 퀴즈 시작하기</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="done-bar" id="doneBar">
+  <span class="msg"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:#43A047;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 모든 핵심요약을 확인했습니다 — 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+/* ═══ 세션 가드 ═══ */
+let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+
+/* ═══ 설정 ═══ */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const CHAPTER_NAMES = ['경영관리 기초','핵심 숫자와 손익구조','현금흐름과 운영','리스크·컴플라이언스','데이터와 실무 적용'];
+const TIPS = [
+  ['기업경영관리 = 목표 설정 → 결과를 숫자로 확인 → 위험 축소 → 의사결정 개선',
+   '핀테크는 매출만이 아니라 거래구조·현금흐름·신용위험·규제·데이터·고객경험을 함께 본다',
+   '핀테크 핵심 리스크 = 연체·부실·규제위반·개인정보사고·시스템장애',
+   '거래금액 전체가 매출이 아니다 — 수수료·서비스 수익만 매출로 인식',
+   '경영관리는 \'얼마나 팔았나\'보다 \'얼마나 안전하게 남겼나\'를 본다'],
+  ['경영관리 5대 숫자 = 매출·마진율·현금흐름·연체율·재이용률',
+   '마진율 = (매출 − 직접비용) / 매출 × 100',
+   '연체율 = 연체 금액 / 전체 상환 예정 금액 × 100',
+   '손익 흐름: 거래금액 → 수수료수익 → 자금조달·운영·리스크 비용 차감 → 영업이익',
+   '매출보다 중요한 것은 \'회수 가능한 매출\'이다'],
+  ['운전자본 = 매출채권 + 재고자산 − 매입채무',
+   '핀테크는 재고보다 정산예정·미수금·지급예정 금액이 핵심 관리 대상',
+   '손익이 좋아도 현금흐름이 막히면 운영 리스크가 커진다',
+   '운영 흐름: 리드발굴→상담→서류접수→심사→계약→실행→정산→회수→모니터링',
+   '단계별 지표로 프로세스가 끊기지 않는지 점검한다'],
+  ['5대 리스크 = 신용·운영·유동성·규제·기술',
+   '신용 리스크 관리 = 심사 기준·한도 관리·사후 모니터링',
+   '리스크는 대부분 숫자와 프로세스에서 먼저 나타난다',
+   '컴플라이언스 = 법·규정 준수 / 내부통제 = 실수·부정 방지 장치',
+   '내부통제 핵심: 기록 우선·권한 분리·고객정보 보호·예외 보고·증빙 기반 판단'],
+  ['좋은 데이터 = 정확성·완전성·최신성·추적성·활용성',
+   '대시보드 5영역 = 성장·수익성·리스크·운영·고객',
+   '매출 높은데 이익 낮으면 → 조달비용·낮은 수수료율·회수비용·수기처리 의심',
+   '영업팀(성장 가능성) vs 심사팀(회수 가능성) = 충돌이 아닌 보완 관계',
+   '매일/매주/매월 체크리스트로 운영 상태를 점검한다']
+];
+
+let studentName = (SESSION && SESSION.name) ? SESSION.name : '';
+let completedChapters = [];
+let currentTipChapter = 0;
+
+/* ═══ 로그아웃 ═══ */
+function logout(){
+  try{localStorage.removeItem('lms_session');}catch(e){}
+  location.replace('index.html');
+}
+
+/* ═══ 핵심 요약 팝업 ═══ */
+function openTip(idx){
+  currentTipChapter=idx;
+  const modal=document.getElementById('tipModal');
+  document.getElementById('tipChip').textContent=(idx+1)+'장 핵심 요약';
+  document.getElementById('tipTitle').textContent=CHAPTER_NAMES[idx];
+  document.getElementById('tipList').innerHTML=TIPS[idx].map(t=>'<li>'+t+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=false;
+  btn.textContent=idx<4?'✓ 완료 — 다음 장으로 이동':'✓ 학습 완료 — 퀴즈 신청하기';
+  modal.classList.add('open');
+}
+function completeTip(){
+  const btn=document.getElementById('tipCompleteBtn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  /* 진도 POST (fire & forget) */
+  fetch(APPS_SCRIPT_URL,{
+    method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName||'미입력',
+      chapter:currentTipChapter+1,chapterName:'[경영관리] '+CHAPTER_NAMES[currentTipChapter]})
+  }).catch(()=>{});
+  /* 완료 표시 */
+  if(!completedChapters.includes(currentTipChapter))completedChapters.push(currentTipChapter);
+  try{localStorage.setItem('mgmt_completed',JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  /* 버튼 스타일 변경 */
+  const sbtn=document.getElementById('sbtn'+currentTipChapter);
+  if(sbtn){sbtn.classList.add('done-btn');sbtn.textContent='✓ '+(currentTipChapter+1)+'장 완료';}
+  document.getElementById('tipModal').classList.remove('open');
+  /* 다음 장 이동 */
+  setTimeout(()=>{
+    if(currentTipChapter<4){
+      const nx=document.getElementById('ch'+(currentTipChapter+2));
+      if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'});
+    } else {
+      const sec=document.getElementById('quizRequestSection');
+      sec.classList.add('visible');
+      document.getElementById('requestNameDisplay').innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+studentName;
+      sec.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  },250);
+}
+
+/* ═══ 진도 업데이트 ═══ */
+function updateProgress(){
+  for(let i=0;i<5;i++){
+    const d=document.getElementById('pdot'+i);
+    const l=document.getElementById('pline'+i);
+    const done=completedChapters.includes(i);
+    if(d){d.classList.toggle('done',done);}
+    if(l){l.classList.toggle('done',done);}
+    const sb=document.getElementById('sbtn'+i);
+    if(sb&&done){sb.classList.add('done-btn');sb.textContent='✓ '+(i+1)+'장 완료';}
+  }
+  const db=document.getElementById('doneBar');
+  if(db) db.classList.toggle('show', completedChapters.length>=5);
+}
+
+/* ═══ 교육 완료 ═══ */
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'[경영관리] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem('mgmt_finished','1');}catch(e){}
+  alert('경영관리 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+
+/* ═══ 퀴즈 신청 ═══ */
+function submitQuizRequest(){
+  const btn=document.getElementById('requestBtn');
+  btn.disabled=true;btn.textContent='신청 중...';
+  fetch(APPS_SCRIPT_URL,{
+    method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'quiz_request',name:studentName})
+  }).catch(()=>{});
+  try{localStorage.setItem('mgmt_quiz_requested','1');}catch(e){}
+  document.getElementById('pendingBox').classList.add('visible');
+  btn.style.display='none';
+}
+
+/* ═══ 승인 확인 ═══ */
+async function checkApproval(){
+  const btn=document.getElementById('checkBtn');
+  if(btn){btn.disabled=true;btn.textContent='확인 중...';}
+  try{
+    const res=await fetch(APPS_SCRIPT_URL+'?action=check_approval&name='+encodeURIComponent(studentName));
+    const json=await res.json();
+    if(json.approved){
+      try{localStorage.setItem('mgmt_quiz_approved','1');}catch(e){}
+      showApproved();
+    } else {
+      if(btn){btn.disabled=false;btn.textContent='퀴즈 입장 확인';}
+      if(btn)alert('아직 승인 대기 중입니다.\n관리자 승인 후 다시 확인해주세요.');
+    }
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='퀴즈 입장 확인';}}
+}
+
+function showApproved(){
+  const pb=document.getElementById('pendingBox');
+  pb.classList.add('visible');
+  pb.innerHTML='<div style="margin-bottom:14px"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 승인되었습니다! 아래 버튼으로 퀴즈에 입장하세요.</div>'
+    +'<button class="quiz-go-btn visible" onclick="goToQuiz()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 퀴즈 시작하기</button>';
+  pb.style.background='#E8F5E9';
+  pb.style.border='1px solid #81C784';
+  const rb=document.getElementById('requestBtn');
+  if(rb) rb.style.display='none';
+}
+
+function goToQuiz(){window.location.replace('quiz-management.html');}
+
+/* ═══ 사이드바 + 용어 검색 ═══ */
+window.addEventListener('scroll',function(){
+  var sections=document.querySelectorAll('[id]');
+  var navItems=document.querySelectorAll('.nav-item');
+  var top=window.scrollY+80,current='';
+  sections.forEach(function(s){if(s.offsetTop<=top)current=s.id;});
+  navItems.forEach(function(n){
+    var href=n.getAttribute('href');
+    n.classList.toggle('active',href==='#'+current);
+  });
+});
+function filterGlossary(val){
+  var q=val.toLowerCase().trim();
+  document.querySelectorAll('#glossGrid .gitem').forEach(function(item){
+    var text=(item.dataset.text||'')+' '+item.textContent.toLowerCase();
+    item.classList.toggle('hidden',q!==''&&text.indexOf(q)===-1);
+  });
+}
+
+/* ═══ 초기화 ═══ */
+window.addEventListener('DOMContentLoaded',function(){
+  studentName=(SESSION && SESSION.name) ? SESSION.name : '';
+  try{
+    completedChapters=JSON.parse(localStorage.getItem('mgmt_completed')||'[]');
+  }catch(e){completedChapters=[];}
+  const uc=document.getElementById('userChip');
+  if(uc)uc.innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+(studentName||'-');
+  updateProgress();
+  document.getElementById('requestNameDisplay').innerHTML='<svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> '+(studentName||'이름 미입력');
+  if(completedChapters.length===5){
+    document.getElementById('quizRequestSection').classList.add('visible');
+    // 이미 승인된 경우 → 바로 퀴즈 버튼 표시
+    try{
+      if(localStorage.getItem('mgmt_quiz_approved')==='1'){
+        showApproved(); return;
+      }
+      // 신청했지만 승인 대기 중인 경우 → pendingBox 복원 후 자동 승인 확인
+      if(localStorage.getItem('mgmt_quiz_requested')==='1'){
+        document.getElementById('requestBtn').style.display='none';
+        document.getElementById('pendingBox').classList.add('visible');
+        checkApproval();
+      }
+    }catch(e){}
+  }
+});
+</script>
+
+<style>
+.page-footer{text-align:center;padding:18px 0 14px;font-size:11px;color:#9e9e9e;letter-spacing:.3px;border-top:1px solid #f0f0f0;margin-top:40px;}
+</style>
+<div class="page-footer">v1.0 &nbsp;&middot;&nbsp; 276홀딩스 영업지원팀 기업경영관리 교과서 &nbsp;&middot;&nbsp; 2026-05-30</div>
+
+<!-- ══ Tip 팝업 모달 ══ -->
+<div class="modal-overlay" id="tipModal">
+  <div class="modal-box">
+    <span class="tip-chip" id="tipChip">핵심 요약</span>
+    <div class="tip-chapter-title" id="tipTitle"></div>
+    <ul class="tip-list" id="tipList"></ul>
+    <button class="tip-complete-btn" id="tipCompleteBtn" onclick="completeTip()"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg> 완료 — 다음 장으로 이동</button>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>경제·금융 발달 | 276홀딩스 신입사원 온보딩</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--brand:#1A237E;--accent:#3949AB;--blue:#1565C0;--green:#2E7D32;--muted:#666;
+  --bg:#F5F6FA;--card:#FFF;--border:#E0E3EF;--text:#202124;--sidebar:248px;}
+html{scroll-behavior:smooth;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;}
+.top-header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:linear-gradient(135deg,#0D1547,#1A237E,#3949AB);box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.top-header .brand{color:#fff;font-size:13px;opacity:.8;}
+.top-header .title{color:#fff;font-size:16px;font-weight:700;flex:1;text-align:center;padding:0 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top-header .right{display:flex;align-items:center;gap:10px;}
+.top-header .who{background:rgba(255,255,255,.18);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;}
+.top-header .lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:12px;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;}
+.top-header .lo:hover{background:rgba(255,255,255,.26);}
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:var(--sidebar);background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:18px 0;z-index:90;}
+.sidebar-title{font-size:11px;font-weight:700;color:var(--brand);letter-spacing:1px;text-transform:uppercase;padding:0 22px 10px;}
+.nav-item{display:block;padding:9px 22px;font-size:13px;color:#444;text-decoration:none;border-left:3px solid transparent;line-height:1.4;}
+.nav-item:hover{background:var(--bg);color:var(--brand);}
+.nav-item.active{background:#EEF0FB;color:var(--brand);border-left-color:var(--brand);font-weight:700;}
+.main{margin-left:var(--sidebar);margin-top:56px;padding:36px 44px 90px;max-width:1000px;}
+.hero{background:linear-gradient(135deg,#0D1547,#283593);color:#fff;border-radius:16px;padding:34px 38px;margin-bottom:26px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%;}
+.hero-sub{font-size:12.5px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+.hero h1{font-size:30px;font-weight:700;margin-bottom:11px;line-height:1.3;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:660px;}
+.hero-meta{margin-top:18px;display:flex;gap:9px;flex-wrap:wrap;}
+.hero-tag{background:rgba(255,255,255,.15);font-size:12px;padding:4px 14px;border-radius:99px;}
+.progress-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:30px;display:flex;align-items:center;gap:14px;}
+.progress-wrap .pbar{flex:1;height:10px;background:#EEF0F8;border-radius:99px;overflow:hidden;}
+.progress-wrap .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--green));border-radius:99px;transition:width .3s;}
+.progress-wrap .ptext{font-size:12.5px;font-weight:700;color:var(--brand);white-space:nowrap;}
+.chapter{margin-bottom:50px;scroll-margin-top:70px;}
+.chapter-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.chapter-num{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-title{font-size:22px;font-weight:700;color:var(--brand);}
+.chapter-border{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--brand),transparent);margin-bottom:20px;}
+.section p{margin-bottom:11px;}
+.section ul{margin:8px 0 14px 4px;padding-left:20px;}
+.section li{margin:5px 0;}
+.tbl-wrap{overflow-x:auto;margin:14px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px;}
+table.tbl th{background:var(--brand);color:#fff;padding:10px 14px;text-align:left;font-weight:600;}
+table.tbl td{padding:9px 14px;border-bottom:1px solid #EEF0F8;vertical-align:top;}
+table.tbl tr:nth-child(even) td{background:#F5F6FA;}
+.blk-callout{background:#EEF0FB;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0;font-size:14px;}
+.blk-callout b{color:var(--brand);}
+.blk-formula{background:#0D1547;color:#fff;border-radius:10px;padding:11px 16px;margin:12px 0;font-family:'Consolas',monospace;font-size:14.5px;text-align:center;letter-spacing:.3px;}
+.ch-summary{margin-top:18px;}
+.summary-btn{background:#EEF0FB;color:var(--brand);border:1px solid #C5CAE9;border-radius:10px;padding:11px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.summary-btn:hover{background:#E1E5F8;}
+.summary-btn.done-btn{background:#E8F5E9;color:var(--green);border-color:#A5D6A7;}
+.summary-btn svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.modal{position:fixed;inset:0;background:rgba(13,21,71,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal.open{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:26px 28px;max-width:540px;width:100%;}
+.tip-chip{display:inline-block;background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px;margin-bottom:10px;}
+.modal-box h3{font-size:19px;color:var(--brand);margin-bottom:12px;}
+.modal-box ul{list-style:none;}
+.modal-box li{font-size:14px;padding:8px 0 8px 22px;position:relative;border-bottom:1px solid #F0F1F8;}
+.modal-box li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700;}
+.tip-complete{margin-top:16px;width:100%;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+.tip-complete:disabled{opacity:.5;}
+.done-bar{position:fixed;left:var(--sidebar);right:0;bottom:0;background:#fff;border-top:2px solid var(--border);padding:14px 24px;display:none;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 -3px 14px rgba(0,0,0,.12);z-index:120;}
+.done-bar.show{display:flex;}
+.done-bar span{font-size:13.5px;font-weight:600;color:var(--brand);}
+.done-final{background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px 26px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;padding:24px 18px 80px;}.done-bar{left:0;}.hero h1{font-size:24px;}}
+@media print{.top-header,.sidebar,.done-bar,.summary-btn{display:none!important;}.main{margin:0;padding:18px;}}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="ic-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+</defs></svg>
+
+<div class="top-header">
+  <span class="brand">276홀딩스 · 신입사원 온보딩</span>
+  <span class="title">경제·금융 발달</span>
+  <div class="right">
+    <a class="lo" href="dashboard.html">← 대시보드</a>
+    <span class="who"><svg width="1em" height="1em" style="vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> <span id="whoChip">—</span></span>
+    <button class="lo" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+
+<nav class="sidebar" id="sidebar"><div class="sidebar-title">목차</div></nav>
+
+<main class="main">
+  <div class="hero">
+    <div class="hero-sub">NEW HIRE TRAINING · 276 HOLDINGS</div>
+    <h1>경제·금융 발달</h1>
+    <p>교통·통신·금융 인프라가 어떻게 경제를 키워왔는지 — 산업혁명부터 디지털 초연결 시대까지, 신입사원이 꼭 알아야 할 비즈니스 인사이트.</p>
+    <div class="hero-meta"><span class="hero-tag">인프라가 산업을 견인</span><span class="hero-tag">네트워크 효과</span><span class="hero-tag">금융은 성장의 엔진</span></div>
+  </div>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="ptext" id="ptext">0 / 7 장</div>
+  </div>
+  <div id="chapters"></div>
+</main>
+
+<div class="modal" id="tipModal"><div class="modal-box">
+  <span class="tip-chip" id="tipChip">핵심 요약</span>
+  <h3 id="tipTitle"></h3>
+  <ul id="tipList"></ul>
+  <button class="tip-complete" id="tipCompleteBtn" onclick="completeTip()">✓ 완료 — 다음 장으로 이동</button>
+</div></div>
+
+<div class="done-bar" id="doneBar">
+  <span>✓ 모든 장의 핵심 요약을 확인했습니다. 교육을 완료하세요.</span>
+  <button class="done-final" onclick="completeTraining()">교육 완료</button>
+</div>
+
+<script>
+let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+if(!SESSION||!SESSION.name){ location.replace('index.html'); }
+const studentName=(SESSION&&SESSION.name)||'';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
+const TITLE='경제·금융 발달';
+const DONE_KEY='economy_completed', FIN_KEY='economy_finished';
+
+const CHAPTERS=[
+ {t:'금융 시스템의 발달', blocks:[
+   {type:'para',text:'금융은 흩어진 돈을 모아 필요한 곳에 보내는 "경제의 파이프라인"입니다. 저축이 투자로, 투자가 생산과 소득으로 이어지는 선순환의 출발점입니다.'},
+   {type:'callout',title:'금융의 4가지 핵심 역할',text:'① 자본 집중  ② 위험 분산  ③ 유동성 공급  ④ 가격 발견'},
+   {type:'list',items:['1694년 영국 잉글랜드 은행 = 세계 최초의 중앙은행','1880~1910년 약 30년간 전 세계 자본시장 절반 이상이 형성','금융이 발달해야 대규모 인프라·산업에 자금이 공급된다']}
+ ], sum:['금융 = 흩어진 돈을 모아 필요한 곳에 보내는 "경제의 파이프라인"','1694년 영국 잉글랜드 은행 = 세계 최초의 중앙은행','1880~1910년 30년간 전 세계 자본시장 절반 이상이 형성','금융의 4가지 핵심 역할: ① 자본 집중 ② 위험 분산 ③ 유동성 공급 ④ 가격 발견']},
+
+ {t:'교통 발달과 시장 통합', blocks:[
+   {type:'para',text:'철도 이전에는 지역 시장만 존재했지만, 철도 이후 전국 시장이 탄생했습니다. 운송 혁명은 단가 하락 → 가격 인하 → 수요 확대의 선순환을 만들었습니다.'},
+   {type:'list',items:['최초 상업 운행 1825년(스티븐슨 로케트호)','미국 운송비 약 80% 절감','운송 혁명 선순환: 대량 운송 → 단가 하락 → 가격 인하 → 수요 확대']},
+   {type:'callout',title:'철도의 3대 사회 변화',text:'표준시 도입 · 도시화 가속 · 전국 시장 형성'}
+ ], sum:['철도 이전 = 지역 시장만 존재 / 철도 이후 = 전국 시장 탄생','최초 상업 운행 1825년(스티븐슨 로케트호), 미국 운송비 약 80% 절감','운송 혁명 선순환: 대량 운송 → 단가 하락 → 가격 인하 → 수요 확대','철도의 3대 사회 변화: 표준시 도입 · 도시화 가속 · 전국 시장 형성']},
+
+ {t:'통신 발달과 정보 혁명', blocks:[
+   {type:'para',text:'정보 비대칭은 한쪽만 알고 다른 쪽은 모를 때 모르는 쪽이 손해를 보는 상태입니다. 통신의 진짜 가치는 "빠른 연락"이 아니라 정보 격차의 해소에 있습니다.'},
+   {type:'table',headers:['단계','시기'],rows:[['전신','1837'],['전화','1876'],['라디오 방송','1920년대']]},
+   {type:'list',items:['통신 발달의 3대 경제효과: 정보 비대칭 축소 · 거래비용 절감 · 공급망 조정 속도 향상']}
+ ], sum:['정보 비대칭 = 한쪽만 알고 다른 쪽은 모를 때 모르는 쪽이 손해','통신 발전 단계: 전신(1837) → 전화(1876) → 라디오 방송(1920년대)','통신 발달의 3대 경제효과: 정보 비대칭 축소 · 거래비용 절감 · 공급망 조정 속도↑','통신의 진짜 가치는 "빠른 연락"이 아니라 정보 격차의 해소']},
+
+ {t:'디지털 시대의 확장', blocks:[
+   {type:'para',text:'디지털 인프라는 핀테크·5G·자율주행이 만드는 초연결 경제의 토대입니다. 모든 부서의 일은 결국 "더 빠르고 더 정확한 연결"에 관한 것입니다.'},
+   {type:'table',headers:['5G 특성','내용'],rows:[['속도','4G 대비 약 20배↑'],['반응속도','≤ 1ms'],['동시접속','100만/㎢']]},
+   {type:'list',items:['2030년 한국 5G 가치 약 47조원(금융 부문만 5.6조)']}
+ ], sum:['디지털 인프라 = 핀테크·5G·자율주행이 만드는 초연결 경제','5G 특성: 속도 4G 대비 20배↑, 반응속도 ≤1ms, 동시접속 100만/㎢','2030년 한국 5G 가치 약 47조원(금융 부문만 5.6조)','모든 부서의 일은 결국 "더 빠르고 더 정확한 연결"에 관한 것']},
+
+ {t:'국가별 산업화 경로', blocks:[
+   {type:'para',text:'같은 산업혁명이라도 국가별 전략은 달랐습니다. 그러나 성공한 나라들의 공통점은 "인프라 + 금융 + 산업"을 동시에 키웠다는 점입니다.'},
+   {type:'table',headers:['국가','시기·전략'],rows:[['영국','1760~1840 · 최초 산업혁명, 민간 주도, 글로벌 해운'],['미국','1870~1914 · 2차 산업혁명, 대량생산, 포드주의'],['독일','기술교육 · 유니버설뱅크']]},
+   {type:'callout',title:'공통점',text:'4개국 공통점 = "인프라 + 금융 + 산업"을 동시에 키웠다'}
+ ], sum:['같은 산업혁명이라도 국가별 전략은 달랐다','영국(1760~1840): 최초 산업혁명·민간 주도·글로벌 해운','미국(1870~1914): 2차 산업혁명·대량생산·포드주의 / 독일: 기술교육·유니버설뱅크','4개국 공통점 = "인프라 + 금융 + 산업"을 동시에 키웠다']},
+
+ {t:'네트워크 효과의 비밀', blocks:[
+   {type:'para',text:'네트워크는 사용자가 늘수록 가치가 기하급수적으로 커집니다. 먼저 사람을 모은 플랫폼이 압도적으로 유리해지는 "승자독식" 구조가 만들어집니다.'},
+   {type:'formula',text:'메트칼프의 법칙:  V ∝ n²  (네트워크 가치 = 사용자 수의 제곱)'},
+   {type:'table',headers:['인프라','투자 승수효과'],rows:[['교통','1 : 3~5'],['통신','1 : 4~7'],['5G','1 : 6~10']]}
+ ], sum:['메트칼프의 법칙: 네트워크 가치 = 사용자 수의 제곱 (V ∝ n²)','사용자가 늘면 네트워크 가치는 기하급수적으로 폭발 → 승자독식','네트워크 효과 = 먼저 사람을 모은 플랫폼이 압도적으로 유리','인프라 투자 승수효과: 교통 1:3~5, 통신 1:4~7, 5G 1:6~10']},
+
+ {t:'핵심 통찰 및 결론', blocks:[
+   {type:'para',text:'경제 패러다임은 생산 중심 → 연결 중심 → 초연결로 진화해 왔습니다. 역사가 주는 교훈을 신입사원의 업무 관점으로 정리합니다.'},
+   {type:'list',items:['① 인프라가 산업을 견인한다','② 네트워크는 임계점 이후 폭발한다','③ 표준화가 규모를 만든다','④ 금융은 모든 성장의 엔진 (저축→투자→생산→소득 선순환)']}
+ ], sum:['경제 패러다임 3단계: 생산 중심 → 연결 중심 → 초연결','역사의 교훈 ① 인프라가 산업을 견인한다','역사의 교훈 ② 네트워크는 임계점 이후 폭발한다 ③ 표준화가 규모를 만든다','역사의 교훈 ④ 금융은 모든 성장의 엔진 (저축→투자→생산→소득 선순환)']}
+];
+const TOTAL=CHAPTERS.length;
+let completedChapters=[];
+
+const GLOSSARY=[
+ ['중앙은행','국가의 화폐·신용을 관리하는 은행. 1694년 영국 잉글랜드 은행이 세계 최초.'],
+ ['자본 집중','흩어진 자금을 한데 모아 대규모 투자에 공급하는 금융의 핵심 역할.'],
+ ['위험 분산','위험을 다수에게 나눠 충격을 줄이는 것(보험·분산투자).'],
+ ['유동성','자산을 빠르고 손실 없이 현금화할 수 있는 정도.'],
+ ['가격 발견','시장의 수요·공급을 통해 적정 가격이 형성되는 과정.'],
+ ['자본시장','주식·채권 등 장기 자금이 거래되는 시장. 1880~1910년 급성장.'],
+ ['운송 혁명','대량 운송 → 단가 하락 → 가격 인하 → 수요 확대로 이어지는 선순환.'],
+ ['표준시','철도 운행을 맞추기 위해 도입된 통일 시간 체계.'],
+ ['전국 시장','지역 시장을 넘어 전국이 하나로 연결된 시장(철도가 형성).'],
+ ['정보 비대칭','거래 당사자 간 정보 격차로 모르는 쪽이 손해를 보는 상태.'],
+ ['거래비용','거래의 탐색·협상·감시·이행에 드는 비용. 통신 발달로 절감.'],
+ ['전신·전화','통신 발전의 출발점. 전신 1837년, 전화 1876년.'],
+ ['공급망','원자재→생산→유통→고객으로 이어지는 흐름. 통신으로 조정 속도↑.'],
+ ['디지털 인프라','핀테크·5G·자율주행을 떠받치는 디지털 기반.'],
+ ['5G','4G 대비 속도 약 20배↑, 반응속도 ≤1ms, 동시접속 100만/㎢.'],
+ ['초연결','사람·사물·데이터가 촘촘히 연결된 경제 단계.'],
+ ['산업혁명','기계화·대량생산으로 인한 경제 대전환(영국 1760~1840 시작).'],
+ ['포드주의','컨베이어 기반 대량생산 방식(미국 2차 산업혁명).'],
+ ['유니버설뱅크','상업·투자은행 업무를 함께 수행하는 독일식 은행 모델.'],
+ ['네트워크 효과','사용자가 늘수록 네트워크 가치가 커지는 현상.'],
+ ['메트칼프의 법칙','네트워크 가치 ∝ 사용자 수의 제곱 (V ∝ n²).'],
+ ['승자독식','임계점을 넘은 1위 플랫폼이 시장을 장악하는 구조.'],
+ ['승수효과','인프라 투자 1단위가 더 큰 경제효과를 만드는 것(교통 1:3~5, 통신 1:4~7, 5G 1:6~10).'],
+ ['선순환','저축 → 투자 → 생산 → 소득이 맞물려 성장하는 구조. 금융이 그 엔진.']
+];
+
+/* 핵심요약 3단원(1·2 / 3·4 / 5~7) */
+const GROUPS=[
+ {title:'1·2장 — 금융 시스템과 교통 발달', chs:[0,1]},
+ {title:'3·4장 — 통신 발달과 디지털 확장', chs:[2,3]},
+ {title:'5~7장 — 산업화·네트워크·핵심 통찰', chs:[4,5,6]}
+];
+const GTOTAL=GROUPS.length;
+const LAST_OF={}; GROUPS.forEach((g,gi)=>{ LAST_OF[g.chs[g.chs.length-1]]=gi; });
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function renderBlocks(blocks){
+  return (blocks||[]).map(bl=>{
+    const ty=bl.type||'para';
+    if(ty==='list') return '<ul>'+bl.items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+    if(ty==='table'){ const head=bl.headers?'<tr>'+bl.headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>':'';
+      const rows=bl.rows.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('');
+      return '<div class="tbl-wrap"><table class="tbl">'+head+rows+'</table></div>'; }
+    if(ty==='callout') return '<div class="blk-callout">'+(bl.title?'<b>'+esc(bl.title)+'</b><br>':'')+esc(bl.text)+'</div>';
+    if(ty==='formula') return '<div class="blk-formula">'+esc(bl.text)+'</div>';
+    return '<p>'+esc(bl.text)+'</p>';
+  }).join('');
+}
+document.getElementById('whoChip').textContent=studentName;
+document.getElementById('sidebar').innerHTML='<div class="sidebar-title">목차</div>'+
+  CHAPTERS.map((c,i)=>'<a class="nav-item" id="nav'+i+'" href="#ch'+(i+1)+'">'+(i+1)+'. '+esc(c.t)+'</a>').join('')+
+  '<a class="nav-item" id="navG" href="#glossary" style="margin-top:8px;font-weight:600;">용어집</a>';
+const glossaryHTML=`
+  <section class="chapter" id="glossary">
+    <div class="chapter-header"><div class="chapter-num" style="background:linear-gradient(135deg,#2E7D32,#1565C0)">用</div><div class="chapter-title">용어집 <span style="font-size:13px;font-weight:400;color:var(--muted)">${GLOSSARY.length}개 핵심 용어</span></div></div>
+    <div class="chapter-border"></div>
+    <div class="section"><div class="tbl-wrap"><table class="tbl"><tr><th style="width:170px;">용어</th><th>설명</th></tr>
+      ${GLOSSARY.map(g=>'<tr><td><b>'+esc(g[0])+'</b></td><td>'+esc(g[1])+'</td></tr>').join('')}
+    </table></div></div>
+  </section>`;
+document.getElementById('chapters').innerHTML=CHAPTERS.map((c,i)=>{
+  const g=LAST_OF[i];
+  const summary=(g!==undefined)
+    ? `<div class="ch-summary"><button class="summary-btn" id="sbtn${g}" onclick="openTip(${g})"><svg width="15" height="15"><use href="#ic-bookmark"/></svg> ${esc(GROUPS[g].title)} · 핵심 요약</button></div>`
+    : '';
+  return `<section class="chapter" id="ch${i+1}">
+    <div class="chapter-header"><div class="chapter-num">${i+1}</div><div class="chapter-title">${esc(c.t)}</div></div>
+    <div class="chapter-border"></div>
+    <div class="section">${renderBlocks(c.blocks)}</div>${summary}
+  </section>`;
+}).join('')+glossaryHTML;
+
+function openTip(g){
+  const grp=GROUPS[g];
+  document.getElementById('tipChip').textContent='핵심 요약 ('+(g+1)+'/'+GTOTAL+')';
+  document.getElementById('tipTitle').textContent=grp.title;
+  let items=[]; grp.chs.forEach(ci=>{ items=items.concat(CHAPTERS[ci].sum); });
+  document.getElementById('tipList').innerHTML=items.map(t=>'<li>'+esc(t)+'</li>').join('');
+  const btn=document.getElementById('tipCompleteBtn'); btn.disabled=false;
+  btn.textContent=g<GTOTAL-1?'✓ 완료 — 다음 단원으로 이동':'✓ 학습 완료';
+  window._tipIdx=g; document.getElementById('tipModal').classList.add('open');
+}
+function completeTip(){
+  const g=window._tipIdx; const btn=document.getElementById('tipCompleteBtn'); btn.disabled=true; btn.textContent='저장 중...';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:g+1,chapterName:'[경제·금융발달] '+GROUPS[g].title})}).catch(()=>{});
+  if(!completedChapters.includes(g)) completedChapters.push(g);
+  try{localStorage.setItem(DONE_KEY,JSON.stringify(completedChapters));}catch(e){}
+  updateProgress();
+  document.getElementById('tipModal').classList.remove('open');
+  setTimeout(()=>{
+    if(g<GTOTAL-1){ const nx=document.getElementById('ch'+(GROUPS[g+1].chs[0]+1)); if(nx)nx.scrollIntoView({behavior:'smooth',block:'start'}); }
+    else{ const db=document.getElementById('doneBar'); if(db){db.classList.add('show');db.scrollIntoView({behavior:'smooth'});} }
+  },250);
+}
+function updateProgress(){
+  for(let g=0;g<GTOTAL;g++){ const sb=document.getElementById('sbtn'+g);
+    if(sb&&completedChapters.includes(g)){sb.classList.add('done-btn');sb.textContent='✓ '+esc(GROUPS[g].title)+' 완료';} }
+  const n=completedChapters.length;
+  document.getElementById('pfill').style.width=Math.round(n/GTOTAL*100)+'%';
+  document.getElementById('ptext').textContent=n+' / '+GTOTAL+' 단원 ('+Math.round(n/GTOTAL*100)+'%)';
+  document.getElementById('doneBar').classList.toggle('show', n>=GTOTAL);
+}
+function completeTraining(){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'progress',name:studentName,chapter:'완료',chapterName:'[경제·금융발달] ✓ 교육완료'})}).catch(()=>{});
+  try{localStorage.setItem(FIN_KEY,'1');}catch(e){}
+  alert('경제·금융 발달 교육을 완료했습니다! 대시보드로 이동합니다.');
+  location.href='dashboard.html';
+}
+function logout(){try{localStorage.removeItem('lms_session');localStorage.removeItem('lms_student_name');}catch(e){}location.replace('index.html');}
+window.addEventListener('scroll',function(){
+  let top=window.scrollY+80, cur=0;
+  for(let i=0;i<TOTAL;i++){ const s=document.getElementById('ch'+(i+1)); if(s&&s.offsetTop<=top) cur=i; }
+  for(let i=0;i<TOTAL;i++){ const n=document.getElementById('nav'+i); if(n) n.classList.toggle('active',i===cur); }
+});
+try{completedChapters=JSON.parse(localStorage.getItem(DONE_KEY)||'[]');}catch(e){completedChapters=[];}
+updateProgress(); const n0=document.getElementById('nav0'); if(n0)n0.classList.add('active');
+</script>
+</body>
+</html>
