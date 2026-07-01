@@ -64,7 +64,7 @@ input:focus,select:focus{border-color:var(--brand);}
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-primary" onclick="doLogin()">로그인</button>
     <div class="msg" id="loginMsg"></div>
-    <div class="hint">발급받은 계정으로 로그인하면 학습 진도가 계정에 기록됩니다.<br>관리자는 <b>비밀번호</b>까지 입력해야 관리자 콘솔에 접근할 수 있습니다.</div>
+    <div class="hint">발급받은 계정으로 로그인하면 학습 진도가 계정에 기록됩니다.<br>사원은 <b>아이디+이름</b>만으로 로그인, 관리자는 <b>비밀번호</b>까지 입력해야 콘솔에 접근합니다.</div>
   </div>
 
   <!-- 계정 요청 / 등록키 가입 -->
@@ -130,7 +130,19 @@ async function doLogin(){
   msg.className='msg'; msg.textContent='로그인 확인 중…';
   try{
     let j=await loginReq(id,name,pw);
-    if(j.status!=='ok'||!j.login){ msg.className='msg err'; msg.textContent=(j&&j.message)||'로그인에 실패했습니다.'; return; }
+    if(j.status!=='ok'||!j.login){
+      /* 임시 호환 모드: 구버전 백엔드(login 액션 미지원)는 'unauthorized' 시그니처 반환.
+         이 경우에 한해 — 비밀번호 없는 '사원'은 서버 없이 즉시 로그인 허용.
+         (재배포 후 정상 백엔드는 무비번+이름이면 항상 ok를 주므로 이 폴백은 자동 비활성. 정지·비번오류 등은 그대로 차단) */
+      const compat=(j&&j.message==='unauthorized');
+      if(compat && !pw){
+        saveSessionAndGo({name:name, loginId:id, dept:'', role:'user', adminToken:'', status:'호환', loginAt:new Date().toISOString()}); return;
+      }
+      if(compat && pw){
+        msg.className='msg err'; msg.textContent='관리자·운영자 로그인은 서버 업데이트(재배포) 후 가능합니다. 지금은 비밀번호 없이 사원 로그인만 됩니다.'; return;
+      }
+      msg.className='msg err'; msg.textContent=(j&&j.message)||'로그인에 실패했습니다.'; return;
+    }
     /* 최초 로그인·초기화 시 비밀번호 변경 강제 */
     if(j.mustChange && pw){
       const np=prompt('최초 로그인입니다. 새 비밀번호를 설정하세요 (4자 이상)');
