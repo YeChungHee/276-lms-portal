@@ -140,7 +140,7 @@ const ADMIN_TOKEN=(SESSION&&SESSION.adminToken)||'';
 
 /* 계정 기반 게이트: 관리자 역할 세션이 아니면 로그인으로 */
 function gateCheck(){
-  if(!SESSION||SESSION.role!=='admin'||!ADMIN_TOKEN){ location.replace('index.html'); return; }
+  if(!SESSION||!(SESSION.role==='super'||SESSION.role==='operator')||!ADMIN_TOKEN){ location.replace('index.html'); return; }
   loadKPI();
 }
 function logoutKey(){ try{localStorage.removeItem('lms_session');}catch(e){} location.replace('index.html'); }

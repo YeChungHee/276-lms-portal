@@ -26,6 +26,7 @@ const SHEET_TEXTBOOKS  = 'textbooks';
 const SHEET_QUIZZES    = 'quizzes';
 const SHEET_QUESTIONS  = 'quiz_questions';
 const SHEET_REMEDIATION= 'remediation_tasks';
+const SHEET_REGKEYS    = 'reg_keys';
 
 // ── 공통 헬퍼 ──────────────────────────────────────────────────
 function ss(){ return SpreadsheetApp.openById(SHEET_ID); }
@@ -57,26 +58,38 @@ function sha256(str){
 }
 function tempPw(){ return 'Tmp#'+Math.floor(1000+Math.random()*9000); }
 
-// ── 관리자 인증(계정 기반) ──────────────────────────────────
-// employees 역할 컬럼(11번째, index 10): '관리자' 또는 'admin' 이면 관리자
+// ── 3단계 역할 인증(계정 기반) ──────────────────────────────
+// employees 컬럼: ...9 상태, 10 역할, 11 비번변경필요
 const ROLE_COL = 10; // 0-based index in employees row
-function isAdminRole(role){ role=String(role||''); return role==='관리자'||role==='admin'; }
+const PWFLAG_COL = 11; // 비번변경필요(Y/N)
+// 원시 역할 문자열 → 'super'(최고관리자) | 'operator'(운영자) | 'user'(사원)
+function roleOf(raw){
+  raw = String(raw||'');
+  if (raw==='최고관리자'||raw==='관리자'||raw==='admin'||raw==='superadmin') return 'super';
+  if (raw==='운영자'||raw==='operator') return 'operator';
+  return 'user';
+}
+function isAdminLevel(role){ return role==='super'||role==='operator'; } // 어드민 콘솔 접근 가능
 function adminSecret(){ return PropertiesService.getScriptProperties().getProperty('ADMIN_SECRET') || 'lms-276-default-secret-change-me'; }
 // 세션 토큰: 사원ID·비번해시·서버시크릿으로 파생(상태 저장 불필요, 비번 변경 시 자동 무효화)
 function makeAdminToken(sawonId, pwHash){ return sha256(String(sawonId)+'|'+String(pwHash)+'|'+adminSecret()); }
-// 관리자 여부: adminToken(신규) 우선, 레거시 key는 Script 속성에 설정된 경우에만 허용
-function isAdmin(p){
+// 토큰이 속한 역할 반환: 'super'|'operator'|null
+function tokenRole(p){
   p = p || {};
-  const key = p.key || '';
+  if (ADMIN_KEY && (p.key||'') === ADMIN_KEY) return 'super';   // 레거시(설정 시에만) = 최고관리자
   const token = p.token || '';
-  if (ADMIN_KEY && key === ADMIN_KEY) return true;           // 레거시(설정 시에만)
-  if (!token) return false;
+  if (!token) return null;
   const {rows} = getRows(SHEET_EMPLOYEES);
   for (let i=0;i<rows.length;i++){
-    if (isAdminRole(rows[i][ROLE_COL]) && makeAdminToken(rows[i][0], rows[i][5]) === token) return true;
+    const r = roleOf(rows[i][ROLE_COL]);
+    if (isAdminLevel(r) && makeAdminToken(rows[i][0], rows[i][5]) === token) return r;
   }
-  return false;
+  return null;
 }
+function isAdmin(p){ return tokenRole(p) !== null; }   // 최고관리자 또는 운영자
+function isSuper(p){ return tokenRole(p) === 'super'; } // 최고관리자만(운영자 등록키 발급 등)
+// 등록키 생성: OP-XXXXXXXX-XXXXXXXX
+function genRegKey(){ const u=Utilities.getUuid().replace(/-/g,'').toUpperCase(); return 'OP-'+u.slice(0,8)+'-'+u.slice(8,16); }
 // 로그인 처리(GET/POST 공용). pw 없으면 인터림(사원) 허용, pw 검증+관리자면 토큰 발급
 function loginLogic(loginId, pw, name){
   const {rows} = getRows(SHEET_EMPLOYEES);
@@ -85,10 +98,11 @@ function loginLogic(loginId, pw, name){
       if (pw){
         if (sha256(pw + rows[i][6]) !== rows[i][5]) return err('비밀번호가 일치하지 않습니다');
       }
-      const admin = isAdminRole(rows[i][ROLE_COL]);
+      if (String(rows[i][9])==='정지') return err('정지된 계정입니다. 관리자에게 문의하세요.');
+      const role = roleOf(rows[i][ROLE_COL]);
       const res = { login:true, sawonId:rows[i][0], name:rows[i][1], dept:rows[i][8], status:rows[i][9],
-                    role: admin ? 'admin' : 'user' };
-      if (admin && pw) res.adminToken = makeAdminToken(rows[i][0], rows[i][5]); // 관리자 토큰은 비번 검증 시에만
+                    role: role, mustChange: (String(rows[i][PWFLAG_COL])==='Y') };
+      if (isAdminLevel(role) && pw) res.adminToken = makeAdminToken(rows[i][0], rows[i][5]); // 관리자 토큰은 비번 검증 시에만
       return ok(res);
     }
   }
@@ -96,12 +110,81 @@ function loginLogic(loginId, pw, name){
   return err('등록되지 않은 로그인 아이디입니다');
 }
 
+// ── 역할·등록키·계정관리 공용 핸들러(GET·POST 공통, p=params) ──
+function h_create_regkey(p){
+  if (!isSuper(p)) return err('unauthorized');
+  const s = sheetWith(SHEET_REGKEYS, ['등록키','메모','발급자','발급일시','상태','사용자','대상역할','사용일시'], '#37474F');
+  const key = genRegKey();
+  s.appendRow([ key, p.memo||'', p.issuer||'', now(), '미사용', '', p.targetRole||'운영자', '' ]);
+  return ok({ created:true, key:key });
+}
+function h_delete_regkey(p){
+  if (!isSuper(p)) return err('unauthorized');
+  const s = ss().getSheetByName(SHEET_REGKEYS); if(!s) return err('no sheet');
+  const v = s.getDataRange().getValues();
+  for (let i=1;i<v.length;i++) if (String(v[i][0])===String(p.key)){ s.deleteRow(i+1); return ok({deleted:true}); }
+  return err('등록키를 찾을 수 없습니다');
+}
+function h_register_with_key(p){
+  const key = String(p.regkey||'').trim();
+  const loginId = String(p.loginId||'').trim();
+  const pw = String(p.pw||'');
+  if (!key || !loginId || pw.length < 4) return err('등록키·로그인ID·비밀번호(4자+)를 확인하세요');
+  const ks = ss().getSheetByName(SHEET_REGKEYS); if(!ks) return err('등록키 시스템이 초기화되지 않았습니다');
+  const kv = ks.getDataRange().getValues(); let ki=-1;
+  for (let i=1;i<kv.length;i++) if (String(kv[i][0])===key){ ki=i; break; }
+  if (ki<0) return err('유효하지 않은 등록키입니다');
+  if (String(kv[ki][4])!=='미사용') return err('이미 사용된 등록키입니다');
+  const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할','비번변경필요'], '#4527A0');
+  const ev = emp.getDataRange().getValues();
+  for (let i=1;i<ev.length;i++) if (String(ev[i][2])===loginId) return err('이미 사용 중인 로그인ID입니다');
+  const salt = uid('s'); const sawonId = uid('emp'); const targetRole = String(kv[ki][6]||'운영자');
+  emp.appendRow([ sawonId, p.name||loginId, loginId, (loginId+'@276holdings.com'), p.phone||'',
+                  sha256(pw+salt), salt, now(), p.dept||'', '활성', targetRole, 'N' ]);
+  ks.getRange(ki+1,5).setValue('사용됨'); ks.getRange(ki+1,6).setValue(loginId); ks.getRange(ki+1,8).setValue(now());
+  return ok({ registered:true, loginId:loginId, role: roleOf(targetRole) });
+}
+// 대상 계정 행 찾기 + 권한 검사. 반환 {sheet,rowIdx1,targetRole} 또는 {error}
+function _findManageable(p){
+  const acting = tokenRole(p); // 'super'|'operator'
+  const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return {error:'no emp'};
+  const v = s.getDataRange().getValues();
+  for (let i=1;i<v.length;i++) if (String(v[i][2])===String(p.loginId)){
+    const tr = roleOf(v[i][ROLE_COL]);
+    if (tr==='super') return {error:'최고관리자 계정은 대상이 아닙니다'};
+    if (tr==='operator' && acting!=='super') return {error:'운영자 계정은 최고관리자만 관리할 수 있습니다'};
+    return { sheet:s, rowIdx1:i+1, targetRole:tr };
+  }
+  return {error:'계정을 찾을 수 없습니다'};
+}
+function h_set_account_status(p){
+  if (!isAdmin(p)) return err('unauthorized');
+  const f = _findManageable(p); if (f.error) return err(f.error);
+  f.sheet.getRange(f.rowIdx1,10).setValue(p.status==='정지'?'정지':'활성');
+  return ok({ updated:true, status:(p.status==='정지'?'정지':'활성') });
+}
+function h_reset_password(p){
+  if (!isAdmin(p)) return err('unauthorized');
+  const f = _findManageable(p); if (f.error) return err(f.error);
+  const salt = uid('s'); const pw = p.tempPw || tempPw();
+  f.sheet.getRange(f.rowIdx1,6).setValue(sha256(pw+salt)); f.sheet.getRange(f.rowIdx1,7).setValue(salt);
+  f.sheet.getRange(f.rowIdx1,PWFLAG_COL+1).setValue('Y');
+  return ok({ reset:true, loginId:p.loginId, tempPw:pw });
+}
+function h_delete_account(p){
+  if (!isAdmin(p)) return err('unauthorized');
+  const f = _findManageable(p); if (f.error) return err(f.error);
+  f.sheet.deleteRow(f.rowIdx1);
+  return ok({ deleted:true });
+}
+
 // 시트 초기화(최초 1회 수동 실행 권장)
 function initAllSheets(){
   sheetWith(SHEET_QUIZRESULT, ['타임스탬프','성명','퀴즈','정답수','점수%','등급','오답태그','상세JSON'], '#4A148C');
   sheetWith(SHEET_PROGRESS,   ['타임스탬프','성명','챕터번호','챕터명'], '#1565C0');
   sheetWith(SHEET_REQUEST,    ['타임스탬프','성명','상태','SlackID'], '#2E7D32');
-  sheetWith(SHEET_EMPLOYEES,  ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할'], '#4527A0');
+  sheetWith(SHEET_EMPLOYEES,  ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할','비번변경필요'], '#4527A0');
+  sheetWith(SHEET_REGKEYS,    ['등록키','메모','발급자','발급일시','상태','사용자','대상역할','사용일시'], '#37474F');
   sheetWith(SHEET_ACCOUNTREQ, ['요청일시','이름','휴대폰','이메일용아이디','상태','관리자메모'], '#673AB7');
   sheetWith(SHEET_TEXTBOOKS,  ['교재ID','제목','방식','URL','주차','챕터수','부서','노출','등록일시'], '#00838F');
   sheetWith(SHEET_QUIZZES,    ['퀴즈ID','퀴즈명','연결교재','합격기준','노출','등록일시'], '#E65100');
@@ -168,14 +251,26 @@ function doPost(e){
       const v = s.getDataRange().getValues();
       for (let i=1;i<v.length;i++){
         if (String(v[i][2]) === String(data.loginId)){
+          // 현재 비번 검증(제공된 경우) — 강제변경 흐름에서 임시비번 확인
+          if (data.curPw && sha256(data.curPw + v[i][6]) !== v[i][5]) return err('현재 비밀번호가 일치하지 않습니다');
+          if (!data.newPw || String(data.newPw).length < 4) return err('새 비밀번호는 4자 이상이어야 합니다');
           const salt = uid('s');
           s.getRange(i+1,6).setValue(sha256(data.newPw+salt));
           s.getRange(i+1,7).setValue(salt);
+          s.getRange(i+1,PWFLAG_COL+1).setValue('N'); // 비번변경필요 해제
           return ok({ changed:true });
         }
       }
       return err('계정 없음');
     }
+
+    // ── 역할·등록키·계정관리 (GET/POST 공용 핸들러) ──
+    if (action === 'create_regkey')      return h_create_regkey(data);
+    if (action === 'delete_regkey')      return h_delete_regkey(data);
+    if (action === 'register_with_key')  return h_register_with_key(data);
+    if (action === 'set_account_status') return h_set_account_status(data);
+    if (action === 'reset_password')     return h_reset_password(data);
+    if (action === 'delete_account')     return h_delete_account(data);
 
     // ── 학습 진도 저장(교과서 핵심요약/교육완료 공통) ──
     if (action === 'progress'){
@@ -213,11 +308,12 @@ function doPost(e){
     // ── 계정 생성(관리자) ──
     if (action === 'create_account'){
       if (!isAdmin(data)) return err('unauthorized');
-      const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할'], '#4527A0');
+      const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할','비번변경필요'], '#4527A0');
       const salt = uid('s'); const pw = data.tempPw || tempPw();
       const sawonId = uid('emp');
+      // 계정요청 승낙으로 생성되는 계정은 항상 '사원'(운영자는 등록키로만 생성). 임시비번 → 최초 로그인 변경 강제
       emp.appendRow([ sawonId, data.name, data.loginId, data.emailId||(data.loginId+'@276holdings.com'), data.phone||'',
-                      sha256(pw+salt), salt, now(), data.dept||'', '활성', data.role||'사원' ]);
+                      sha256(pw+salt), salt, now(), data.dept||'', '활성', '사원', 'Y' ]);
       // 요청 상태 업데이트
       const req = ss().getSheetByName(SHEET_ACCOUNTREQ);
       if (req){ const v=req.getDataRange().getValues(); for(let i=1;i<v.length;i++) if(v[i][1]===data.name && v[i][4]==='관리자확인대기'){ req.getRange(i+1,5).setValue('승인'); break; } }
@@ -284,6 +380,33 @@ function doGet(e){
   // 로그인(GET) — 브라우저가 응답(role/adminToken)을 읽을 수 있도록 GET로 처리
   if (action === 'login'){
     return loginLogic(e.parameter.loginId, e.parameter.pw, e.parameter.name);
+  }
+
+  // 응답을 읽어야 하는 변이 액션(GET 경유, CORS) — 등록키·셀프가입·계정관리
+  if (action === 'create_regkey')      return h_create_regkey(e.parameter);
+  if (action === 'delete_regkey')      return h_delete_regkey(e.parameter);
+  if (action === 'register_with_key')  return h_register_with_key(e.parameter);
+  if (action === 'set_account_status') return h_set_account_status(e.parameter);
+  if (action === 'reset_password')     return h_reset_password(e.parameter);
+  if (action === 'delete_account')     return h_delete_account(e.parameter);
+  if (action === 'change_password'){
+    const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return err('no employees');
+    const v = s.getDataRange().getValues();
+    for (let i=1;i<v.length;i++) if (String(v[i][2])===String(e.parameter.loginId)){
+      if (e.parameter.curPw && sha256(e.parameter.curPw + v[i][6]) !== v[i][5]) return err('현재 비밀번호가 일치하지 않습니다');
+      if (!e.parameter.newPw || String(e.parameter.newPw).length < 4) return err('새 비밀번호는 4자 이상이어야 합니다');
+      const salt = uid('s'); s.getRange(i+1,6).setValue(sha256(e.parameter.newPw+salt));
+      s.getRange(i+1,7).setValue(salt); s.getRange(i+1,PWFLAG_COL+1).setValue('N');
+      return ok({ changed:true });
+    }
+    return err('계정 없음');
+  }
+
+  // 최고관리자: 등록키 목록
+  if (action === 'list_regkeys'){
+    if (!isSuper(e.parameter)) return err('unauthorized');
+    const {rows} = getRows(SHEET_REGKEYS);
+    return ok({ regkeys: rows.map(r=>({ key:r[0], memo:r[1], issuer:r[2], issuedAt:r[3], status:r[4], usedBy:r[5], targetRole:r[6], usedAt:r[7] })) });
   }
 
   // 공개: 교과서 목록(노출만)
@@ -362,8 +485,9 @@ function doGet(e){
     if (!isAdmin(e.parameter)) return err('unauthorized');
     const req=getRows(SHEET_ACCOUNTREQ), emp=getRows(SHEET_EMPLOYEES);
     return ok({
+      viewerRole: tokenRole(e.parameter),   // 'super'|'operator' — 프론트 UI 게이팅용
       requests: req.rows.map(r=>({ts:r[0],name:r[1],phone:r[2],emailId:r[3],status:r[4],memo:r[5]})),
-      employees: emp.rows.map(r=>({sawonId:r[0],name:r[1],loginId:r[2],emailId:r[3],phone:r[4],joinedAt:r[7],dept:r[8],status:r[9]}))
+      employees: emp.rows.map(r=>({sawonId:r[0],name:r[1],loginId:r[2],emailId:r[3],phone:r[4],joinedAt:r[7],dept:r[8],status:r[9],role:roleOf(r[ROLE_COL]),roleLabel:(r[ROLE_COL]||'사원'),mustChange:(String(r[PWFLAG_COL])==='Y')}))
     });
   }
 
@@ -412,32 +536,43 @@ function doGet(e){
 //  (HTTP 미노출: 웹앱으로는 호출 불가, 편집기 실행 전용)
 // ════════════════════════════════════════════════════════════════
 
-// employees 시트에 역할 컬럼(헤더) 보장
+// employees 시트에 역할·비번변경필요 컬럼(헤더) 보장
 function ensureRoleColumn(){
   const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return 'employees 시트 없음 — initAllSheets 먼저';
-  if (s.getRange(1, ROLE_COL+1).getValue() !== '역할') s.getRange(1, ROLE_COL+1).setValue('역할');
+  if (s.getRange(1, ROLE_COL+1).getValue()   !== '역할')       s.getRange(1, ROLE_COL+1).setValue('역할');
+  if (s.getRange(1, PWFLAG_COL+1).getValue() !== '비번변경필요') s.getRange(1, PWFLAG_COL+1).setValue('비번변경필요');
   return 'ok';
 }
 
-// 기존 계정을 관리자로 승격:  promoteToAdmin('doyeon')
+// 기존 계정을 최고관리자로 승격:  promoteToAdmin('appler')
 function promoteToAdmin(loginId){
   ensureRoleColumn();
   const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return 'employees 시트 없음';
   const v = s.getDataRange().getValues();
   for (let i=1;i<v.length;i++){
-    if (String(v[i][2]) === String(loginId)){ s.getRange(i+1, ROLE_COL+1).setValue('관리자'); return loginId+' → 관리자 승격 완료'; }
+    if (String(v[i][2]) === String(loginId)){ s.getRange(i+1, ROLE_COL+1).setValue('최고관리자'); return loginId+' → 최고관리자 승격 완료'; }
+  }
+  return '계정을 찾을 수 없습니다: '+loginId;
+}
+// 기존 계정을 운영자로 승격:  promoteToOperator('doyeon')
+function promoteToOperator(loginId){
+  ensureRoleColumn();
+  const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return 'employees 시트 없음';
+  const v = s.getDataRange().getValues();
+  for (let i=1;i<v.length;i++){
+    if (String(v[i][2]) === String(loginId)){ s.getRange(i+1, ROLE_COL+1).setValue('운영자'); return loginId+' → 운영자 승격 완료'; }
   }
   return '계정을 찾을 수 없습니다: '+loginId;
 }
 
-// 신규 관리자 계정 생성:  createAdmin('admin','관리자','원하는비번')
+// 신규 최고관리자 계정 생성:  createAdmin('appler','안애경','원하는비번')
 function createAdmin(loginId, name, pw){
   if (!loginId || !pw) return 'loginId·pw 필수';
   ensureRoleColumn();
-  const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할'], '#4527A0');
+  const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할','비번변경필요'], '#4527A0');
   const v = emp.getDataRange().getValues();
   for (let i=1;i<v.length;i++) if (String(v[i][2])===String(loginId)) return '이미 존재하는 로그인ID: '+loginId+' (promoteToAdmin 사용)';
   const salt = uid('s'); const sawonId = uid('emp');
-  emp.appendRow([ sawonId, name||loginId, loginId, loginId+'@276holdings.com', '', sha256(pw+salt), salt, now(), '', '활성', '관리자' ]);
-  return '관리자 계정 생성 완료: '+loginId;
+  emp.appendRow([ sawonId, name||loginId, loginId, loginId+'@276holdings.com', '', sha256(pw+salt), salt, now(), '', '활성', '최고관리자', 'N' ]);
+  return '최고관리자 계정 생성 완료: '+loginId;
 }

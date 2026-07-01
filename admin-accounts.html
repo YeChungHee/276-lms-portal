@@ -31,7 +31,16 @@ tr:hover td{background:#FAFAFA;}
 .bg-wait{background:#FFF3E0;color:var(--warn);}
 .bg-ok{background:#E8F5E9;color:var(--success);}
 .bg-gray{background:#F0F0F0;color:#757575;}
+.bg-purple{background:var(--primary-light);color:var(--primary);}
+.bg-blue{background:#E3F2FD;color:var(--info);}
+.keygen{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:10px 0 14px;}
+.keygen .kg-fld{flex:1;min-width:200px;display:flex;flex-direction:column;}
+.keygen label{font-size:11.5px;font-weight:600;color:var(--text-sec);margin-bottom:5px;}
+.keygen input{padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;outline:none;}
+.keygen input:focus{border-color:var(--primary);}
 .btn{padding:6px 13px;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:6px;}
+.btn-danger{background:#FFEBEE;color:var(--danger);}
 .btn-primary{background:var(--primary);color:#fff;}
 .btn-primary:hover{background:var(--primary-dark);}
 .btn:disabled{opacity:.5;cursor:default;}
@@ -84,6 +93,18 @@ body{padding-top:54px;padding-left:236px;}
 <div class="main">
   <div class="note" id="demoNote">표시할 데이터가 없습니다. Apps Script 배포·연동 후 실제 요청·계정이 표시됩니다.</div>
 
+  <!-- 운영자 관리 (최고관리자 전용) -->
+  <div class="card" id="opsCard" style="display:none">
+    <h2><svg><use href="#ic-user-plus"/></svg> 운영자 관리 · 등록키</h2>
+    <div class="sub">등록키를 생성해 신규 운영자에게 전달하세요. 운영자는 로그인 화면 <b>계정 요청</b> 탭에서 이 키로 직접 가입합니다. <b>키 1개 = 운영자 1명 · 사용되면 재사용 불가 · 미사용 키는 회수 전까지 유효.</b></div>
+    <div class="keygen">
+      <div class="kg-fld"><label>메모 (선택)</label><input id="keyMemo" placeholder="예: 홍길동 · 정산팀"></div>
+      <button class="btn btn-primary" onclick="createKey()">등록키 생성</button>
+    </div>
+    <table><thead><tr><th>등록키</th><th>메모</th><th>발급자</th><th>발급일</th><th>상태</th><th>관리</th></tr></thead>
+    <tbody id="regBody"><tr><td colspan="6" class="empty">불러오는 중…</td></tr></tbody></table>
+  </div>
+
   <div class="card">
     <h2><svg><use href="#ic-user-plus"/></svg> 계정 요청</h2>
     <div class="sub">신청자가 사원 포털에서 제출한 계정 요청 목록입니다. 승인 시 사원 계정과 임시 비밀번호가 생성됩니다.</div>
@@ -92,9 +113,9 @@ body{padding-top:54px;padding-left:236px;}
   </div>
 
   <div class="card">
-    <h2><svg><use href="#ic-users"/></svg> 사원 계정</h2>
-    <div class="sub">생성된 사원 계정 목록입니다.</div>
-    <table><thead><tr><th>이름</th><th>로그인ID</th><th>이메일ID</th><th>부서</th><th>입사일</th><th>상태</th></tr></thead>
+    <h2><svg><use href="#ic-users"/></svg> 계정 목록</h2>
+    <div class="sub">생성된 계정 목록입니다. <b>운영자</b>는 사원 계정만 관리할 수 있고, 운영자·최고관리자 계정은 최고관리자만 관리합니다.</div>
+    <table><thead><tr><th>이름</th><th>로그인ID</th><th>역할</th><th>부서</th><th>상태</th><th>관리</th></tr></thead>
     <tbody id="empBody"><tr><td colspan="6" class="empty">불러오는 중…</td></tr></tbody></table>
   </div>
 </div>
@@ -118,12 +139,62 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm
 /* 계정 기반 관리자 가드: 관리자 역할 세션이 아니면 로그인으로 */
 let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
 const ADMIN_TOKEN=(SESSION&&SESSION.adminToken)||'';
-if(!SESSION||SESSION.role!=='admin'||!ADMIN_TOKEN){ location.replace('index.html'); }
+if(!SESSION||!(SESSION.role==='super'||SESSION.role==='operator')||!ADMIN_TOKEN){ location.replace('index.html'); }
 
-let REQUESTS=[], EMP=[];
+let REQUESTS=[], EMP=[], VIEWER_ROLE=(SESSION&&SESSION.role)||'operator';
+const ROLE_META={super:['최고관리자','bg-purple'],operator:['운영자','bg-blue'],user:['사원','bg-gray']};
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
 function tempPw(){return 'Tmp#'+Math.floor(1000+Math.random()*9000);}
+
+/* GET 헬퍼(응답 읽기 필요한 관리 액션 공용) */
+async function api(action,params){
+  const q=Object.keys(params||{}).map(k=>k+'='+encodeURIComponent(params[k])).join('&');
+  const u=APPS_SCRIPT_URL+'?action='+action+'&token='+encodeURIComponent(ADMIN_TOKEN)+(q?('&'+q):'');
+  return await (await fetch(u)).json();
+}
+function roleBadge(role){const x=ROLE_META[role]||ROLE_META.user;return `<span class="badge ${x[1]}">${x[0]}</span>`;}
+function canManage(row){ if(row.role==='super') return false; if(row.role==='operator') return VIEWER_ROLE==='super'; return true; }
+
+/* ── 운영자 등록키(최고관리자 전용) ── */
+async function loadRegkeys(){
+  try{ const j=await api('list_regkeys',{}); if(j.status==='ok') renderKeys(j.regkeys||[]); else renderKeys([]); }catch(e){ renderKeys([]); }
+}
+function renderKeys(keys){
+  const el=document.getElementById('regBody');
+  if(!keys.length){el.innerHTML='<tr><td colspan="6" class="empty">발급된 등록키가 없습니다</td></tr>';return;}
+  el.innerHTML=keys.slice().reverse().map(k=>{
+    const used=k.status==='사용됨';
+    return `<tr><td style="font-family:monospace;font-size:11.5px">${k.key}</td><td>${k.memo||'–'}</td><td>${k.issuer||'–'}</td><td>${String(k.issuedAt||'').slice(0,10)}</td>
+      <td><span class="badge ${used?'bg-ok':'bg-wait'}">${used?('사용됨 · '+(k.usedBy||'')):'미사용'}</span></td>
+      <td>${used?'<span class="badge bg-gray">-</span>':`<button class="btn btn-sm btn-danger" onclick="deleteKey('${k.key}')">키 삭제</button>`}</td></tr>`;
+  }).join('');
+}
+async function createKey(){
+  const memo=document.getElementById('keyMemo').value.trim();
+  const j=await api('create_regkey',{memo:memo,issuer:(SESSION.loginId||SESSION.name||'')});
+  if(j.status==='ok'&&j.key){ document.getElementById('keyMemo').value=''; toast('등록키 생성 완료'); loadRegkeys(); }
+  else toast(j.message||'생성 실패');
+}
+async function deleteKey(key){
+  if(!confirm('등록키를 삭제(회수)할까요?\n'+key)) return;
+  const j=await api('delete_regkey',{key:key}); if(j.status==='ok'){toast('삭제되었습니다');loadRegkeys();}else toast(j.message||'실패');
+}
+
+/* ── 계정 관리(정지·비번리셋·삭제) ── */
+async function setStatus(loginId,status){
+  const j=await api('set_account_status',{loginId:loginId,status:status});
+  if(j.status==='ok'){toast(loginId+' → '+j.status);load();}else toast(j.message||'실패');
+}
+async function resetPw(loginId){
+  if(!confirm(loginId+' 계정의 비밀번호를 초기화할까요?')) return;
+  const j=await api('reset_password',{loginId:loginId});
+  if(j.status==='ok'){ alert('임시 비밀번호: '+j.tempPw+'\n최초 로그인 시 변경이 강제됩니다.'); load(); }else toast(j.message||'실패');
+}
+async function delAccount(loginId){
+  if(!confirm(loginId+' 계정을 삭제할까요? 되돌릴 수 없습니다.')) return;
+  const j=await api('delete_account',{loginId:loginId}); if(j.status==='ok'){toast('삭제되었습니다');load();}else toast(j.message||'실패');
+}
 
 function renderReq(){
   const el=document.getElementById('reqBody');
@@ -138,7 +209,17 @@ function renderReq(){
 function renderEmp(){
   const el=document.getElementById('empBody');
   if(!EMP.length){el.innerHTML='<tr><td colspan="6" class="empty">생성된 계정이 없습니다</td></tr>';return;}
-  el.innerHTML=EMP.map(e=>`<tr><td><b>${e.name||''}</b></td><td>${e.loginId||''}</td><td>${e.emailId||''}</td><td>${e.dept||''}</td><td>${e.joinedAt||''}</td><td><span class="badge ${e.status==='활성'?'bg-ok':'bg-gray'}">${e.status||''}</span></td></tr>`).join('');
+  el.innerHTML=EMP.map(e=>{
+    const role=e.role||'user'; const active=e.status!=='정지';
+    const acts=canManage({role:role})
+      ? `<button class="btn btn-sm btn-ghost" onclick="setStatus('${e.loginId}','${active?'정지':'활성'}')">${active?'정지':'활성화'}</button>
+         <button class="btn btn-sm btn-ghost" onclick="resetPw('${e.loginId}')">비번리셋</button>
+         <button class="btn btn-sm btn-danger" onclick="delAccount('${e.loginId}')">삭제</button>`
+      : '<span class="badge bg-gray">-</span>';
+    return `<tr><td><b>${e.name||''}</b></td><td>${e.loginId||''}</td><td>${roleBadge(role)}</td><td>${e.dept||''}</td>
+      <td><span class="badge ${active?'bg-ok':'bg-gray'}">${e.status||''}</span></td>
+      <td><div class="row-actions">${acts}</div></td></tr>`;
+  }).join('');
 }
 
 let lastCreated=null;
@@ -152,7 +233,7 @@ function approve(i){
     body:JSON.stringify({action:'create_account',token:ADMIN_TOKEN,name:r.name,loginId:loginId,emailId:(loginId+'@276holdings.com'),phone:r.phone,dept:'',tempPw:pw})}).catch(()=>{});
   /* 로컬 상태 업데이트 */
   r.status='승인';
-  EMP.unshift({name:r.name,loginId:loginId,emailId:loginId+'@276holdings.com',dept:'',joinedAt:new Date().toISOString().slice(0,10),status:'활성'});
+  EMP.unshift({name:r.name,loginId:loginId,emailId:loginId+'@276holdings.com',dept:'',joinedAt:new Date().toISOString().slice(0,10),status:'활성',role:'user'});
   lastCreated={name:r.name,loginId:loginId,pw:pw};
   renderReq();renderEmp();
   document.getElementById('rmName').textContent=r.name;
@@ -172,7 +253,10 @@ async function load(){
     const r=await fetch(APPS_SCRIPT_URL+'?action=get_account_requests&token='+encodeURIComponent(ADMIN_TOKEN));
     const j=await r.json(); if(j.status!=='ok') throw 0;
     REQUESTS=j.requests||[]; EMP=j.employees||[];
+    if(j.viewerRole) VIEWER_ROLE=j.viewerRole;
   }catch(e){ REQUESTS=[]; EMP=[]; document.getElementById('demoNote').classList.add('show'); }
+  /* 운영자 관리(등록키)는 최고관리자에게만 노출 */
+  if(VIEWER_ROLE==='super'){ document.getElementById('opsCard').style.display=''; loadRegkeys(); }
   renderReq(); renderEmp();
 }
 load();

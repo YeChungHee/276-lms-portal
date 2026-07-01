@@ -187,10 +187,11 @@ function resolveBooks(){
 }
 
 function render(){
-  document.getElementById('whoChip').textContent=SESSION.name+(SESSION.role==='admin'?' · 관리자':'');
+  var _rl={super:'최고관리자',operator:'운영자'};
+  document.getElementById('whoChip').textContent=SESSION.name+(_rl[SESSION.role]?(' · '+_rl[SESSION.role]):'');
   document.getElementById('helloName').textContent=SESSION.name+'님, 환영합니다';
-  /* 관리자만 콘솔 진입 노출 */
-  if(SESSION.role==='admin' && SESSION.adminToken){ document.getElementById('adminLink').style.display=''; }
+  /* 관리자·운영자만 콘솔 진입 노출 */
+  if((SESSION.role==='super'||SESSION.role==='operator') && SESSION.adminToken){ document.getElementById('adminLink').style.display=''; }
   let totalCh=0, doneCh=0;
   const grid=document.getElementById('bookGrid');
   grid.innerHTML=resolveBooks().map(b=>{

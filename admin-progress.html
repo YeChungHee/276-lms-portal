@@ -171,7 +171,7 @@ body{padding-top:54px;padding-left:236px;}
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
 let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
 const ADMIN_TOKEN=(SESSION&&SESSION.adminToken)||'';
-if(!SESSION||SESSION.role!=='admin'||!ADMIN_TOKEN){ location.replace('index.html'); }
+if(!SESSION||!(SESSION.role==='super'||SESSION.role==='operator')||!ADMIN_TOKEN){ location.replace('index.html'); }
 
 /* 교과서명(접두사) 키 — 표의 열 순서 */
 const BOOKS=['회사소개','경제·금융발달','핀테크','매출채권','플로우페이 플랫폼','플로우페이 프로세스','심사·채권추심'];

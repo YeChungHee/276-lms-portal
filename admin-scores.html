@@ -195,7 +195,7 @@ body{padding-top:54px;padding-left:236px;}
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
 let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
 const ADMIN_TOKEN=(SESSION&&SESSION.adminToken)||'';
-if(!SESSION||SESSION.role!=='admin'||!ADMIN_TOKEN){ location.replace('index.html'); }
+if(!SESSION||!(SESSION.role==='super'||SESSION.role==='operator')||!ADMIN_TOKEN){ location.replace('index.html'); }
 
 let RESULTS=[];          // 응시 요약
 let EMPLOYEES=[];        // 계정 목록(미응시자 산출용)

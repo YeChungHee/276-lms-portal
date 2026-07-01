@@ -196,7 +196,7 @@ table.sched td input{padding:6px 8px;font-size:12px;}
 <script>
 let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
 const ADMIN_TOKEN=(SESSION&&SESSION.adminToken)||'';
-if(!SESSION||SESSION.role!=='admin'||!ADMIN_TOKEN){ location.replace('index.html'); }
+if(!SESSION||!(SESSION.role==='super'||SESSION.role==='operator')||!ADMIN_TOKEN){ location.replace('index.html'); }
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
 const WK_COLORS=['#673AB7','#1565C0','#2E7D32','#E65100'];
 const WK_HINT=['오리엔테이션 & 도메인 기초','핵심 도메인 & 플로우페이','프로세스 심화 & 심사','실무 적용 & 리뷰'];
