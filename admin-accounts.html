@@ -75,7 +75,7 @@ body{padding-top:54px;padding-left:236px;}
   <div class="topbar-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CE93D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 276홀딩스 LMS · 관리자 콘솔</div>
   <div class="topbar-right">
     <a href="dashboard.html" class="tb-link">사원 포털</a>
-    <a href="admin.html" class="tb-link" onclick="try{localStorage.removeItem('admin_key')}catch(e){}">잠금</a>
+    <a href="index.html" class="tb-link" onclick="try{localStorage.removeItem('lms_session')}catch(e){}">로그아웃</a>
   </div>
 </div>
 <nav class="anav"><div class="ns">운영</div><a href="admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 운영 대시보드</a><a href="admin-accounts.html" class="active"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> 계정 관리</a><div class="ns">콘텐츠</div><a href="admin-content.html"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 교과서 관리</a><a href="admin-content.html#quiz"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 질문지 관리</a><a href="admin-program.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 4주 교육 계획서</a><div class="ns">학습 모니터링</div><a href="admin-progress.html"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 교육 진도·완료</a><a href="admin-scores.html"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 퀴즈 점수·취약점</a></nav>
@@ -115,9 +115,10 @@ body{padding-top:54px;padding-left:236px;}
 
 <script>
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVv93ic_VlKwnQvm2wUYHtNX44AbYBJCH2XiSJRMiWjoY892NCKftniF5ufUgv2B7s/exec';
-const ADMIN_KEY='flowpay2026';
-/* 콘솔에서 키 보유 안 하면 콘솔로 */
-try{ if(localStorage.getItem('admin_key')!==ADMIN_KEY) location.replace('admin.html'); }catch(e){}
+/* 계정 기반 관리자 가드: 관리자 역할 세션이 아니면 로그인으로 */
+let SESSION=null; try{SESSION=JSON.parse(localStorage.getItem('lms_session')||'null');}catch(e){}
+const ADMIN_TOKEN=(SESSION&&SESSION.adminToken)||'';
+if(!SESSION||SESSION.role!=='admin'||!ADMIN_TOKEN){ location.replace('index.html'); }
 
 let REQUESTS=[], EMP=[];
 
@@ -148,7 +149,7 @@ function approve(i){
   const pw=tempPw();
   /* 계정 생성 (no-cors: 응답을 읽지 못하므로 pw를 클라이언트가 생성해 전달·표시) */
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'create_account',key:ADMIN_KEY,name:r.name,loginId:loginId,emailId:(loginId+'@276holdings.com'),phone:r.phone,dept:'',tempPw:pw})}).catch(()=>{});
+    body:JSON.stringify({action:'create_account',token:ADMIN_TOKEN,name:r.name,loginId:loginId,emailId:(loginId+'@276holdings.com'),phone:r.phone,dept:'',tempPw:pw})}).catch(()=>{});
   /* 로컬 상태 업데이트 */
   r.status='승인';
   EMP.unshift({name:r.name,loginId:loginId,emailId:loginId+'@276holdings.com',dept:'',joinedAt:new Date().toISOString().slice(0,10),status:'활성'});
@@ -168,7 +169,7 @@ function slackSend(){
 
 async function load(){
   try{
-    const r=await fetch(APPS_SCRIPT_URL+'?action=get_account_requests&key='+ADMIN_KEY);
+    const r=await fetch(APPS_SCRIPT_URL+'?action=get_account_requests&token='+encodeURIComponent(ADMIN_TOKEN));
     const j=await r.json(); if(j.status!=='ok') throw 0;
     REQUESTS=j.requests||[]; EMP=j.employees||[];
   }catch(e){ REQUESTS=[]; EMP=[]; document.getElementById('demoNote').classList.add('show'); }

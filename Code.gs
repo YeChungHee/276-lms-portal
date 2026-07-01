@@ -7,10 +7,14 @@
 //  v3.0 추가: 계정(login/signup/create_account), 교과서(save/get_textbook),
 //            퀴즈(save_quiz/add_questions/deploy_quiz/get_questions),
 //            진도/완료 조회(get_progress), 교육완료 집계(get_completions)
+//  v3.1 추가: 계정 기반 관리자 인증 — employees.역할 + login 토큰 발급,
+//            관리자 API는 adminToken 검증(isAdmin). 하드코딩 공유키 제거.
+//            최초 관리자: Apps Script 편집기에서 createAdmin/promoteToAdmin 1회 실행.
 // ================================================================
 
 const SHEET_ID        = '1D_Iml7YM2rTDNQprumUCiUtI09aTFEhGARLxWWIk5WI';
-const ADMIN_KEY       = 'flowpay2026';
+// 레거시 공유키: 기본 비활성. 과도기 호환이 필요하면 Script 속성 ADMIN_KEY에만 설정(소스에 저장하지 않음)
+const ADMIN_KEY       = PropertiesService.getScriptProperties().getProperty('ADMIN_KEY') || '';
 
 // 시트 이름
 const SHEET_QUIZRESULT = '응답데이터';
@@ -53,12 +57,51 @@ function sha256(str){
 }
 function tempPw(){ return 'Tmp#'+Math.floor(1000+Math.random()*9000); }
 
+// ── 관리자 인증(계정 기반) ──────────────────────────────────
+// employees 역할 컬럼(11번째, index 10): '관리자' 또는 'admin' 이면 관리자
+const ROLE_COL = 10; // 0-based index in employees row
+function isAdminRole(role){ role=String(role||''); return role==='관리자'||role==='admin'; }
+function adminSecret(){ return PropertiesService.getScriptProperties().getProperty('ADMIN_SECRET') || 'lms-276-default-secret-change-me'; }
+// 세션 토큰: 사원ID·비번해시·서버시크릿으로 파생(상태 저장 불필요, 비번 변경 시 자동 무효화)
+function makeAdminToken(sawonId, pwHash){ return sha256(String(sawonId)+'|'+String(pwHash)+'|'+adminSecret()); }
+// 관리자 여부: adminToken(신규) 우선, 레거시 key는 Script 속성에 설정된 경우에만 허용
+function isAdmin(p){
+  p = p || {};
+  const key = p.key || '';
+  const token = p.token || '';
+  if (ADMIN_KEY && key === ADMIN_KEY) return true;           // 레거시(설정 시에만)
+  if (!token) return false;
+  const {rows} = getRows(SHEET_EMPLOYEES);
+  for (let i=0;i<rows.length;i++){
+    if (isAdminRole(rows[i][ROLE_COL]) && makeAdminToken(rows[i][0], rows[i][5]) === token) return true;
+  }
+  return false;
+}
+// 로그인 처리(GET/POST 공용). pw 없으면 인터림(사원) 허용, pw 검증+관리자면 토큰 발급
+function loginLogic(loginId, pw, name){
+  const {rows} = getRows(SHEET_EMPLOYEES);
+  for (let i=0;i<rows.length;i++){
+    if (String(rows[i][2]) === String(loginId)){
+      if (pw){
+        if (sha256(pw + rows[i][6]) !== rows[i][5]) return err('비밀번호가 일치하지 않습니다');
+      }
+      const admin = isAdminRole(rows[i][ROLE_COL]);
+      const res = { login:true, sawonId:rows[i][0], name:rows[i][1], dept:rows[i][8], status:rows[i][9],
+                    role: admin ? 'admin' : 'user' };
+      if (admin && pw) res.adminToken = makeAdminToken(rows[i][0], rows[i][5]); // 관리자 토큰은 비번 검증 시에만
+      return ok(res);
+    }
+  }
+  if (name) return ok({ login:true, sawonId:'', name:name, dept:'', status:'미등록', interim:true, role:'user' });
+  return err('등록되지 않은 로그인 아이디입니다');
+}
+
 // 시트 초기화(최초 1회 수동 실행 권장)
 function initAllSheets(){
   sheetWith(SHEET_QUIZRESULT, ['타임스탬프','성명','퀴즈','정답수','점수%','등급','오답태그','상세JSON'], '#4A148C');
   sheetWith(SHEET_PROGRESS,   ['타임스탬프','성명','챕터번호','챕터명'], '#1565C0');
   sheetWith(SHEET_REQUEST,    ['타임스탬프','성명','상태','SlackID'], '#2E7D32');
-  sheetWith(SHEET_EMPLOYEES,  ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태'], '#4527A0');
+  sheetWith(SHEET_EMPLOYEES,  ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할'], '#4527A0');
   sheetWith(SHEET_ACCOUNTREQ, ['요청일시','이름','휴대폰','이메일용아이디','상태','관리자메모'], '#673AB7');
   sheetWith(SHEET_TEXTBOOKS,  ['교재ID','제목','방식','URL','주차','챕터수','부서','노출','등록일시'], '#00838F');
   sheetWith(SHEET_QUIZZES,    ['퀴즈ID','퀴즈명','연결교재','합격기준','노출','등록일시'], '#E65100');
@@ -85,7 +128,7 @@ function doPost(e){
 
     // ── AI 교과서 재구성 (Anthropic) ──
     if (action === 'ai_textbook'){
-      if (data.key !== ADMIN_KEY) return err('unauthorized');
+      if (!isAdmin(data)) return err('unauthorized');
       const props = PropertiesService.getScriptProperties();
       const apiKey = props.getProperty('ANTHROPIC_API_KEY');
       if (!apiKey) return err('no_api_key');
@@ -114,23 +157,9 @@ function doPost(e){
       return ok({ book: obj });
     }
 
-    // ── 로그인 ──
+    // ── 로그인(POST) ── ※ 브라우저에서 응답을 읽으려면 GET 사용 권장(CORS)
     if (action === 'login'){
-      const {rows} = getRows(SHEET_EMPLOYEES);
-      // employees: [사원ID,이름,로그인ID,이메일ID,휴대폰,비번해시,salt,입사일,부서,상태]
-      for (let i=0;i<rows.length;i++){
-        if (String(rows[i][2]) === String(data.loginId)){
-          // 비밀번호 검증(있을 때만)
-          if (data.pw){
-            const calc = sha256(data.pw + rows[i][6]);
-            if (calc !== rows[i][5]) return err('비밀번호가 일치하지 않습니다');
-          }
-          return ok({ login:true, sawonId:rows[i][0], name:rows[i][1], dept:rows[i][8], status:rows[i][9] });
-        }
-      }
-      // 미등록 — 인터림: 이름이 있으면 임시 세션 허용
-      if (data.name) return ok({ login:true, sawonId:'', name:data.name, dept:'', status:'미등록', interim:true });
-      return err('등록되지 않은 로그인 아이디입니다');
+      return loginLogic(data.loginId, data.pw, data.name);
     }
 
     // ── 비밀번호 변경 ──
@@ -174,7 +203,7 @@ function doPost(e){
 
     // ── 승인(관리자) ──
     if (action === 'approve'){
-      if (data.key !== ADMIN_KEY) return err('unauthorized');
+      if (!isAdmin(data)) return err('unauthorized');
       const s = ss().getSheetByName(SHEET_REQUEST); if(!s) return err('no sheet');
       const v = s.getDataRange().getValues();
       for (let i=1;i<v.length;i++) if (v[i][1]===data.name){ s.getRange(i+1,3).setValue('승인'); return ok({approved:true}); }
@@ -183,12 +212,12 @@ function doPost(e){
 
     // ── 계정 생성(관리자) ──
     if (action === 'create_account'){
-      if (data.key !== ADMIN_KEY) return err('unauthorized');
-      const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태'], '#4527A0');
+      if (!isAdmin(data)) return err('unauthorized');
+      const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할'], '#4527A0');
       const salt = uid('s'); const pw = data.tempPw || tempPw();
       const sawonId = uid('emp');
       emp.appendRow([ sawonId, data.name, data.loginId, data.emailId||(data.loginId+'@276holdings.com'), data.phone||'',
-                      sha256(pw+salt), salt, now(), data.dept||'', '활성' ]);
+                      sha256(pw+salt), salt, now(), data.dept||'', '활성', data.role||'사원' ]);
       // 요청 상태 업데이트
       const req = ss().getSheetByName(SHEET_ACCOUNTREQ);
       if (req){ const v=req.getDataRange().getValues(); for(let i=1;i<v.length;i++) if(v[i][1]===data.name && v[i][4]==='관리자확인대기'){ req.getRange(i+1,5).setValue('승인'); break; } }
@@ -220,7 +249,7 @@ function doPost(e){
 
     // ── 보강 과제 생성(관리자) ──
     if (action === 'add_remediation'){
-      if (data.key !== ADMIN_KEY) return err('unauthorized');
+      if (!isAdmin(data)) return err('unauthorized');
       const s = sheetWith(SHEET_REMEDIATION, ['생성일시','사원','취약태그','보강제목','상태'], '#00695C');
       s.appendRow([ now(), data.name, (data.tags||[]).join(','), data.title||'', '생성' ]);
       return ok({ created:true });
@@ -252,6 +281,11 @@ function doPost(e){
 function doGet(e){
   const action = (e.parameter.action||'').trim();
 
+  // 로그인(GET) — 브라우저가 응답(role/adminToken)을 읽을 수 있도록 GET로 처리
+  if (action === 'login'){
+    return loginLogic(e.parameter.loginId, e.parameter.pw, e.parameter.name);
+  }
+
   // 공개: 교과서 목록(노출만)
   if (action === 'get_textbooks'){
     const {rows} = getRows(SHEET_TEXTBOOKS);
@@ -281,7 +315,7 @@ function doGet(e){
 
   // 관리자: 승인(GET, CORS 우회)
   if (action === 'approve'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const s=ss().getSheetByName(SHEET_REQUEST); if(!s) return err('no sheet');
     const v=s.getDataRange().getValues();
     for(let i=1;i<v.length;i++) if(v[i][1]===(e.parameter.name||'').trim()){ s.getRange(i+1,3).setValue('승인'); return ok({approved:true}); }
@@ -290,7 +324,7 @@ function doGet(e){
 
   // 관리자: 삭제
   if (action === 'delete_request'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const s=ss().getSheetByName(SHEET_REQUEST); if(!s) return err('no sheet');
     const v=s.getDataRange().getValues();
     for(let i=1;i<v.length;i++) if(v[i][1]===(e.parameter.name||'').trim() && String(v[i][0])===(e.parameter.ts||'').trim()){ s.deleteRow(i+1); return ok({deleted:true}); }
@@ -299,14 +333,14 @@ function doGet(e){
 
   // 관리자: 진도 조회
   if (action === 'get_progress'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const {rows} = getRows(SHEET_PROGRESS);
     return ok({ progress: rows.map(r=>({ ts:r[0], name:r[1], chapter:r[2], chapterName:r[3] })) });
   }
 
   // 관리자: 교과서별 교육완료 집계
   if (action === 'get_completions'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const {rows} = getRows(SHEET_PROGRESS);
     // chapterName 형식: "[교과서명] ..." / 교육완료는 "✓ 교육완료" 포함
     const map = {}; // name -> { book -> {progress:n, done:bool} }
@@ -325,7 +359,7 @@ function doGet(e){
 
   // 관리자: 계정 요청 + 사원 목록
   if (action === 'get_account_requests'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const req=getRows(SHEET_ACCOUNTREQ), emp=getRows(SHEET_EMPLOYEES);
     return ok({
       requests: req.rows.map(r=>({ts:r[0],name:r[1],phone:r[2],emailId:r[3],status:r[4],memo:r[5]})),
@@ -335,7 +369,7 @@ function doGet(e){
 
   // 관리자: 퀴즈 점수(quiz_results) 조회 — 레거시(30문항 OX) + 신규(7컬럼) 호환
   if (action === 'get_scores'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const qr=getRows(SHEET_QUIZRESULT);
     const out=qr.rows.map(r=>{
       // 레거시 핀테크 OX 포맷: [ts,성명,Q1..Q30,정답수(32),점수%(33),등급(34)]
@@ -350,7 +384,7 @@ function doGet(e){
 
   // 관리자: 단건 응시 상세(문항별) 조회 — get_attempt
   if (action === 'get_attempt'){
-    if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+    if (!isAdmin(e.parameter)) return err('unauthorized');
     const tgtName=(e.parameter.name||''), tgtTs=(e.parameter.ts||''), tgtQuiz=(e.parameter.quiz||'');
     const qr=getRows(SHEET_QUIZRESULT);
     for (const r of qr.rows){
@@ -365,9 +399,45 @@ function doGet(e){
   }
 
   // 관리자: 통합 데이터(레거시 admin.html)
-  if ((e.parameter.key||'')!==ADMIN_KEY) return err('unauthorized');
+  if (!isAdmin(e.parameter)) return err('unauthorized');
   const rqr = getRows(SHEET_QUIZRESULT);
   const rpg = getRows(SHEET_PROGRESS);
   const rrq = getRows(SHEET_REQUEST);
   return ok({ headers:rqr.headers, rows:rqr.rows, progress:rpg.rows, requests:rrq.rows });
+}
+
+
+// ════════════════════════════════════════════════════════════════
+//  최초 관리자 부트스트랩 — Apps Script 편집기에서 1회 직접 실행
+//  (HTTP 미노출: 웹앱으로는 호출 불가, 편집기 실행 전용)
+// ════════════════════════════════════════════════════════════════
+
+// employees 시트에 역할 컬럼(헤더) 보장
+function ensureRoleColumn(){
+  const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return 'employees 시트 없음 — initAllSheets 먼저';
+  if (s.getRange(1, ROLE_COL+1).getValue() !== '역할') s.getRange(1, ROLE_COL+1).setValue('역할');
+  return 'ok';
+}
+
+// 기존 계정을 관리자로 승격:  promoteToAdmin('doyeon')
+function promoteToAdmin(loginId){
+  ensureRoleColumn();
+  const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return 'employees 시트 없음';
+  const v = s.getDataRange().getValues();
+  for (let i=1;i<v.length;i++){
+    if (String(v[i][2]) === String(loginId)){ s.getRange(i+1, ROLE_COL+1).setValue('관리자'); return loginId+' → 관리자 승격 완료'; }
+  }
+  return '계정을 찾을 수 없습니다: '+loginId;
+}
+
+// 신규 관리자 계정 생성:  createAdmin('admin','관리자','원하는비번')
+function createAdmin(loginId, name, pw){
+  if (!loginId || !pw) return 'loginId·pw 필수';
+  ensureRoleColumn();
+  const emp = sheetWith(SHEET_EMPLOYEES, ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할'], '#4527A0');
+  const v = emp.getDataRange().getValues();
+  for (let i=1;i<v.length;i++) if (String(v[i][2])===String(loginId)) return '이미 존재하는 로그인ID: '+loginId+' (promoteToAdmin 사용)';
+  const salt = uid('s'); const sawonId = uid('emp');
+  emp.appendRow([ sawonId, name||loginId, loginId, loginId+'@276holdings.com', '', sha256(pw+salt), salt, now(), '', '활성', '관리자' ]);
+  return '관리자 계정 생성 완료: '+loginId;
 }

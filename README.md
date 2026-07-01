@@ -1,6 +1,6 @@
 # 276홀딩스 사내 교육 포털 — 산출물 모음
 
-> 갱신: 2026-05-30 · 폰트: 맑은 고딕 · 아이콘: SVG · 백엔드: Google Apps Script + Sheets
+> 갱신: 2026-07-01 · 폰트: 맑은 고딕 · 아이콘: SVG · 백엔드: Google Apps Script(v3.1) + Sheets
 
 ## 🌐 배포 (GitHub Pages 자동)
 - **라이브 URL:** https://yechunghee.github.io/276-lms-portal/
@@ -37,9 +37,21 @@
 - [x] A3 퀴즈 점수 서버저장(quiz_submit) + 점수 대시보드(admin-scores.html)
 - [x] A4 취약점 분석·보강 과제 생성(add_remediation)
 - [ ] A5 Apps Script 실배포·실데이터 연결·회귀 테스트
-- [ ] A6 관리자 계정 로그인 격상(ADMIN_KEY 대체)
+- [x] A6 관리자 계정 로그인 격상 — **공유키(ADMIN_KEY) 폐기 → 계정 역할(role) + 토큰 인증** (v3.1)
+
+## 관리자 로그인 (v3.1 — 계정 기반)
+- 관리자도 **`index.html` 통합 로그인**을 사용: 로그인ID + 이름 + **비밀번호**
+- 백엔드가 `employees.역할`이 `관리자`인 계정에만 **adminToken** 발급 → 세션(`lms_session.role='admin'`, `adminToken`)에 저장
+- 어드민 페이지는 세션 role로 접근 판정, 관리자 API는 `token`으로 인증 (하드코딩 공유키 제거)
+- 대시보드 상단에 관리자에게만 **🛠 관리자 콘솔** 진입 노출
 
 ## 배포 절차
-1. Google Sheets Apps Script에 Code.gs 반영 → `initAllSheets()` 실행
-2. 배포(웹앱, 모든 사용자) → URL을 각 HTML의 APPS_SCRIPT_URL에 반영
-3. 관리자 콘솔 접속 키: flowpay2026 (추후 계정 로그인으로 격상 권장)
+1. Google Sheets Apps Script에 **최신 `Code.gs`(v3.1)** 반영 → `initAllSheets()` 실행(역할 컬럼 포함)
+2. (권장) Apps Script → 프로젝트 설정 → **스크립트 속성**에 `ADMIN_SECRET`(임의 난수 문자열) 등록 — 토큰 서명용
+3. **최초 관리자 만들기** — Apps Script 편집기에서 1회 실행:
+   - 기존 계정 승격: `promoteToAdmin('로그인ID')`
+   - 신규 관리자 생성: `createAdmin('로그인ID','이름','비밀번호')`
+4. 배포(웹앱, 모든 사용자) → `/exec` URL을 각 HTML의 `APPS_SCRIPT_URL`에 반영(변경 없으면 유지)
+5. `index.html`에서 관리자 계정(ID+이름+비밀번호)으로 로그인 → 대시보드 → 관리자 콘솔 진입 확인
+
+> 과도기 호환이 필요하면 스크립트 속성 `ADMIN_KEY`를 설정할 때에만 레거시 키 인증이 동작합니다(기본은 비활성, 소스에는 저장하지 않음).

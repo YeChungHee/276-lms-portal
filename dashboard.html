@@ -70,6 +70,7 @@ body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-seri
   <span class="brand"><svg class="ic" width="18" height="18" style="vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-book"/></svg> 276홀딩스 교육 포털</span>
   <div class="right">
     <span class="who"><svg class="ic" width="15" height="15" style="vertical-align:-.16em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-user"/></svg> <span id="whoChip">—</span></span>
+    <a class="logout" id="adminLink" href="admin.html" style="display:none;background:#EDE7F6;color:#5E35B1;text-decoration:none;border:1px solid #D1C4E9;">🛠 관리자 콘솔</a>
     <button class="logout" onclick="logout()">로그아웃</button>
   </div>
 </div>
@@ -186,8 +187,10 @@ function resolveBooks(){
 }
 
 function render(){
-  document.getElementById('whoChip').textContent=SESSION.name;
+  document.getElementById('whoChip').textContent=SESSION.name+(SESSION.role==='admin'?' · 관리자':'');
   document.getElementById('helloName').textContent=SESSION.name+'님, 환영합니다';
+  /* 관리자만 콘솔 진입 노출 */
+  if(SESSION.role==='admin' && SESSION.adminToken){ document.getElementById('adminLink').style.display=''; }
   let totalCh=0, doneCh=0;
   const grid=document.getElementById('bookGrid');
   grid.innerHTML=resolveBooks().map(b=>{
