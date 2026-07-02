@@ -67,7 +67,7 @@ table.sched{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
 table.sched th{background:var(--bg);color:var(--text-sec);padding:7px 8px;text-align:left;font-weight:600;font-size:11px;border-bottom:1px solid var(--border);}
 table.sched td{padding:5px 6px;border-bottom:1px solid #F0F0F0;vertical-align:middle;}
 table.sched td input{padding:6px 8px;font-size:12px;}
-.col-day{width:96px;}.col-x{width:30px;text-align:center;}
+.col-day{width:84px;}.col-inst{width:96px;}.col-x{width:30px;text-align:center;}
 .xbtn{background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;line-height:1;padding:2px 5px;border-radius:5px;}
 .xbtn:hover{color:var(--danger);background:#FFEBEE;}
 .addrow{margin-top:8px;}
@@ -225,7 +225,7 @@ function weekSection(i){
       <label>주차 목표</label>
       <input id="wkGoal${i}" placeholder="이번 주 핵심 달성 목표를 입력하세요" oninput="autosave()">
       <label>일별 학습 일정</label>
-      <table class="sched"><thead><tr><th class="col-day">일정</th><th>학습 주제</th><th>세부 내용 / 실습</th><th class="col-x"></th></tr></thead>
+      <table class="sched"><thead><tr><th class="col-day">일정</th><th>학습 주제</th><th>세부 내용 / 실습</th><th class="col-inst">강사</th><th class="col-x"></th></tr></thead>
       <tbody id="sched${i}"></tbody></table>
       <button class="btn btn-light btn-sm addrow" onclick="addRow(${i})">+ 일정 추가</button>
       <label style="margin-top:16px;">완료 체크리스트</label>
@@ -250,12 +250,13 @@ function updateWeekDates(){
 }
 function toggleWeek(i){document.getElementById('wk'+i).classList.toggle('collapsed');
   document.getElementById('tg'+i).textContent=document.getElementById('wk'+i).classList.contains('collapsed')?'▸':'▾';}
-function addRow(i,day,topic,detail){
+function addRow(i,day,topic,detail,inst){
   const tb=document.getElementById('sched'+i);
   const tr=document.createElement('tr');
   tr.innerHTML=`<td class="col-day"><input placeholder="월/화" value="${esc(day)}" oninput="autosave()"></td>
     <td><input placeholder="학습 주제" value="${esc(topic)}" oninput="autosave()"></td>
     <td><input placeholder="세부 내용 및 실습 방법" value="${esc(detail)}" oninput="autosave()"></td>
+    <td class="col-inst"><input placeholder="강사명" value="${esc(inst)}" oninput="autosave()"></td>
     <td class="col-x"><button class="xbtn" onclick="this.closest('tr').remove();autosave()">&times;</button></td>`;
   tb.appendChild(tr);
 }
@@ -273,8 +274,8 @@ function collect(){
   const weeks=[0,1,2,3].map(i=>({
     topic:val('wkTopic'+i), goal:val('wkGoal'+i),
     sched:[...document.querySelectorAll('#sched'+i+' tr')].map(tr=>{
-      const x=tr.querySelectorAll('input'); return {day:x[0].value,topic:x[1].value,detail:x[2].value};
-    }).filter(r=>r.day||r.topic||r.detail),
+      const x=tr.querySelectorAll('input'); return {day:x[0].value,topic:x[1].value,detail:x[2].value,inst:x[3].value};
+    }).filter(r=>r.day||r.topic||r.detail||r.inst),
     checks:[...document.querySelectorAll('#check'+i+' .check-item')].map(c=>{
       const x=c.querySelectorAll('input'); return {done:x[0].checked,txt:x[1].value};
     }).filter(c=>c.txt)
@@ -288,7 +289,7 @@ function restore(d){
   (d.weeks||[]).forEach((w,i)=>{
     setv('wkTopic'+i,w.topic);setv('wkGoal'+i,w.goal);
     document.getElementById('sched'+i).innerHTML=''; document.getElementById('check'+i).innerHTML='';
-    (w.sched&&w.sched.length?w.sched:[{},{},{}]).forEach(r=>addRow(i,r.day,r.topic,r.detail));
+    (w.sched&&w.sched.length?w.sched:[{},{},{}]).forEach(r=>addRow(i,r.day,r.topic,r.detail,r.inst));
     (w.checks&&w.checks.length?w.checks:[{},{}]).forEach(c=>addCheck(i,c.txt,c.done));
   });
 }
@@ -310,27 +311,27 @@ function loadTemplate(){
     weeks:[
      {topic:'온보딩 & 회사·금융 기초', goal:'회사·문화 이해 + 경제/금융 발달과 핀테크 도메인 학습',
       sched:[
-        {day:'월',topic:'회사 소개·조직 문화·복지',detail:'회사소개 교과서 학습 + 사수 1:1'},
-        {day:'화·수',topic:'경제·금융 발달 과정',detail:'경제 교과서 학습 + 핵심요약 확인'},
-        {day:'목·금',topic:'핀테크 도메인',detail:'핀테크 교과서 학습 + OX 퀴즈 응시'}],
+        {day:'월',topic:'회사 소개·조직 문화·복지',detail:'회사소개 교과서 학습 + 사수 1:1',inst:'최병희'},
+        {day:'화·수',topic:'경제·금융 발달 과정',detail:'경제 교과서 학습 + 핵심요약 확인',inst:'예충희'},
+        {day:'목·금',topic:'핀테크 도메인',detail:'핀테크 교과서 학습 + OX 퀴즈 응시',inst:'윤재호'}],
       checks:[{txt:'협업툴(슬랙·노션·구글) 셋업'},{txt:'회사소개·경제·핀테크 교과서 학습 완료'},{txt:'핀테크 OX 퀴즈 응시'}]},
      {topic:'핵심 도메인 & 플로우페이', goal:'매출채권 개념 + 플로우페이 플랫폼 사용법 습득',
       sched:[
-        {day:'월·화',topic:'매출채권(전자어음 할인)',detail:'매출채권 교과서 학습 + 퀴즈'},
-        {day:'수·목',topic:'플로우페이 플랫폼 사용법',detail:'플랫폼 교과서 학습 + 화면 실습'},
-        {day:'금',topic:'FlowPay/FlowPoint/FlowScore',detail:'서비스 구조 이해 + 퀴즈 응시'}],
+        {day:'월·화',topic:'매출채권(전자어음 할인)',detail:'매출채권 교과서 학습 + 퀴즈',inst:'송인탁'},
+        {day:'수·목',topic:'플로우페이 플랫폼 사용법',detail:'플랫폼 교과서 학습 + 화면 실습',inst:'조민선'},
+        {day:'금',topic:'FlowPay/FlowPoint/FlowScore',detail:'서비스 구조 이해 + 퀴즈 응시',inst:'박충만'}],
       checks:[{txt:'매출채권 교과서·퀴즈 완료'},{txt:'플로우페이 플랫폼 교과서·퀴즈 완료'},{txt:'사수 1:1 점검'}]},
      {topic:'프로세스 심화 & 심사', goal:'플로우페이 프로세스 + 심사·채권추심 이해',
       sched:[
-        {day:'월·화',topic:'플로우페이 프로세스',detail:'프로세스 교과서 학습 + 퀴즈'},
-        {day:'수·목',topic:'심사·채권추심',detail:'심사 매뉴얼·결제지연 프로세스 학습 + 퀴즈'},
-        {day:'금',topic:'전 과정 복습',detail:'취약 영역 보강 + 재퀴즈'}],
+        {day:'월·화',topic:'플로우페이 프로세스',detail:'프로세스 교과서 학습 + 퀴즈',inst:'방장원'},
+        {day:'수·목',topic:'심사·채권추심',detail:'심사 매뉴얼·결제지연 프로세스 학습 + 퀴즈',inst:'송인탁'},
+        {day:'금',topic:'전 과정 복습',detail:'취약 영역 보강 + 재퀴즈',inst:'멘토'}],
       checks:[{txt:'프로세스 교과서·퀴즈 완료'},{txt:'심사·채권추심 교과서·퀴즈 완료'},{txt:'취약 태그 보강 학습'}]},
      {topic:'실무 적용 & 리뷰', goal:'학습 발표 + 첫 실무 과제 + 온보딩 리뷰',
       sched:[
-        {day:'월',topic:'학습 이해 발표',detail:'전 과정 요약 발표(15분)'},
-        {day:'화·목',topic:'첫 실무 과제',detail:'사수 지정 과제 수행'},
-        {day:'금',topic:'온보딩 리뷰',detail:'운영팀 버디와 4주차 리뷰 미팅 + 피드백 작성'}],
+        {day:'월',topic:'학습 이해 발표',detail:'전 과정 요약 발표(15분)',inst:'멘토'},
+        {day:'화·목',topic:'첫 실무 과제',detail:'사수 지정 과제 수행',inst:'사수'},
+        {day:'금',topic:'온보딩 리뷰',detail:'운영팀 버디와 4주차 리뷰 미팅 + 피드백 작성',inst:'최병희'}],
       checks:[{txt:'전 퀴즈 합격(80%+)'},{txt:'학습 이해 발표 완료'},{txt:'첫 실무 과제 제출'},{txt:'온보딩 피드백 작성'}]}
     ]};
   restore(tpl); autosave(); renderPreview(); toast('표준 커리큘럼을 불러왔습니다');
@@ -345,11 +346,11 @@ function renderPreview(){
     <div><b>멘토/사수</b> ${esc(d.mentor)||'-'}</div><div><b>입사일</b> ${esc(d.join)||'-'}</div></div>`;
   const goal=d.goal?`<div class="goal"><b>온보딩 핵심 목표</b><br>${esc(d.goal)}</div>`:'';
   const weeks=d.weeks.map((w,i)=>{
-    const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td></tr>`).join(''):'<tr><td colspan="3" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
+    const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join(''):'<tr><td colspan="4" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
     const cks=w.checks.length?w.checks.map(c=>`<div class="ck"><span class="box"></span>${esc(c.txt)}</div>`).join(''):'';
     return `<div class="wk"><div class="wk-h" style="background:${WK_COLORS[i]}">${i+1}주차 · ${esc(w.topic)||WK_HINT[i]}</div>
       <div class="wk-b">${w.goal?`<div class="wk-goal"><b>목표</b> ${esc(w.goal)}</div>`:''}
-        <table><thead><tr><th style="width:60px;">일정</th><th>학습 주제</th><th>세부 내용</th></tr></thead><tbody>${rows}</tbody></table>
+        <table><thead><tr><th style="width:56px;">일정</th><th>학습 주제</th><th>세부 내용</th><th style="width:74px;">강사</th></tr></thead><tbody>${rows}</tbody></table>
         ${cks?`<div style="font-size:11px;color:#888;font-weight:700;margin:4px 0 3px;">완료 체크리스트</div>${cks}`:''}
       </div></div>`;
   }).join('');
@@ -371,7 +372,7 @@ function toSlack(){
   let txt=`*${d.name}님 4주 교육 계획서* (${d.dept||'-'} / 멘토 ${d.mentor||'-'})\n`;
   if(d.goal) txt+=`목표: ${d.goal}\n`;
   d.weeks.forEach((w,i)=>{ txt+=`\n*${i+1}주차 — ${w.topic||WK_HINT[i]}*\n`;
-    w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+': ':''}${r.topic}${r.detail?' ('+r.detail+')':''}\n`; }); });
+    w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+': ':''}${r.topic}${r.detail?' ('+r.detail+')':''}${r.inst?' — 강사 '+r.inst:''}\n`; }); });
   try{ navigator.clipboard.writeText(txt); toast('Slack 메시지 초안이 클립보드에 복사되었습니다 — 채널에 붙여넣어 발송하세요'); }
   catch(e){ toast('초안이 생성되었습니다(클립보드 복사 실패)'); }
 }
