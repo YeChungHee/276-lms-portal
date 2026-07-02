@@ -31,7 +31,7 @@
 - `admin-content.html` 교과서·질문지 생성/관리
 - `admin-progress.html` 교과서별 교육완료 현황표
 - `admin-scores.html` 퀴즈 점수 집계·취약 태그 분석·보강 과제 생성
-- `admin-program.html` 4주 교육 계획서 작성
+- `admin-program.html` 온보딩 교육 계획서 작성
 
 ## 백엔드·계획서
 - `Code.gs` Apps Script v3.0 — 21개 엔드포인트, 9개 시트
@@ -65,7 +65,7 @@
 2. (권장) Apps Script → 프로젝트 설정 → **스크립트 속성**에 `ADMIN_SECRET`(임의 난수 문자열) 등록 — 토큰 서명용
 3. **최초 최고관리자 만들기** — Apps Script 편집기에서 1회 실행:
    - 기존 계정 승격: `promoteToAdmin('appler')` (최고관리자) · `promoteToOperator('doyeon')` (운영자)
-   - 신규 생성: `createAdmin('appler','안애경','비밀번호')` (최고관리자)
+   - 신규 생성: `setupMaster()` — 스크립트 속성 `MASTER_PW`의 비밀번호로 appler(예충희) 최고관리자 생성
 4. 배포(웹앱, 모든 사용자) → `/exec` URL을 각 HTML의 `APPS_SCRIPT_URL`에 반영(변경 없으면 유지)
 5. `index.html`에서 관리자 계정(ID+이름+비밀번호)으로 로그인 → 대시보드 → 관리자 콘솔 진입 확인
 
