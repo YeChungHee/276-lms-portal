@@ -158,15 +158,32 @@ function render(k){
     kpiCard('#C62828','#FFEBEE','ic-alert',k.weak,'보강 필요 인원');
 }
 const EMPTY={employees:'—',completeRate:'—',avgScore:'—',pending:'—',weak:'—'};
+function pctNum(p){ if(typeof p==='number') return p<=1?Math.round(p*100):Math.round(p);
+  const v=parseFloat(String(p).replace('%','')); return isNaN(v)?0:(v<=1?Math.round(v*100):Math.round(v)); }
 async function loadKPI(){
   try{
-    const r=await fetch(APPS_SCRIPT_URL+'?action=get_completions&token='+encodeURIComponent(ADMIN_TOKEN));
-    const j=await r.json();
-    if(j.status!=='ok') throw 0;
-    const comp=j.completions||{}; const names=Object.keys(comp);
+    const t='&token='+encodeURIComponent(ADMIN_TOKEN);
+    /* 실데이터 3원천: 계정목록·계정요청 / 진도(완료) / 퀴즈점수 */
+    const [aj,cj,sj]=await Promise.all([
+      fetch(APPS_SCRIPT_URL+'?action=get_account_requests'+t).then(r=>r.json()).catch(()=>null),
+      fetch(APPS_SCRIPT_URL+'?action=get_completions'+t).then(r=>r.json()).catch(()=>null),
+      fetch(APPS_SCRIPT_URL+'?action=get_scores'+t).then(r=>r.json()).catch(()=>null)
+    ]);
+    if(!aj||aj.status!=='ok') throw 0;
+    /* 활성 사원·승인 대기 — employees/계정요청 시트 기준(진도 기록 아님) */
+    const emps=(aj.employees||[]);
+    const activeNames=new Set(emps.filter(e=>e.status!=='정지').map(e=>e.name));
+    const pending=(aj.requests||[]).filter(r=>r.status==='관리자확인대기').length;
+    /* 완료율·보강 — 진도 기록 중 현재 재직 계정만 집계(삭제 계정의 옛 기록 제외) */
+    const comp=(cj&&cj.status==='ok'&&cj.completions)||{};
+    const names=Object.keys(comp).filter(n=>activeNames.has(n));
     const BOOKS=7; let doneCells=0,totalCells=names.length*BOOKS,weak=0;
     names.forEach(n=>{const b=comp[n];let d=0;Object.keys(b).forEach(k=>{if(b[k].done)d++;});doneCells+=d;if(d<Math.ceil(BOOKS/2))weak++;});
-    render({employees:names.length, completeRate:totalCells?Math.round(doneCells/totalCells*100):0, avgScore:'—', pending:'—', weak:weak});
+    /* 평균 퀴즈 점수 — 재직 계정의 응시 기록 평균 */
+    const scores=((sj&&sj.status==='ok'&&sj.results)||[]).filter(r=>activeNames.has(r.name));
+    const avg=scores.length?Math.round(scores.reduce((a,r)=>a+pctNum(r.pct),0)/scores.length)+'점':'—';
+    render({employees:activeNames.size, completeRate:totalCells?Math.round(doneCells/totalCells*100):0,
+            avgScore:avg, pending:pending, weak:weak});
   }catch(e){ render(EMPTY); document.getElementById('demoNote').classList.add('show'); }
 }
 gateCheck();
