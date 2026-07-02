@@ -27,6 +27,7 @@ const SHEET_QUIZZES    = 'quizzes';
 const SHEET_QUESTIONS  = 'quiz_questions';
 const SHEET_REMEDIATION= 'remediation_tasks';
 const SHEET_REGKEYS    = 'reg_keys';
+const SHEET_PROGRAMS   = 'programs';
 
 // ── 공통 헬퍼 ──────────────────────────────────────────────────
 function ss(){ return SpreadsheetApp.openById(SHEET_ID); }
@@ -179,6 +180,49 @@ function h_delete_account(p){
   return ok({ deleted:true });
 }
 
+// ── 온보딩 교육 계획서 저장·보관(programs) ──────────────────
+function h_save_program(p){
+  if (!isAdmin(p)) return err('unauthorized');
+  const s = sheetWith(SHEET_PROGRAMS, ['계획서ID','제목','유형','대상','작성자','데이터JSON','저장일시','수정일시'], '#00695C');
+  const id = String(p.id||'').trim() || uid('pg');
+  const v = s.getDataRange().getValues();
+  for (let i=1;i<v.length;i++) if (String(v[i][0])===id){
+    // 같은 ID 재저장 → 갱신(작성자·저장일시는 유지)
+    s.getRange(i+1,2).setValue(p.title||v[i][1]);
+    s.getRange(i+1,3).setValue(p.ptype||v[i][2]);
+    s.getRange(i+1,4).setValue(p.targets||v[i][3]);
+    s.getRange(i+1,6).setValue(p.data||v[i][5]);
+    s.getRange(i+1,8).setValue(now());
+    return ok({ saved:true, id:id, updated:true });
+  }
+  s.appendRow([ id, p.title||'', p.ptype||'사원', p.targets||'', p.author||'', p.data||'', now(), now() ]);
+  return ok({ saved:true, id:id });
+}
+function h_list_programs(p){
+  if (!isAdmin(p)) return err('unauthorized');
+  const {rows} = getRows(SHEET_PROGRAMS);
+  // 목록은 데이터JSON 제외(가볍게)
+  return ok({ programs: rows.map(r=>({ id:r[0], title:r[1], ptype:r[2], targets:r[3], author:r[4], savedAt:r[6], updatedAt:r[7] })) });
+}
+function h_get_program(p){
+  if (!isAdmin(p)) return err('unauthorized');
+  const {rows} = getRows(SHEET_PROGRAMS);
+  for (const r of rows) if (String(r[0])===String(p.id))
+    return ok({ id:r[0], title:r[1], ptype:r[2], targets:r[3], author:r[4], data:r[5], savedAt:r[6], updatedAt:r[7] });
+  return err('계획서를 찾을 수 없습니다');
+}
+function h_delete_program(p){
+  const role = tokenRole(p); if (!role) return err('unauthorized');
+  const s = ss().getSheetByName(SHEET_PROGRAMS); if(!s) return err('no sheet');
+  const v = s.getDataRange().getValues();
+  for (let i=1;i<v.length;i++) if (String(v[i][0])===String(p.id)){
+    // 최고관리자는 전부, 운영자는 본인 작성분만 삭제
+    if (role!=='super' && String(v[i][4])!==String(p.requester||'')) return err('작성자 또는 최고관리자만 삭제할 수 있습니다');
+    s.deleteRow(i+1); return ok({ deleted:true });
+  }
+  return err('계획서를 찾을 수 없습니다');
+}
+
 // 시트 초기화(최초 1회 수동 실행 권장)
 function initAllSheets(){
   sheetWith(SHEET_QUIZRESULT, ['타임스탬프','성명','퀴즈','정답수','점수%','등급','오답태그','상세JSON'], '#4A148C');
@@ -186,6 +230,7 @@ function initAllSheets(){
   sheetWith(SHEET_REQUEST,    ['타임스탬프','성명','상태','SlackID'], '#2E7D32');
   sheetWith(SHEET_EMPLOYEES,  ['사원ID','이름','로그인ID','이메일ID','휴대폰','비밀번호해시','salt','입사일','부서','상태','역할','비번변경필요'], '#4527A0');
   sheetWith(SHEET_REGKEYS,    ['등록키','메모','발급자','발급일시','상태','사용자','대상역할','사용일시'], '#37474F');
+  sheetWith(SHEET_PROGRAMS,   ['계획서ID','제목','유형','대상','작성자','데이터JSON','저장일시','수정일시'], '#00695C');
   sheetWith(SHEET_ACCOUNTREQ, ['요청일시','이름','휴대폰','이메일용아이디','상태','관리자메모'], '#673AB7');
   sheetWith(SHEET_TEXTBOOKS,  ['교재ID','제목','방식','URL','주차','챕터수','부서','노출','등록일시'], '#00838F');
   sheetWith(SHEET_QUIZZES,    ['퀴즈ID','퀴즈명','연결교재','합격기준','노출','등록일시'], '#E65100');
@@ -272,6 +317,8 @@ function doPost(e){
     if (action === 'set_account_status') return h_set_account_status(data);
     if (action === 'reset_password')     return h_reset_password(data);
     if (action === 'delete_account')     return h_delete_account(data);
+    if (action === 'save_program')       return h_save_program(data);
+    if (action === 'delete_program')     return h_delete_program(data);
 
     // ── 학습 진도 저장(교과서 핵심요약/교육완료 공통) ──
     if (action === 'progress'){
@@ -390,6 +437,9 @@ function doGet(e){
   if (action === 'set_account_status') return h_set_account_status(e.parameter);
   if (action === 'reset_password')     return h_reset_password(e.parameter);
   if (action === 'delete_account')     return h_delete_account(e.parameter);
+  if (action === 'list_programs')      return h_list_programs(e.parameter);
+  if (action === 'get_program')        return h_get_program(e.parameter);
+  if (action === 'delete_program')     return h_delete_program(e.parameter);
   if (action === 'change_password'){
     const s = ss().getSheetByName(SHEET_EMPLOYEES); if(!s) return err('no employees');
     const v = s.getDataRange().getValues();

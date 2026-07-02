@@ -108,6 +108,31 @@ table.sched td input{padding:6px 8px;font-size:12px;}
 .toast.show{opacity:1;}
 .savechip{font-size:11px;color:#999;}
 
+/* 저장·보관 */
+.savebar-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.ptype-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.ptype-toggle button{padding:8px 14px;border:none;background:#fff;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--text-sec);cursor:pointer;}
+.ptype-toggle button.active{background:var(--primary);color:#fff;}
+.sv-title{flex:1;min-width:180px;}
+.grp-box{margin-top:12px;background:#F7F5FC;border-radius:8px;padding:10px 12px;display:none;}
+.grp-box.show{display:block;}
+.grp-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.gchip{background:#fff;border:1px solid var(--border);color:var(--text-sec);font-size:12px;padding:4px 11px;border-radius:13px;cursor:pointer;user-select:none;}
+.gchip.on{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);font-weight:700;}
+.arch-modal{position:fixed;inset:0;background:rgba(69,39,160,.5);display:none;align-items:flex-start;justify-content:center;z-index:200;padding:40px 16px;overflow:auto;}
+.arch-modal.open{display:flex;}
+.arch-box{background:#fff;border-radius:14px;padding:22px 24px;max-width:820px;width:100%;}
+.arch-box h3{font-size:17px;color:var(--primary-dark);display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.arch-box .sub{font-size:11.5px;color:var(--text-sec);margin-bottom:12px;}
+.arch-t{width:100%;border-collapse:collapse;font-size:12.5px;}
+.arch-t th{background:var(--primary-dark);color:#fff;padding:8px 11px;text-align:left;font-weight:600;white-space:nowrap;}
+.arch-t td{padding:9px 11px;border-bottom:1px solid #EEE;vertical-align:middle;}
+.arch-b{display:inline-block;padding:2px 9px;border-radius:9px;font-size:10.5px;font-weight:700;}
+.b-emp{background:var(--primary-light);color:var(--primary-dark);}
+.b-grp{background:#E3F2FD;color:#1565C0;}
+.arch-empty{text-align:center;color:#aaa;padding:26px 0;font-size:12.5px;}
+.closex{background:none;border:none;font-size:22px;color:#999;cursor:pointer;line-height:1;float:right;}
+
 @media print{
   html,body{padding:0!important;margin:0!important;background:#fff!important;}
   body *{visibility:hidden;}
@@ -157,6 +182,32 @@ table.sched td input{padding:6px 8px;font-size:12px;}
 <div class="wrap">
   <!-- 좌: 빌더 -->
   <div class="builder">
+    <!-- 저장 · 보관 -->
+    <div class="card">
+      <h2><svg><use href="#ic-doc"/></svg> 계획서 저장 · 보관 <span style="margin-left:auto;font-size:11px;color:#999;font-weight:400;">서버(구글시트) 영구 보관 · 관리자 공유</span></h2>
+      <div class="savebar-row">
+        <div>
+          <label style="margin-top:0;">저장 유형</label>
+          <div class="ptype-toggle">
+            <button id="pt-emp" class="active" onclick="setPtype('사원')">사원별</button>
+            <button id="pt-grp" onclick="setPtype('그룹')">기수 그룹</button>
+          </div>
+        </div>
+        <div class="sv-title">
+          <label style="margin-top:0;">계획서 제목</label>
+          <input id="svTitle" placeholder="예: 김관영 · 영업 온보딩 / 2026년 7월 입사 기수">
+        </div>
+        <button class="btn btn-primary" onclick="saveProgram()" id="svBtn">서버에 저장</button>
+        <button class="btn btn-ghost" onclick="openArchive()">보관함</button>
+      </div>
+      <div class="grp-box" id="grpBox">
+        <label style="margin-top:0;">대상 사원 (여러 명 선택 — 클릭으로 추가/해제)</label>
+        <div class="grp-chips" id="grpChips"><span style="font-size:12px;color:#999;">계정 목록 불러오는 중…</span></div>
+        <div style="font-size:11px;color:#999;margin-top:7px;">저장 시 선택한 사원 전원에게 동일 계획서가 연결됩니다.</div>
+      </div>
+      <div id="svState" style="font-size:11.5px;color:#999;margin-top:9px;"></div>
+    </div>
+
     <div class="card">
       <h2><svg><use href="#ic-user"/></svg> 사원 기본 정보</h2>
       <div class="row2">
@@ -194,6 +245,21 @@ table.sched td input{padding:6px 8px;font-size:12px;}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 보관함 모달 -->
+<div class="arch-modal" id="archModal">
+  <div class="arch-box">
+    <button class="closex" onclick="document.getElementById('archModal').classList.remove('open')">&times;</button>
+    <h3><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><line x1="10" y1="13" x2="14" y2="13"/></svg> 계획서 보관함</h3>
+    <div class="sub">서버(구글시트)에 저장된 계획서입니다. 불러오면 작성 화면에 그대로 복원됩니다.</div>
+    <input id="archSearch" placeholder="이름·그룹·제목 검색" style="margin-bottom:10px;max-width:260px;" oninput="renderArchive()">
+    <div style="overflow-x:auto;">
+    <table class="arch-t"><thead><tr><th>제목</th><th>유형 · 대상</th><th>작성자</th><th>저장일</th><th>관리</th></tr></thead>
+    <tbody id="archBody"><tr><td colspan="5" class="arch-empty">불러오는 중…</td></tr></tbody></table>
+    </div>
+    <div style="font-size:11px;color:#999;margin-top:9px;">불러오기 = 작성 화면 복원 · 수정 후 [서버에 저장]하면 같은 계획서가 갱신됩니다 · 삭제는 최고관리자·작성자만</div>
   </div>
 </div>
 
@@ -364,6 +430,117 @@ function doPrint(){
   if(!document.querySelector('#printArea .doc')) renderPreview();
   if(!document.querySelector('#printArea .doc')) return;
   window.print();
+}
+
+/* ---------- 서버 저장 · 보관함 ---------- */
+let PTYPE='사원';           // '사원' | '그룹'
+let GRP_SEL=new Set();      // 그룹 대상 사원 이름
+let EMP_CACHE=null;         // 계정 목록 캐시
+let CUR_PROG_ID='';         // 불러온 계획서 id(재저장 시 갱신)
+let ARCHIVE=[];
+
+function uid(p){ return (p||'id')+'_'+Date.now()+'_'+Math.floor(Math.random()*9999); }
+async function api(action,params){
+  const q=Object.keys(params||{}).map(k=>k+'='+encodeURIComponent(params[k])).join('&');
+  return await (await fetch(APPS_SCRIPT_URL+'?action='+action+'&token='+encodeURIComponent(ADMIN_TOKEN)+(q?('&'+q):''))).json();
+}
+function setPtype(t){
+  PTYPE=t;
+  document.getElementById('pt-emp').classList.toggle('active',t==='사원');
+  document.getElementById('pt-grp').classList.toggle('active',t==='그룹');
+  document.getElementById('grpBox').classList.toggle('show',t==='그룹');
+  if(t==='그룹') loadEmpChips();
+}
+async function loadEmpChips(){
+  const box=document.getElementById('grpChips');
+  if(!EMP_CACHE){
+    try{ const j=await api('get_account_requests',{}); EMP_CACHE=(j.employees||[]).filter(e=>e.status!=='정지'); }
+    catch(e){ box.innerHTML='<span style="font-size:12px;color:#C62828;">계정 목록을 불러오지 못했습니다</span>'; return; }
+  }
+  if(!EMP_CACHE.length){ box.innerHTML='<span style="font-size:12px;color:#999;">등록된 계정이 없습니다</span>'; return; }
+  box.innerHTML=EMP_CACHE.map(e=>`<span class="gchip ${GRP_SEL.has(e.name)?'on':''}" onclick="toggleGrp('${esc(e.name)}',this)">${esc(e.name)}</span>`).join('');
+}
+function toggleGrp(name,el){
+  if(GRP_SEL.has(name)) GRP_SEL.delete(name); else GRP_SEL.add(name);
+  el.classList.toggle('on');
+}
+async function saveProgram(){
+  const d=collect();
+  let title=val('svTitle').trim();
+  let targets;
+  if(PTYPE==='사원'){
+    if(!d.name){ toast('사원 이름을 먼저 입력하세요'); return; }
+    targets=[d.name];
+    if(!title) title=d.name+(d.dept?' · '+d.dept:'')+' 온보딩';
+  }else{
+    targets=[...GRP_SEL];
+    if(!targets.length){ toast('대상 사원을 1명 이상 선택하세요'); return; }
+    if(!title){ toast('그룹 계획서 제목을 입력하세요 (예: 2026년 7월 입사 기수)'); return; }
+  }
+  const id=CUR_PROG_ID||uid('pg');
+  const st=document.getElementById('svState'); st.textContent='서버에 저장 중…';
+  /* 데이터가 커서 POST(no-cors)로 저장 후, 목록 조회로 반영 확인 */
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'save_program',token:ADMIN_TOKEN,id:id,title:title,ptype:PTYPE,
+      targets:targets.join(','),author:(SESSION.name||SESSION.loginId||''),data:JSON.stringify(d)})}).catch(()=>{});
+  await new Promise(r=>setTimeout(r,1600));
+  try{
+    const j=await api('list_programs',{});
+    if(j.status==='ok' && (j.programs||[]).some(p=>p.id===id)){
+      CUR_PROG_ID=id; setv('svTitle',title);
+      st.textContent='✓ 저장 완료 — 보관함에서 확인·불러오기 가능 ('+title+')';
+      toast('서버에 저장되었습니다');
+    }else{ st.textContent='저장 확인 실패 — 잠시 후 보관함에서 확인하세요'; toast('저장 확인 실패'); }
+  }catch(e){ st.textContent='저장 확인 실패(네트워크) — 잠시 후 보관함에서 확인하세요'; }
+}
+async function openArchive(){
+  document.getElementById('archModal').classList.add('open');
+  const tb=document.getElementById('archBody');
+  tb.innerHTML='<tr><td colspan="5" class="arch-empty">불러오는 중…</td></tr>';
+  try{ const j=await api('list_programs',{}); ARCHIVE=(j.programs||[]); }
+  catch(e){ tb.innerHTML='<tr><td colspan="5" class="arch-empty">목록을 불러오지 못했습니다</td></tr>'; return; }
+  renderArchive();
+}
+function renderArchive(){
+  const q=(document.getElementById('archSearch').value||'').trim();
+  const tb=document.getElementById('archBody');
+  let list=ARCHIVE.slice().reverse();
+  if(q) list=list.filter(p=>(p.title+' '+p.targets+' '+p.author).indexOf(q)>-1);
+  if(!list.length){ tb.innerHTML='<tr><td colspan="5" class="arch-empty">저장된 계획서가 없습니다</td></tr>'; return; }
+  tb.innerHTML=list.map(p=>{
+    const grp=p.ptype==='그룹';
+    const tnames=String(p.targets||'').split(',').filter(Boolean);
+    const badge=grp?`<span class="arch-b b-grp">그룹 · ${tnames.length}명</span> <span style="font-size:11px;color:#888;">${esc(tnames.join('·'))}</span>`
+                   :`<span class="arch-b b-emp">사원 · ${esc(tnames[0]||'')}</span>`;
+    return `<tr><td style="font-weight:700;">${esc(p.title)}</td><td>${badge}</td><td>${esc(p.author)}</td>
+      <td>${String(p.updatedAt||p.savedAt||'').slice(0,10)}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="loadProgram('${p.id}')">불러오기</button>
+          <button class="btn btn-ghost btn-sm" onclick="pdfProgram('${p.id}')">PDF</button>
+          <button class="btn btn-light btn-sm" style="color:#C62828;" onclick="delProgram('${p.id}')">삭제</button></td></tr>`;
+  }).join('');
+}
+async function loadProgram(id){
+  try{
+    const j=await api('get_program',{id:id});
+    if(j.status!=='ok'){ toast(j.message||'불러오기 실패'); return; }
+    restore(JSON.parse(j.data||'{}'));
+    CUR_PROG_ID=j.id; setv('svTitle',j.title||'');
+    setPtype(j.ptype==='그룹'?'그룹':'사원');
+    if(j.ptype==='그룹'){ GRP_SEL=new Set(String(j.targets||'').split(',').filter(Boolean)); loadEmpChips(); }
+    updateWeekDates(); renderPreview(); autosave();
+    document.getElementById('archModal').classList.remove('open');
+    document.getElementById('svState').textContent='보관함에서 불러옴 — 수정 후 [서버에 저장] 시 같은 계획서가 갱신됩니다';
+    toast('계획서를 불러왔습니다');
+  }catch(e){ toast('불러오기 실패'); }
+}
+async function pdfProgram(id){ await loadProgram(id); setTimeout(doPrint,400); }
+async function delProgram(id){
+  if(!confirm('이 계획서를 보관함에서 삭제할까요? 되돌릴 수 없습니다.')) return;
+  try{
+    const j=await api('delete_program',{id:id,requester:(SESSION.name||SESSION.loginId||'')});
+    if(j.status==='ok'){ toast('삭제되었습니다'); if(CUR_PROG_ID===id) CUR_PROG_ID=''; openArchive(); }
+    else toast(j.message||'삭제 실패');
+  }catch(e){ toast('삭제 실패'); }
 }
 
 /* ---------- Slack 초안(발송은 권한 확인 후) ---------- */
