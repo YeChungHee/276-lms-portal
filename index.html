@@ -59,12 +59,9 @@ input:focus,select:focus{border-color:var(--brand);}
     <label for="loginName">이름</label>
     <input id="loginName" type="text" placeholder="실명 입력" autocomplete="name"
       onkeydown="if(event.key==='Enter')doLogin()">
-    <label for="loginPw">비밀번호 <span style="color:#9aa0b4;font-weight:400">(계정 보유자·관리자)</span></label>
-    <input id="loginPw" type="password" placeholder="발급받은 비밀번호 (없으면 비워두세요)" autocomplete="current-password"
-      onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-primary" onclick="doLogin()">로그인</button>
     <div class="msg" id="loginMsg"></div>
-    <div class="hint">발급받은 계정으로 로그인하면 학습 진도가 계정에 기록됩니다.<br>사원은 <b>아이디+이름</b>만으로 로그인, 관리자는 <b>비밀번호</b>까지 입력해야 콘솔에 접근합니다.</div>
+    <div class="hint">발급받은 아이디와 이름으로 로그인하면 학습 진도가 계정에 기록됩니다.<br><a href="admin-login.html" style="color:var(--accent);font-weight:700;text-decoration:none;">관리자이신가요? 관리자 로그인 →</a></div>
   </div>
 
   <!-- 계정 요청 / 등록키 가입 -->
@@ -124,45 +121,24 @@ async function loginReq(id,name,pw){
 async function doLogin(){
   const id=document.getElementById('loginId').value.trim();
   const name=document.getElementById('loginName').value.trim();
-  let pw=document.getElementById('loginPw').value;
   const msg=document.getElementById('loginMsg');
   if(!id||name.length<2){ msg.className='msg err'; msg.textContent='로그인 아이디와 이름(2자 이상)을 입력하세요.'; return; }
   msg.className='msg'; msg.textContent='로그인 확인 중…';
+  /* 직원용 문 — 비밀번호 없이 아이디+이름으로만 로그인(학습 세션). 관리자 콘솔은 admin-login.html */
   try{
-    let j=await loginReq(id,name,pw);
-    /* 성공 판정은 login:true 기준 (계정 상태값이 envelope status를 덮어쓰는 경우 대비) */
+    const j=await loginReq(id,name);
     if(!j||!j.login){
-      /* 임시 호환 모드: 구버전 백엔드(login 액션 미지원)는 'unauthorized' 시그니처 반환.
-         이 경우에 한해 — 비밀번호 없는 '사원'은 서버 없이 즉시 로그인 허용.
-         (재배포 후 정상 백엔드는 무비번+이름이면 항상 ok를 주므로 이 폴백은 자동 비활성. 정지·비번오류 등은 그대로 차단) */
-      const compat=(j&&j.message==='unauthorized');
-      if(compat && !pw){
-        saveSessionAndGo({name:name, loginId:id, dept:'', role:'user', adminToken:'', status:'호환', loginAt:new Date().toISOString()}); return;
-      }
-      if(compat && pw){
-        msg.className='msg err'; msg.textContent='관리자·운영자 로그인은 서버 업데이트(재배포) 후 가능합니다. 지금은 비밀번호 없이 사원 로그인만 됩니다.'; return;
-      }
+      /* 구버전 백엔드(unauthorized) 임시 호환 — 사원 즉시 로그인 */
+      if(j&&j.message==='unauthorized'){ saveSessionAndGo(sess(name,id,'호환')); return; }
       msg.className='msg err'; msg.textContent=(j&&j.message)||'로그인에 실패했습니다.'; return;
     }
-    /* 최초 로그인·초기화 시 비밀번호 변경 강제 */
-    if(j.mustChange && pw){
-      const np=prompt('최초 로그인입니다. 새 비밀번호를 설정하세요 (4자 이상)');
-      if(!np||np.length<4){ msg.className='msg err'; msg.textContent='비밀번호 변경 후 이용할 수 있습니다.'; return; }
-      const cj=await (await fetch(APPS_SCRIPT_URL+'?action=change_password&loginId='+encodeURIComponent(id)
-        +'&curPw='+encodeURIComponent(pw)+'&newPw='+encodeURIComponent(np))).json();
-      if(cj.status!=='ok'){ msg.className='msg err'; msg.textContent=cj.message||'비밀번호 변경 실패'; return; }
-      pw=np; j=await loginReq(id,name,pw); /* 새 비번으로 재로그인(새 토큰) */
-      if(!j||!j.login){ msg.className='msg err'; msg.textContent='재로그인 실패 — 다시 시도하세요.'; return; }
-    }
-    const isAdm=(j.role==='super'||j.role==='operator');
-    if(pw && isAdm && !j.adminToken){ msg.className='msg err'; msg.textContent='관리자 토큰 발급 실패 — 관리자에게 문의하세요.'; return; }
-    saveSessionAndGo({ name:j.name||name, loginId:id, dept:j.dept||'', role:j.role||'user',
-                       adminToken:j.adminToken||'', status:j.acctStatus||'', loginAt:new Date().toISOString() });
+    saveSessionAndGo(sess(j.name||name, id, j.acctStatus||''));
   }catch(e){
-    if(!pw){ saveSessionAndGo({name:name, loginId:id, dept:'', role:'user', adminToken:'', status:'오프라인', loginAt:new Date().toISOString()}); }
-    else { msg.className='msg err'; msg.textContent='서버 연결 실패 — 잠시 후 다시 시도하세요.'; }
+    saveSessionAndGo(sess(name,id,'오프라인'));  /* 네트워크 실패 시 오프라인 학습 세션 */
   }
 }
+/* 직원 세션은 항상 role:'user' — 관리자 권한은 admin-login.html에서만 부여 */
+function sess(name,id,status){ return {name:name, loginId:id, dept:'', role:'user', adminToken:'', status:status, loginAt:new Date().toISOString()}; }
 
 /* 등록키 입력 여부에 따라 비밀번호 필드·버튼 라벨 전환 */
 function toggleKeyMode(){

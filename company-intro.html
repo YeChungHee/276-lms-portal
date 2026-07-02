@@ -168,7 +168,13 @@
     display:flex;align-items:center;justify-content:center;margin:0 auto 8px;color:#fff;}
   .person-name{font-size:13px;font-weight:700;margin-bottom:2px;}
   .person-role{font-size:11px;color:var(--primary);font-weight:600;margin-bottom:4px;}
-  .person-desc{font-size:11px;color:var(--text-secondary);line-height:1.4;}
+  .person-desc{font-size:11px;color:var(--text-secondary);line-height:1.45;}
+  .people-subhead{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;
+    color:var(--primary-dark);margin:12px 0 2px;}
+  .people-subhead:first-child{margin-top:0;}
+  .people-subhead::after{content:"";flex:1;height:1px;background:var(--border);}
+  .person-card.lead{border:2px solid var(--primary);}
+  .person-card.lead .person-role{color:var(--primary-dark);}
 
   /* ── FEATURED PERSON CARDS (이사진 상세) ── */
   .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-bottom:16px;}
@@ -852,71 +858,112 @@
       핵심 담당자
     </div>
 
-    <!-- 전체 팀 -->
+    <!-- 전체 팀 (17명 · 2섹터) -->
     <div class="people-grid">
-      <div class="person-card">
-        <div class="person-avatar" style="background:linear-gradient(135deg,#1565C0,#0D47A1);">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-user"/></svg>
-        </div>
+      <div class="people-subhead">경영 · 리드</div>
+      <div class="person-card lead">
+        <div class="person-avatar" style="background:#0D47A1;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-award"/></svg></div>
         <div class="person-name">신인근</div>
         <div class="person-role">대표이사 · CEO</div>
-        <div class="person-desc">창업자 · 전략 방향 결정</div>
+        <div class="person-desc">포스코인터내셔널·금융권 10년 · 구조화 금융 전문</div>
       </div>
       <div class="person-card">
-        <div class="person-avatar">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-brief"/></svg>
-        </div>
+        <div class="person-avatar" style="background:#1565C0;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-brief"/></svg></div>
         <div class="person-name">박진용</div>
         <div class="person-role">전략이사 · CSO</div>
-        <div class="person-desc">전략·세일즈 총괄</div>
-      </div>
-      <div class="person-card" style="border-color:#90CAF9;">
-        <div class="person-avatar" style="background:#2959A8;">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-shield"/></svg>
-        </div>
-        <div class="person-name">송인탁</div>
-        <div class="person-role" style="color:#1565C0;">운영·심사 이사 · COO</div>
-        <div class="person-desc">심사·리스크·운영 총괄</div>
-      </div>
-      <div class="person-card" style="border-color:#A5D6A7;">
-        <div class="person-avatar" style="background:#2E7D32;">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-cpu"/></svg>
-        </div>
-        <div class="person-name">임지훈</div>
-        <div class="person-role" style="color:#2E7D32;">AX·R&D 이사 · CIO</div>
-        <div class="person-desc">AX·R&D·해외사업 총괄</div>
+        <div class="person-desc">코스콤 · 투자유치(IR)·B2B 영업망 구축 총괄</div>
       </div>
       <div class="person-card">
-        <div class="person-avatar">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-trend"/></svg>
-        </div>
+        <div class="person-avatar" style="background:#2959A8;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-shield"/></svg></div>
+        <div class="person-name">송인탁</div>
+        <div class="person-role">운영·심사 이사 · COO</div>
+        <div class="person-desc">우리투자증권 · 구조적 리스크 통제 시스템 설계</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#00695C;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-cpu"/></svg></div>
+        <div class="person-name">임지훈</div>
+        <div class="person-role">AX·R&D 이사 · CIO</div>
+        <div class="person-desc">AI 동적 리스크 스코어링 · 해외 R&D 총괄</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#E65100;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-trend"/></svg></div>
         <div class="person-name">예충희</div>
         <div class="person-role">영업이사</div>
-        <div class="person-desc">영업·채널 발굴 (금융도메인)</div>
+        <div class="person-desc">B2B 영업 총괄 · 네트워크 관리</div>
       </div>
       <div class="person-card">
-        <div class="person-avatar">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-code"/></svg>
-        </div>
+        <div class="person-avatar" style="background:#3949AB;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-code"/></svg></div>
         <div class="person-name">박충만</div>
         <div class="person-role">개발팀장</div>
-        <div class="person-desc">플랫폼 개발 총괄 (계정 생성)</div>
+        <div class="person-desc">백엔드 아키텍처 설계 · 데이터 파이프라인 총괄</div>
       </div>
       <div class="person-card">
-        <div class="person-avatar">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-zap"/></svg>
-        </div>
+        <div class="person-avatar" style="background:#00897B;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-zap"/></svg></div>
         <div class="person-name">윤재호</div>
         <div class="person-role">AX·R&D 리드</div>
-        <div class="person-desc">Claude·AI 툴 가이드</div>
+        <div class="person-desc">조직 AX 총괄 · Claude·AI 툴 가이드</div>
       </div>
       <div class="person-card">
-        <div class="person-avatar">
-          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-clipboard"/></svg>
-        </div>
+        <div class="person-avatar" style="background:#5E35B1;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-clipboard"/></svg></div>
         <div class="person-name">최병희</div>
         <div class="person-role">운영대리</div>
-        <div class="person-desc">온보딩 버디 · 서류·복지</div>
+        <div class="person-desc">경영관리 · HR · 온보딩 버디</div>
+      </div>
+
+      <div class="people-subhead">실무 · 지원</div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#8E24AA;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-compass"/></svg></div>
+        <div class="person-name">조민선</div>
+        <div class="person-role">기획 주임</div>
+        <div class="person-desc">서비스·플랫폼 기획 총괄</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#00838F;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-layout"/></svg></div>
+        <div class="person-name">박윤혜</div>
+        <div class="person-role">프론트 주임</div>
+        <div class="person-desc">프론트엔드 · 플랫폼 개발</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#455A64;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-settings"/></svg></div>
+        <div class="person-name">김준성</div>
+        <div class="person-role">백엔드 사원</div>
+        <div class="person-desc">백엔드 관리 · 플랫폼 개발</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#607D8B;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-file"/></svg></div>
+        <div class="person-name">방장원</div>
+        <div class="person-role">총무 사원</div>
+        <div class="person-desc">상품 운영 · 총무</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#D81B60;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-star"/></svg></div>
+        <div class="person-name">장세희</div>
+        <div class="person-role">디자인 사원</div>
+        <div class="person-desc">UI · 디자인</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#00897B;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-cpu"/></svg></div>
+        <div class="person-name">노준석</div>
+        <div class="person-role">AX 사원</div>
+        <div class="person-desc">조직 AX 실무</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#7B1FA2;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-chart"/></svg></div>
+        <div class="person-name">김경태</div>
+        <div class="person-role">R&D 사원</div>
+        <div class="person-desc">R&D 실무</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#EF6C00;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-mail"/></svg></div>
+        <div class="person-name">안애경</div>
+        <div class="person-role">영업지원 사원</div>
+        <div class="person-desc">영업지원</div>
+      </div>
+      <div class="person-card">
+        <div class="person-avatar" style="background:#546E7A;"><svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-calendar"/></svg></div>
+        <div class="person-name">이도연</div>
+        <div class="person-role">경영지원 사원</div>
+        <div class="person-desc">경영지원</div>
       </div>
     </div>
     <div class="ch-summary"><button class="summary-btn" id="sbtn6" onclick="openTip(6)">&#x1F4CC; 핵심 담당자 핵심 요약</button></div>
@@ -1015,10 +1062,10 @@ const TIPS=[
   '입사 전 준비: 계정·장비 셋업·근로계약서·명함 신청',
   '1~2주차: 적응+협업툴+서류 제출 + 금융 도메인·플로우페이(사용법/프로세스/심사·결제지연) 학습 + 각 학습별 퀴즈 응시·학습 이해 발표',
   '3~4주차: 팀별 온보딩·첫 실무 과제·리뷰 면담 / 필수: 소득세 감면 신청서 3개월 내 제출'],
- ['대표 신인근(CEO) · 박진용(전략이사 CSO)',
-  '송인탁(COO·운영/심사) = 재무·리스크 Co-Founder / 임지훈(CIO·AX·R&D) = 해외사업·AI 개발',
-  '예충희(영업이사·금융도메인) · 박충만(개발팀장·계정 생성) · 윤재호(AX·R&D 리드·Claude 가이드)',
-  '최병희(운영대리) = 온보딩 버디·서류·복지 담당'],
+ ['경영·리드 8인 — 신인근(대표·CEO)·박진용(전략 CSO)·송인탁(운영/심사 COO)·임지훈(AX·R&D CIO)',
+  '예충희(영업이사)·박충만(개발팀장)·윤재호(AX·R&D 리드·Claude 가이드)·최병희(운영대리·온보딩 버디)',
+  '실무·지원 9인 — 조민선(기획)·박윤혜(프론트)·김준성(백엔드)·방장원(총무)·장세희(디자인)',
+  '노준석(AX)·김경태(R&D)·안애경(영업지원)·이도연(경영지원) — 핵심 담당자 총 17인'],
  ['근무: 출근 7시~ 인정·코어타임 10~16시 필수·퇴근 16~18시 자율, 대면 원칙·복장 자유·주차 불가',
   '휴가: 입사 1개월 후 연차 발생·사유 불필요·시간 단위 연차 가능(네이버웍스 기안)',
   '급여 25일 지급 · 소득세 감면 신청서 3개월 내 제출(소급 불가)',

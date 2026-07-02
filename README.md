@@ -1,6 +1,6 @@
 # 276홀딩스 사내 교육 포털 — 산출물 모음
 
-> 갱신: 2026-07-01 · 폰트: 맑은 고딕 · 아이콘: SVG · 백엔드: Google Apps Script(v3.2) + Sheets
+> 갱신: 2026-07-02 · 폰트: 맑은 고딕 · 아이콘: SVG · 백엔드: Google Apps Script(v3.2) + Sheets
 
 ## 🌐 배포 (GitHub Pages 자동)
 - **라이브 URL:** https://yechunghee.github.io/276-lms-portal/
@@ -12,18 +12,26 @@
   ```
   진행 상황: `gh run watch` 또는 저장소 Actions 탭
 
+## 로그인 문 분리 (v3.3)
+- **직원용 `index.html`** — 아이디 + 이름만으로 로그인(비밀번호 없음). 하단 "관리자 로그인" 링크로 admin-login 연결. 계정 요청·운영자 등록키 가입 탭 포함
+- **관리자 전용 `admin-login.html`** — 아이디 + 비밀번호. 성공 시 역할이 관리자/운영자면 `admin.html`로 직행, 사원이면 "관리자 권한이 없습니다" 거부
+- 어드민 페이지 미인증 접근 시 → `admin-login.html`로 이동(로그아웃도 동일)
+- ⚠️ **임원을 관리자로 쓰려면 승격 필요**: 비밀번호만으로 관리자가 되지 않습니다. Apps Script 편집기에서 `promoteToOperator('로그인ID')`(운영자) 또는 `promoteToAdmin('로그인ID')`(최고관리자)를 1회 실행하면, 이후 admin-login에서 비밀번호 로그인 시 콘솔 진입 가능(코드 변경 아님)
+
 ## 사원용 (네이비 테마)
-- `index.html` 로그인 / 계정 요청 (세션 lms_session)
+- `index.html` 직원 로그인(아이디+이름) / 계정 요청 (세션 lms_session)
 - `dashboard.html` 학습 허브(교과서·퀴즈·진도/교육완료)
 - 교과서 7: company-intro(8) · textbook-economy(7) · textbook-fintech(5) · textbook-enote-discount 매출채권(7) · textbook-flowpay-platform(5) · textbook-flowpay-process(8) · textbook-review-collection 심사·채권추심(8)
 - 퀴즈 6(계정 귀속·자가채점): quiz-fintech-ox(30) · quiz-economy(10) · quiz-enote-discount(10) · quiz-flowpay-platform(15) · quiz-flowpay-process(15) · quiz-review-collection(20)
 
-## 어드민 (보라 테마)
-- `admin.html` **관리자 콘솔**(7메뉴 네비 + 운영 KPI, ADMIN_KEY 게이트)
-- `admin-accounts.html` 계정 관리(요청 승인·계정 생성·임시PW·Slack 전달)
+## 어드민 (보라 테마 · 세션 role 게이트)
+- `admin-login.html` **관리자 전용 로그인**(ID+비밀번호 → 콘솔 직행)
+- `admin.html` **관리자 콘솔**(네비 + 운영 KPI)
+- `admin-accounts.html` 계정 관리(요청 승인·운영자 등록키·정지·비번리셋·삭제)
 - `admin-content.html` 교과서·질문지 생성/관리
 - `admin-progress.html` 교과서별 교육완료 현황표
 - `admin-scores.html` 퀴즈 점수 집계·취약 태그 분석·보강 과제 생성
+- `admin-program.html` 4주 교육 계획서 작성
 
 ## 백엔드·계획서
 - `Code.gs` Apps Script v3.0 — 21개 엔드포인트, 9개 시트
