@@ -109,10 +109,16 @@ table.sched td input{padding:6px 8px;font-size:12px;}
 .savechip{font-size:11px;color:#999;}
 
 @media print{
+  html,body{padding:0!important;margin:0!important;background:#fff!important;}
   body *{visibility:hidden;}
+  /* 미리보기 컨테이너 제약 해제 — 잘림/빈페이지 방지 */
+  .wrap,.preview-wrap,.preview-card,.preview-body{position:static!important;max-height:none!important;
+    height:auto!important;overflow:visible!important;box-shadow:none!important;border:none!important;
+    padding:0!important;margin:0!important;display:block!important;}
   #printArea,#printArea *{visibility:visible;}
-  #printArea{position:absolute;left:0;top:0;width:100%;padding:24px;}
-  .topbar,.anav,.pagehead{display:none!important;}
+  #printArea{position:absolute;left:0;top:0;width:100%;padding:20px 24px;}
+  .preview-top,.topbar,.anav,.pagehead{display:none!important;}
+  @page{margin:12mm;}
 }
 </style>
 </head>
