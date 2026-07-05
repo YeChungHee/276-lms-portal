@@ -4,9 +4,11 @@
    - APP_VERSION: 현재 버전 (vMAJOR.MINOR.PATCH — 기능=MINOR, 수정=PATCH)
    - RELEASES: 최신이 맨 앞. type: 'feat'(기능) | 'fix'(수정) | 'chore'(운영/문서)
    ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = 'v2.7.0';
+const APP_VERSION = 'v2.8.0';
 
 const RELEASES = [
+  { v:'v2.8.0', date:'2026-07-05', type:'feat', title:'배포 시 자동 버전업',
+    items:['deploy.sh가 releases.js 미갱신이면 커밋 메시지로 버전','업데이트 내역 자동 생성','bump-version.js 추가'] },
   { v:'v2.7.0', date:'2026-07-05', type:'feat', title:'버전 관리 도입',
     items:['릴리즈 버전 체계(releases.js) 신설','관리자 콘솔에 업데이트 내역 표시','상단바에 현재 버전 배지'] },
   { v:'v2.6.0', date:'2026-07-05', type:'feat', title:'일별 학습 일정 2줄 카드 레이아웃',

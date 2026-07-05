@@ -16,10 +16,16 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-# 버전 관리 리마인더 — 코드가 바뀌었는데 releases.js가 그대로면 경고(차단하지 않음)
+# 자동 버전업 — releases.js를 직접 갱신하지 않았다면 커밋 메시지로 버전 항목 자동 생성
+# (feat* → MINOR+1, 그 외 → PATCH+1. 직접 갱신했다면 그대로 존중)
 if ! git diff --cached --name-only | grep -q "releases.js"; then
-  ver=$(grep -oE "v[0-9]+\.[0-9]+\.[0-9]+" releases.js | head -1)
-  echo "⚠️  releases.js 미갱신 (현재 ${ver:-?}) — 기능/수정 배포라면 버전 항목을 추가하세요."
+  newver=$(node bump-version.js "$msg" 2>/dev/null || true)
+  if [ -n "${newver:-}" ]; then
+    git add releases.js
+    echo "🔖 자동 버전업: ${newver} (releases.js에 업데이트 내역 추가됨)"
+  else
+    echo "⚠️  자동 버전업 실패 — releases.js를 수동으로 갱신하세요."
+  fi
 fi
 
 git commit -m "$msg"
