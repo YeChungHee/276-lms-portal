@@ -4,9 +4,11 @@
    - APP_VERSION: 현재 버전 (vMAJOR.MINOR.PATCH — 기능=MINOR, 수정=PATCH)
    - RELEASES: 최신이 맨 앞. type: 'feat'(기능) | 'fix'(수정) | 'chore'(운영/문서)
    ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = 'v2.9.0';
+const APP_VERSION = 'v2.10.0';
 
 const RELEASES = [
+  { v:'v2.10.0', date:'2026-07-05', type:'feat', title:'교육계획표 주차 삭제',
+    items:['주차별 [주차 삭제] 버튼으로 설계 내용 비우기','빈 주차는 미리보기/인쇄/Slack에서 자동 제외','재번호','날짜만 있는 빈 일정 행 문서 제외'] },
   { v:'v2.9.0', date:'2026-07-05', type:'feat', title:'일시요일 달력 선택',
     items:['금일 자동 입력','클릭 시 월달력 팝업에서 날짜 선택','오늘/닫기','월 이동 지원'] },
   { v:'v2.8.0', date:'2026-07-05', type:'feat', title:'배포 시 자동 버전업',

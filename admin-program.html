@@ -58,6 +58,9 @@ textarea{resize:vertical;min-height:54px;}
 .week-title{font-size:13.5px;font-weight:700;flex:1;color:var(--text);}
 .week-date{font-size:11px;color:#999;background:var(--bg);padding:3px 9px;border-radius:99px;margin-right:4px;white-space:nowrap;}
 .week-toggle{color:#aaa;font-size:18px;line-height:1;transition:.2s;}
+.wkdel{border:1px solid var(--border);background:#fff;color:#999;font-size:11px;border-radius:6px;
+  padding:4px 9px;cursor:pointer;font-family:inherit;margin-right:2px;flex-shrink:0;}
+.wkdel:hover{border-color:#FFCDD2;background:#FFEBEE;color:var(--danger);}
 .week.collapsed .week-body{display:none;}
 .week.collapsed .week-toggle{transform:rotate(0);}
 .week-body{padding:0 18px 18px;border-top:1px solid var(--border);}
@@ -330,6 +333,7 @@ function weekSection(i){
       <span class="week-num" style="background:${WK_COLORS[i]}">${i+1}</span>
       <span class="week-title">${i+1}주차 주제 입력 <span style="color:#aaa;font-weight:400;">(예: ${WK_HINT[i]})</span></span>
       <span class="week-date" id="wdate${i}">—</span>
+      <button class="wkdel" onclick="event.stopPropagation();clearWeek(${i})" title="이 주차 설계 내용을 모두 삭제">주차 삭제</button>
       <span class="week-toggle" id="tg${i}">▾</span>
     </div>
     <div class="week-body">
@@ -387,6 +391,18 @@ function addCheck(i,txt,done){
   box.appendChild(div);
 }
 
+/* 주차 설계 내용 전체 삭제(비우기) — 빈 주차는 미리보기/인쇄에서 자동 제외 */
+function clearWeek(i){
+  if(!confirm((i+1)+'주차 설계 내용을 모두 삭제할까요?\n(주제·목표·일정·체크리스트가 비워지고, 문서에서 이 주차가 빠집니다)')) return;
+  setv('wkTopic'+i,''); setv('wkGoal'+i,'');
+  document.getElementById('sched'+i).innerHTML='';
+  document.getElementById('check'+i).innerHTML='';
+  const wk=document.getElementById('wk'+i);
+  if(!wk.classList.contains('collapsed')) toggleWeek(i);
+  autosave();
+  toast((i+1)+'주차 내용을 삭제했습니다 — 문서에서 제외됩니다');
+}
+
 /* ---------- 일시 선택 월달력 ---------- */
 let CAL_TARGET=null, CAL_Y=0, CAL_M=0;
 const DOW='일월화수목금토';
@@ -435,7 +451,7 @@ function collect(){
     sched:[...document.querySelectorAll('#sched'+i+' .sitem')].map(el=>{
       const x=el.querySelectorAll('input');
       return {day:x[0].value,place:x[1].value,topic:x[2].value,detail:x[3].value,inst:x[4].value};
-    }).filter(r=>r.day||r.place||r.topic||r.detail||r.inst),
+    }).filter(r=>r.place||r.topic||r.detail||r.inst), /* 날짜(금일 디폴트)만 있는 빈 행은 제외 */
     checks:[...document.querySelectorAll('#check'+i+' .check-item')].map(c=>{
       const x=c.querySelectorAll('input'); return {done:x[0].checked,txt:x[1].value};
     }).filter(c=>c.txt)
@@ -505,10 +521,13 @@ function renderPreview(){
     <div><b>이름</b> ${esc(d.name)||'-'}</div><div><b>부서</b> ${esc(d.dept)||'-'}</div>
     <div><b>멘토/사수</b> ${esc(d.mentor)||'-'}</div><div><b>입사일</b> ${esc(d.join)||'-'}</div></div>`;
   const goal=d.goal?`<div class="goal"><b>온보딩 핵심 목표</b><br>${esc(d.goal)}</div>`:'';
-  const weeks=d.weeks.map((w,i)=>{
+  /* 내용 없는 주차는 문서에서 제외하고, 남은 주차를 1주차부터 재번호 */
+  const used=d.weeks.map((w,i)=>({w,i})).filter(x=>x.w.topic||x.w.goal||x.w.sched.length||x.w.checks.length);
+  const weeks=used.map((x,ord)=>{
+    const w=x.w;
     const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.place)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join(''):'<tr><td colspan="5" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
     const cks=w.checks.length?w.checks.map(c=>`<div class="ck"><span class="box"></span>${esc(c.txt)}</div>`).join(''):'';
-    return `<div class="wk"><div class="wk-h" style="background:${WK_COLORS[i]}">${i+1}주차 · ${esc(w.topic)||WK_HINT[i]}</div>
+    return `<div class="wk"><div class="wk-h" style="background:${WK_COLORS[ord%WK_COLORS.length]}">${ord+1}주차 · ${esc(w.topic)||WK_HINT[x.i]}</div>
       <div class="wk-b">${w.goal?`<div class="wk-goal"><b>목표</b> ${esc(w.goal)}</div>`:''}
         <table><thead><tr><th style="width:58px;">일시</th><th style="width:70px;">장소</th><th>학습 주제</th><th>세부 내용</th><th style="width:66px;">학습멘토</th></tr></thead><tbody>${rows}</tbody></table>
         ${cks?`<div style="font-size:11px;color:#888;font-weight:700;margin:4px 0 3px;">완료 체크리스트</div>${cks}`:''}
@@ -642,7 +661,8 @@ function toSlack(){
   const d=collect(); if(!d.name){toast('이름을 입력하세요');return;}
   let txt=`*${d.name}님 온보딩 교육 계획서* (${d.dept||'-'} / 멘토 ${d.mentor||'-'})\n`;
   if(d.goal) txt+=`목표: ${d.goal}\n`;
-  d.weeks.forEach((w,i)=>{ txt+=`\n*${i+1}주차 — ${w.topic||WK_HINT[i]}*\n`;
+  d.weeks.filter(w=>w.topic||w.goal||w.sched.length||w.checks.length).forEach((w,ord)=>{
+    txt+=`\n*${ord+1}주차 — ${w.topic||''}*\n`;
     w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+': ':''}${r.topic}${r.place?' @'+r.place:''}${r.detail?' ('+r.detail+')':''}${r.inst?' — 멘토 '+r.inst:''}\n`; }); });
   try{ navigator.clipboard.writeText(txt); toast('Slack 메시지 초안이 클립보드에 복사되었습니다 — 채널에 붙여넣어 발송하세요'); }
   catch(e){ toast('초안이 생성되었습니다(클립보드 복사 실패)'); }
