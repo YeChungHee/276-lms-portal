@@ -16,6 +16,12 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
+# 버전 관리 리마인더 — 코드가 바뀌었는데 releases.js가 그대로면 경고(차단하지 않음)
+if ! git diff --cached --name-only | grep -q "releases.js"; then
+  ver=$(grep -oE "v[0-9]+\.[0-9]+\.[0-9]+" releases.js | head -1)
+  echo "⚠️  releases.js 미갱신 (현재 ${ver:-?}) — 기능/수정 배포라면 버전 항목을 추가하세요."
+fi
+
 git commit -m "$msg"
 git push origin main
 
