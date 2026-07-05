@@ -4,9 +4,11 @@
    - APP_VERSION: 현재 버전 (vMAJOR.MINOR.PATCH — 기능=MINOR, 수정=PATCH)
    - RELEASES: 최신이 맨 앞. type: 'feat'(기능) | 'fix'(수정) | 'chore'(운영/문서)
    ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = 'v2.8.0';
+const APP_VERSION = 'v2.9.0';
 
 const RELEASES = [
+  { v:'v2.9.0', date:'2026-07-05', type:'feat', title:'일시요일 달력 선택',
+    items:['금일 자동 입력','클릭 시 월달력 팝업에서 날짜 선택','오늘/닫기','월 이동 지원'] },
   { v:'v2.8.0', date:'2026-07-05', type:'feat', title:'배포 시 자동 버전업',
     items:['deploy.sh가 releases.js 미갱신이면 커밋 메시지로 버전','업데이트 내역 자동 생성','bump-version.js 추가'] },
   { v:'v2.7.0', date:'2026-07-05', type:'feat', title:'버전 관리 도입',

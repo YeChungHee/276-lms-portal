@@ -81,6 +81,26 @@ table.sched td input{padding:6px 8px;font-size:12px;}
 .sitem .sx{position:absolute;top:6px;right:8px;background:none;border:none;color:#C5C9D3;font-size:15px;cursor:pointer;line-height:1;padding:2px 4px;border-radius:5px;}
 .sitem .sx:hover{color:var(--danger);background:#FFEBEE;}
 @media(max-width:640px){.sitem .srow{flex-wrap:wrap;}.sitem .f-day,.sitem .f-place,.sitem .f-mentor{width:48%;}}
+.sitem .f-day{cursor:pointer;background:#fff;}
+/* 일시 선택 월달력 팝업 */
+.dcal{position:fixed;z-index:400;background:#fff;border:1px solid var(--border);border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,.18);padding:12px;width:242px;display:none;}
+.dcal.open{display:block;}
+.dcal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.dcal-h b{font-size:13px;color:var(--primary-dark);}
+.dcal-h button{border:none;background:var(--bg);border-radius:6px;width:26px;height:26px;cursor:pointer;
+  font-size:12px;color:var(--text-sec);font-family:inherit;}
+.dcal-h button:hover{background:var(--primary-light);color:var(--primary-dark);}
+.dcal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;}
+.dcal-g .dw{font-size:10px;color:#999;font-weight:700;padding:3px 0;}
+.dcal-g .dd{font-size:12px;padding:5px 0;border-radius:6px;cursor:pointer;color:#333;}
+.dcal-g .dd:hover{background:var(--primary-light);}
+.dcal-g .dd.today{border:1px solid var(--primary);font-weight:700;color:var(--primary-dark);}
+.dcal-g .dd.sun{color:#C62828;}.dcal-g .dd.sat{color:#1565C0;}
+.dcal-f{margin-top:8px;display:flex;justify-content:space-between;align-items:center;}
+.dcal-f button{border:1px solid var(--border);background:#fff;border-radius:6px;padding:4px 10px;
+  font-size:11px;color:var(--text-sec);cursor:pointer;font-family:inherit;}
+.dcal-f button:hover{border-color:var(--primary);color:var(--primary-dark);}
 .xbtn{background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;line-height:1;padding:2px 5px;border-radius:5px;}
 .xbtn:hover{color:var(--danger);background:#FFEBEE;}
 .addrow{margin-top:8px;}
@@ -276,6 +296,20 @@ table.sched td input{padding:6px 8px;font-size:12px;}
   </div>
 </div>
 
+<!-- 일시 선택 월달력 -->
+<div class="dcal" id="dayCal">
+  <div class="dcal-h">
+    <button onclick="calMove(-1)" aria-label="이전 달">◀</button>
+    <b id="calTitle"></b>
+    <button onclick="calMove(1)" aria-label="다음 달">▶</button>
+  </div>
+  <div class="dcal-g" id="calGrid"></div>
+  <div class="dcal-f">
+    <button onclick="pickToday()">오늘</button>
+    <button onclick="closeDayCal()">닫기</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -331,9 +365,10 @@ function toggleWeek(i){document.getElementById('wk'+i).classList.toggle('collaps
 function addRow(i,day,topic,detail,inst,place){
   const box=document.getElementById('sched'+i);
   const d=document.createElement('div'); d.className='sitem';
+  const dayVal=(day===undefined||day===null||day==='')?fmtDay(new Date()):day; /* 금일 디폴트 */
   d.innerHTML=`<button class="sx" onclick="this.closest('.sitem').remove();autosave()">&times;</button>
     <div class="srow">
-      <input class="f-day" placeholder="7/6(월)" value="${esc(day)}" oninput="autosave()">
+      <input class="f-day" placeholder="7/6(월)" value="${esc(dayVal)}" readonly onclick="openDayCal(this)">
       <input class="f-place" placeholder="장소 (본사/온라인)" value="${esc(place)}" oninput="autosave()">
       <input class="f-topic" placeholder="학습 주제" value="${esc(topic)}" oninput="autosave()">
     </div>
@@ -351,6 +386,47 @@ function addCheck(i,txt,done){
     <button class="xbtn" onclick="this.closest('.check-item').remove();autosave()">&times;</button>`;
   box.appendChild(div);
 }
+
+/* ---------- 일시 선택 월달력 ---------- */
+let CAL_TARGET=null, CAL_Y=0, CAL_M=0;
+const DOW='일월화수목금토';
+function fmtDay(d){ return (d.getMonth()+1)+'/'+d.getDate()+'('+DOW[d.getDay()]+')'; }
+function openDayCal(inp){
+  CAL_TARGET=inp;
+  /* 입력값(M/D)이 있으면 그 달을, 없으면 이번 달을 연다 */
+  const m=String(inp.value||'').match(/^(\d{1,2})\/(\d{1,2})/);
+  const base=m?new Date(new Date().getFullYear(),(+m[1])-1,+m[2]):new Date();
+  CAL_Y=base.getFullYear(); CAL_M=base.getMonth();
+  renderDayCal();
+  const cal=document.getElementById('dayCal'); cal.classList.add('open');
+  const r=inp.getBoundingClientRect();
+  let top=r.bottom+6, left=r.left;
+  if(top+320>window.innerHeight) top=Math.max(8,r.top-320);
+  if(left+250>window.innerWidth) left=window.innerWidth-256;
+  cal.style.top=top+'px'; cal.style.left=Math.max(8,left)+'px';
+}
+function calMove(d){ CAL_M+=d; if(CAL_M<0){CAL_M=11;CAL_Y--;} if(CAL_M>11){CAL_M=0;CAL_Y++;} renderDayCal(); }
+function renderDayCal(){
+  document.getElementById('calTitle').textContent=CAL_Y+'년 '+(CAL_M+1)+'월';
+  const start=new Date(CAL_Y,CAL_M,1).getDay();
+  const days=new Date(CAL_Y,CAL_M+1,0).getDate();
+  const today=new Date();
+  let html=''; for(let i=0;i<7;i++) html+='<div class="dw">'+DOW[i]+'</div>';
+  for(let i=0;i<start;i++) html+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const dt=new Date(CAL_Y,CAL_M,d), dw=dt.getDay();
+    const cls='dd'+(dt.toDateString()===today.toDateString()?' today':'')+(dw===0?' sun':dw===6?' sat':'');
+    html+=`<div class="${cls}" onclick="pickDay(${d})">${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+function pickDay(d){ if(CAL_TARGET){ CAL_TARGET.value=fmtDay(new Date(CAL_Y,CAL_M,d)); autosave(); } closeDayCal(); }
+function pickToday(){ if(CAL_TARGET){ CAL_TARGET.value=fmtDay(new Date()); autosave(); } closeDayCal(); }
+function closeDayCal(){ document.getElementById('dayCal').classList.remove('open'); CAL_TARGET=null; }
+document.addEventListener('click',function(e){
+  const c=document.getElementById('dayCal');
+  if(c&&c.classList.contains('open')&&!c.contains(e.target)&&!(e.target.classList&&e.target.classList.contains('f-day'))) closeDayCal();
+});
 
 /* ---------- 데이터 수집/복원 ---------- */
 function collect(){
