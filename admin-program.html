@@ -77,6 +77,7 @@ table.sched td input{padding:6px 8px;font-size:12px;}
 .sitem .srow:last-child{margin-bottom:0;}
 .sitem input{padding:8px 10px;font-size:12.5px;}
 .sitem .f-day{width:104px;flex-shrink:0;}
+.sitem .f-time{width:118px;flex-shrink:0;}
 .sitem .f-place{width:124px;flex-shrink:0;}
 .sitem .f-topic{flex:1;min-width:0;}
 .sitem .f-detail{flex:1;min-width:0;}
@@ -341,7 +342,7 @@ function weekSection(i){
       <input id="wkTopic${i}" placeholder="예: ${WK_HINT[i]}" oninput="autosave()">
       <label>주차 목표</label>
       <input id="wkGoal${i}" placeholder="이번 주 핵심 달성 목표를 입력하세요" oninput="autosave()">
-      <label>일별 학습 일정 <span style="font-weight:400;color:#999;">— 1줄: 일시요일·장소·학습 주제 / 2줄: 세부 내용·학습멘토</span></label>
+      <label>일별 학습 일정 <span style="font-weight:400;color:#999;">— 1줄: 일시요일·시간·장소·학습 주제 / 2줄: 세부 내용·학습멘토</span></label>
       <div id="sched${i}" style="margin-top:6px;"></div>
       <button class="btn btn-light btn-sm addrow" onclick="addRow(${i})">+ 일정 추가</button>
       <label style="margin-top:16px;">완료 체크리스트</label>
@@ -366,13 +367,14 @@ function updateWeekDates(){
 }
 function toggleWeek(i){document.getElementById('wk'+i).classList.toggle('collapsed');
   document.getElementById('tg'+i).textContent=document.getElementById('wk'+i).classList.contains('collapsed')?'▸':'▾';}
-function addRow(i,day,topic,detail,inst,place){
+function addRow(i,day,topic,detail,inst,place,time){
   const box=document.getElementById('sched'+i);
   const d=document.createElement('div'); d.className='sitem';
   const dayVal=(day===undefined||day===null||day==='')?fmtDay(new Date()):day; /* 금일 디폴트 */
   d.innerHTML=`<button class="sx" onclick="this.closest('.sitem').remove();autosave()">&times;</button>
     <div class="srow">
       <input class="f-day" placeholder="7/6(월)" value="${esc(dayVal)}" readonly onclick="openDayCal(this)">
+      <input class="f-time" placeholder="12:00 ~ 13:00" value="${esc(time)}" oninput="autosave()">
       <input class="f-place" placeholder="장소 (본사/온라인)" value="${esc(place)}" oninput="autosave()">
       <input class="f-topic" placeholder="학습 주제" value="${esc(topic)}" oninput="autosave()">
     </div>
@@ -450,8 +452,8 @@ function collect(){
     topic:val('wkTopic'+i), goal:val('wkGoal'+i),
     sched:[...document.querySelectorAll('#sched'+i+' .sitem')].map(el=>{
       const x=el.querySelectorAll('input');
-      return {day:x[0].value,place:x[1].value,topic:x[2].value,detail:x[3].value,inst:x[4].value};
-    }).filter(r=>r.place||r.topic||r.detail||r.inst), /* 날짜(금일 디폴트)만 있는 빈 행은 제외 */
+      return {day:x[0].value,time:x[1].value,place:x[2].value,topic:x[3].value,detail:x[4].value,inst:x[5].value};
+    }).filter(r=>r.time||r.place||r.topic||r.detail||r.inst), /* 날짜(금일 디폴트)만 있는 빈 행은 제외 */
     checks:[...document.querySelectorAll('#check'+i+' .check-item')].map(c=>{
       const x=c.querySelectorAll('input'); return {done:x[0].checked,txt:x[1].value};
     }).filter(c=>c.txt)
@@ -465,7 +467,7 @@ function restore(d){
   (d.weeks||[]).forEach((w,i)=>{
     setv('wkTopic'+i,w.topic);setv('wkGoal'+i,w.goal);
     document.getElementById('sched'+i).innerHTML=''; document.getElementById('check'+i).innerHTML='';
-    (w.sched&&w.sched.length?w.sched:[{},{},{}]).forEach(r=>addRow(i,r.day,r.topic,r.detail,r.inst,r.place));
+    (w.sched&&w.sched.length?w.sched:[{},{},{}]).forEach(r=>addRow(i,r.day,r.topic,r.detail,r.inst,r.place,r.time));
     (w.checks&&w.checks.length?w.checks:[{},{}]).forEach(c=>addCheck(i,c.txt,c.done));
   });
 }
@@ -487,27 +489,27 @@ function loadTemplate(){
     weeks:[
      {topic:'온보딩 & 회사·금융 기초', goal:'회사·문화 이해 + 경제/금융 발달과 핀테크 도메인 학습',
       sched:[
-        {day:'월',place:'본사',topic:'회사 소개·조직 문화·복지',detail:'회사소개 교과서 학습 + 사수 1:1',inst:'최병희'},
-        {day:'화·수',place:'본사',topic:'경제·금융 발달 과정',detail:'경제 교과서 학습 + 핵심요약 확인',inst:'예충희'},
-        {day:'목·금',place:'본사',topic:'핀테크 도메인',detail:'핀테크 교과서 학습 + OX 퀴즈 응시',inst:'윤재호'}],
+        {day:'월',time:'10:00 ~ 12:00',place:'본사',topic:'회사 소개·조직 문화·복지',detail:'회사소개 교과서 학습 + 사수 1:1',inst:'최병희'},
+        {day:'화·수',time:'10:00 ~ 12:00',place:'본사',topic:'경제·금융 발달 과정',detail:'경제 교과서 학습 + 핵심요약 확인',inst:'예충희'},
+        {day:'목·금',time:'10:00 ~ 12:00',place:'본사',topic:'핀테크 도메인',detail:'핀테크 교과서 학습 + OX 퀴즈 응시',inst:'윤재호'}],
       checks:[{txt:'협업툴(슬랙·노션·구글) 셋업'},{txt:'회사소개·경제·핀테크 교과서 학습 완료'},{txt:'핀테크 OX 퀴즈 응시'}]},
      {topic:'핵심 도메인 & 플로우페이', goal:'매출채권 개념 + 플로우페이 플랫폼 사용법 습득',
       sched:[
-        {day:'월·화',place:'본사',topic:'매출채권(전자어음 할인)',detail:'매출채권 교과서 학습 + 퀴즈',inst:'송인탁'},
-        {day:'수·목',place:'본사',topic:'플로우페이 플랫폼 사용법',detail:'플랫폼 교과서 학습 + 화면 실습',inst:'조민선'},
-        {day:'금',place:'온라인',topic:'FlowPay/FlowPoint/FlowScore',detail:'서비스 구조 이해 + 퀴즈 응시',inst:'박충만'}],
+        {day:'월·화',time:'10:00 ~ 12:00',place:'본사',topic:'매출채권(전자어음 할인)',detail:'매출채권 교과서 학습 + 퀴즈',inst:'송인탁'},
+        {day:'수·목',time:'10:00 ~ 12:00',place:'본사',topic:'플로우페이 플랫폼 사용법',detail:'플랫폼 교과서 학습 + 화면 실습',inst:'조민선'},
+        {day:'금',time:'10:00 ~ 12:00',place:'온라인',topic:'FlowPay/FlowPoint/FlowScore',detail:'서비스 구조 이해 + 퀴즈 응시',inst:'박충만'}],
       checks:[{txt:'매출채권 교과서·퀴즈 완료'},{txt:'플로우페이 플랫폼 교과서·퀴즈 완료'},{txt:'사수 1:1 점검'}]},
      {topic:'프로세스 심화 & 심사', goal:'플로우페이 프로세스 + 심사·채권추심 이해',
       sched:[
-        {day:'월·화',place:'본사',topic:'플로우페이 프로세스',detail:'프로세스 교과서 학습 + 퀴즈',inst:'방장원'},
-        {day:'수·목',place:'본사',topic:'심사·채권추심',detail:'심사 매뉴얼·결제지연 프로세스 학습 + 퀴즈',inst:'송인탁'},
-        {day:'금',place:'온라인',topic:'전 과정 복습',detail:'취약 영역 보강 + 재퀴즈',inst:'멘토'}],
+        {day:'월·화',time:'10:00 ~ 12:00',place:'본사',topic:'플로우페이 프로세스',detail:'프로세스 교과서 학습 + 퀴즈',inst:'방장원'},
+        {day:'수·목',time:'10:00 ~ 12:00',place:'본사',topic:'심사·채권추심',detail:'심사 매뉴얼·결제지연 프로세스 학습 + 퀴즈',inst:'송인탁'},
+        {day:'금',time:'10:00 ~ 12:00',place:'온라인',topic:'전 과정 복습',detail:'취약 영역 보강 + 재퀴즈',inst:'멘토'}],
       checks:[{txt:'프로세스 교과서·퀴즈 완료'},{txt:'심사·채권추심 교과서·퀴즈 완료'},{txt:'취약 태그 보강 학습'}]},
      {topic:'실무 적용 & 리뷰', goal:'학습 발표 + 첫 실무 과제 + 온보딩 리뷰',
       sched:[
-        {day:'월',place:'본사 회의실',topic:'학습 이해 발표',detail:'전 과정 요약 발표(15분)',inst:'멘토'},
-        {day:'화·목',place:'본사',topic:'첫 실무 과제',detail:'사수 지정 과제 수행',inst:'사수'},
-        {day:'금',place:'본사 회의실',topic:'온보딩 리뷰',detail:'운영팀 버디와 4주차 리뷰 미팅 + 피드백 작성',inst:'최병희'}],
+        {day:'월',time:'10:00 ~ 12:00',place:'본사 회의실',topic:'학습 이해 발표',detail:'전 과정 요약 발표(15분)',inst:'멘토'},
+        {day:'화·목',time:'10:00 ~ 12:00',place:'본사',topic:'첫 실무 과제',detail:'사수 지정 과제 수행',inst:'사수'},
+        {day:'금',time:'10:00 ~ 12:00',place:'본사 회의실',topic:'온보딩 리뷰',detail:'운영팀 버디와 4주차 리뷰 미팅 + 피드백 작성',inst:'최병희'}],
       checks:[{txt:'전 퀴즈 합격(80%+)'},{txt:'학습 이해 발표 완료'},{txt:'첫 실무 과제 제출'},{txt:'온보딩 피드백 작성'}]}
     ]};
   restore(tpl); autosave(); renderPreview(); toast('표준 커리큘럼을 불러왔습니다');
@@ -525,11 +527,11 @@ function renderPreview(){
   const used=d.weeks.map((w,i)=>({w,i})).filter(x=>x.w.topic||x.w.goal||x.w.sched.length||x.w.checks.length);
   const weeks=used.map((x,ord)=>{
     const w=x.w;
-    const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.place)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join(''):'<tr><td colspan="5" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
+    const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.time)}</td><td>${esc(r.place)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join(''):'<tr><td colspan="6" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
     const cks=w.checks.length?w.checks.map(c=>`<div class="ck"><span class="box"></span>${esc(c.txt)}</div>`).join(''):'';
     return `<div class="wk"><div class="wk-h" style="background:${WK_COLORS[ord%WK_COLORS.length]}">${ord+1}주차 · ${esc(w.topic)||WK_HINT[x.i]}</div>
       <div class="wk-b">${w.goal?`<div class="wk-goal"><b>목표</b> ${esc(w.goal)}</div>`:''}
-        <table><thead><tr><th style="width:58px;">일시</th><th style="width:70px;">장소</th><th>학습 주제</th><th>세부 내용</th><th style="width:66px;">학습멘토</th></tr></thead><tbody>${rows}</tbody></table>
+        <table><thead><tr><th style="width:52px;">일시</th><th style="width:78px;">시간</th><th style="width:62px;">장소</th><th>학습 주제</th><th>세부 내용</th><th style="width:60px;">학습멘토</th></tr></thead><tbody>${rows}</tbody></table>
         ${cks?`<div style="font-size:11px;color:#888;font-weight:700;margin:4px 0 3px;">완료 체크리스트</div>${cks}`:''}
       </div></div>`;
   }).join('');
@@ -663,7 +665,7 @@ function toSlack(){
   if(d.goal) txt+=`목표: ${d.goal}\n`;
   d.weeks.filter(w=>w.topic||w.goal||w.sched.length||w.checks.length).forEach((w,ord)=>{
     txt+=`\n*${ord+1}주차 — ${w.topic||''}*\n`;
-    w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+': ':''}${r.topic}${r.place?' @'+r.place:''}${r.detail?' ('+r.detail+')':''}${r.inst?' — 멘토 '+r.inst:''}\n`; }); });
+    w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+' ':''}${r.time?r.time+' ':''}${r.day||r.time?': ':''}${r.topic}${r.place?' @'+r.place:''}${r.detail?' ('+r.detail+')':''}${r.inst?' — 멘토 '+r.inst:''}\n`; }); });
   try{ navigator.clipboard.writeText(txt); toast('Slack 메시지 초안이 클립보드에 복사되었습니다 — 채널에 붙여넣어 발송하세요'); }
   catch(e){ toast('초안이 생성되었습니다(클립보드 복사 실패)'); }
 }
