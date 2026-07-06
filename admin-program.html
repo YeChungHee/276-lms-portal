@@ -72,7 +72,11 @@ table.sched td{padding:5px 6px;border-bottom:1px solid #F0F0F0;vertical-align:mi
 table.sched td input{padding:6px 8px;font-size:12px;}
 .col-day{width:84px;}.col-inst{width:96px;}.col-x{width:30px;text-align:center;}
 /* 일정 카드(2줄 레이아웃): 1줄 일시요일+장소+학습주제 / 2줄 세부내용+학습멘토 */
-.sitem{position:relative;border:1px solid #E9E5F5;border-radius:10px;padding:10px 12px 11px;margin-bottom:10px;background:#FDFCFF;}
+.sitem{position:relative;border:1px solid #E9E5F5;border-radius:10px;padding:26px 12px 11px;margin-bottom:10px;background:#FDFCFF;}
+.sitem.dragging{opacity:.45;border-color:var(--primary);border-style:dashed;}
+.drag-h{position:absolute;top:6px;left:10px;font-size:11px;color:#B9A8E0;cursor:grab;user-select:none;}
+.drag-h:active{cursor:grabbing;}
+.drag-h:hover{color:var(--primary);}
 .sitem .srow{display:flex;gap:8px;margin-bottom:7px;}
 .sitem .srow:last-child{margin-bottom:0;}
 .sitem input{padding:8px 10px;font-size:12.5px;}
@@ -353,7 +357,10 @@ function weekSection(i){
 }
 function buildWeeks(){
   document.getElementById('weeks').innerHTML=[0,1,2,3].map(weekSection).join('');
-  [0,1,2,3].forEach(i=>{ addRow(i);addRow(i);addRow(i); addCheck(i);addCheck(i); if(i>0) document.getElementById('wk'+i).classList.add('collapsed'); });
+  [0,1,2,3].forEach(i=>{
+    const c=document.getElementById('sched'+i); if(c) c.addEventListener('dragover',onSchedDragOver);
+    addRow(i);addRow(i);addRow(i); addCheck(i);addCheck(i); if(i>0) document.getElementById('wk'+i).classList.add('collapsed');
+  });
 }
 function updateWeekDates(){
   const v=val('empJoin');
@@ -371,7 +378,8 @@ function addRow(i,day,topic,detail,inst,place,time){
   const box=document.getElementById('sched'+i);
   const d=document.createElement('div'); d.className='sitem';
   const dayVal=(day===undefined||day===null||day==='')?fmtDay(new Date()):day; /* 금일 디폴트 */
-  d.innerHTML=`<button class="sx" onclick="this.closest('.sitem').remove();autosave()">&times;</button>
+  d.innerHTML=`<span class="drag-h" draggable="true" title="드래그로 순서 변경">⠿ 순서 이동</span>
+    <button class="sx" onclick="this.closest('.sitem').remove();autosave()">&times;</button>
     <div class="srow">
       <input class="f-day" placeholder="7/6(월)" value="${esc(dayVal)}" readonly onclick="openDayCal(this)">
       <input class="f-time" placeholder="12:00 ~ 13:00" value="${esc(time)}" oninput="autosave()">
@@ -382,7 +390,22 @@ function addRow(i,day,topic,detail,inst,place,time){
       <input class="f-detail" placeholder="세부 내용 및 실습 방법" value="${esc(detail)}" oninput="autosave()">
       <input class="f-mentor" placeholder="학습멘토명" value="${esc(inst)}" oninput="autosave()">
     </div>`;
+  const h=d.querySelector('.drag-h');
+  h.addEventListener('dragstart',e=>{ DRAG_EL=d; d.classList.add('dragging'); try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','');}catch(_){} });
+  h.addEventListener('dragend',()=>{ d.classList.remove('dragging'); DRAG_EL=null; autosave(); });
   box.appendChild(d);
+}
+/* 같은 주차 내에서만 카드 순서 재배치 */
+let DRAG_EL=null;
+function onSchedDragOver(e){
+  if(!DRAG_EL) return;
+  const cont=e.currentTarget;
+  if(DRAG_EL.parentNode!==cont) return;
+  e.preventDefault();
+  const after=[...cont.querySelectorAll('.sitem:not(.dragging)')].find(el=>{
+    const r=el.getBoundingClientRect(); return e.clientY < r.top + r.height/2;
+  });
+  if(after) cont.insertBefore(DRAG_EL, after); else cont.appendChild(DRAG_EL);
 }
 function addCheck(i,txt,done){
   const box=document.getElementById('check'+i);
@@ -523,8 +546,8 @@ function renderPreview(){
     <div><b>이름</b> ${esc(d.name)||'-'}</div><div><b>부서</b> ${esc(d.dept)||'-'}</div>
     <div><b>멘토/사수</b> ${esc(d.mentor)||'-'}</div><div><b>입사일</b> ${esc(d.join)||'-'}</div></div>`;
   const goal=d.goal?`<div class="goal"><b>온보딩 핵심 목표</b><br>${esc(d.goal)}</div>`:'';
-  /* 내용 없는 주차는 문서에서 제외하고, 남은 주차를 1주차부터 재번호 */
-  const used=d.weeks.map((w,i)=>({w,i})).filter(x=>x.w.topic||x.w.goal||x.w.sched.length||x.w.checks.length);
+  /* 일정을 입력하지 않은 주차는 문서에서 제외하고, 남은 주차를 1주차부터 재번호 */
+  const used=d.weeks.map((w,i)=>({w,i})).filter(x=>x.w.sched.length>0);
   const weeks=used.map((x,ord)=>{
     const w=x.w;
     const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.time)}</td><td>${esc(r.place)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join(''):'<tr><td colspan="6" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
