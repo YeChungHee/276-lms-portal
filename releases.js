@@ -4,9 +4,11 @@
    - APP_VERSION: 현재 버전 (vMAJOR.MINOR.PATCH — 기능=MINOR, 수정=PATCH)
    - RELEASES: 최신이 맨 앞. type: 'feat'(기능) | 'fix'(수정) | 'chore'(운영/문서)
    ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = 'v2.12.0';
+const APP_VERSION = 'v2.12.1';
 
 const RELEASES = [
+  { v:'v2.12.1', date:'2026-07-06', type:'fix', title:'인쇄/미리보기 유효 일정 판정을 학습 주제 기준으로',
+    items:['학습멘토만 남은 빈 행','주차 흔적 제거'] },
   { v:'v2.12.0', date:'2026-07-06', type:'feat', title:'일정 카드 드래그 순서 변경(⠿ 순서 이동 핸들)',
     items:['인쇄/미리보기에서 일정 없는 주차 자동 제외'] },
   { v:'v2.11.0', date:'2026-07-06', type:'feat', title:'일별 학습 일정에 시간(12:00~13:00) 입력 폼 추가',

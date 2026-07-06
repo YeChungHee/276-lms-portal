@@ -547,10 +547,12 @@ function renderPreview(){
     <div><b>멘토/사수</b> ${esc(d.mentor)||'-'}</div><div><b>입사일</b> ${esc(d.join)||'-'}</div></div>`;
   const goal=d.goal?`<div class="goal"><b>온보딩 핵심 목표</b><br>${esc(d.goal)}</div>`:'';
   /* 일정을 입력하지 않은 주차는 문서에서 제외하고, 남은 주차를 1주차부터 재번호 */
-  const used=d.weeks.map((w,i)=>({w,i})).filter(x=>x.w.sched.length>0);
+  /* 유효 일정 = 학습 주제(topic)가 입력된 행만. 주제 없는 행·주차는 문서에서 제외 */
+  const hasTopic=r=>r.topic&&String(r.topic).trim();
+  const used=d.weeks.map((w,i)=>({w,i,rows:w.sched.filter(hasTopic)})).filter(x=>x.rows.length>0);
   const weeks=used.map((x,ord)=>{
-    const w=x.w;
-    const rows=w.sched.length?w.sched.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.time)}</td><td>${esc(r.place)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join(''):'<tr><td colspan="6" style="color:#bbb;text-align:center;">일정 미입력</td></tr>';
+    const w=x.w, sc=x.rows;
+    const rows=sc.map(r=>`<tr><td>${esc(r.day)}</td><td>${esc(r.time)}</td><td>${esc(r.place)}</td><td>${esc(r.topic)}</td><td>${esc(r.detail)}</td><td>${esc(r.inst)}</td></tr>`).join('');
     const cks=w.checks.length?w.checks.map(c=>`<div class="ck"><span class="box"></span>${esc(c.txt)}</div>`).join(''):'';
     return `<div class="wk"><div class="wk-h" style="background:${WK_COLORS[ord%WK_COLORS.length]}">${ord+1}주차 · ${esc(w.topic)||WK_HINT[x.i]}</div>
       <div class="wk-b">${w.goal?`<div class="wk-goal"><b>목표</b> ${esc(w.goal)}</div>`:''}
@@ -686,7 +688,7 @@ function toSlack(){
   const d=collect(); if(!d.name){toast('이름을 입력하세요');return;}
   let txt=`*${d.name}님 온보딩 교육 계획서* (${d.dept||'-'} / 멘토 ${d.mentor||'-'})\n`;
   if(d.goal) txt+=`목표: ${d.goal}\n`;
-  d.weeks.filter(w=>w.topic||w.goal||w.sched.length||w.checks.length).forEach((w,ord)=>{
+  d.weeks.filter(w=>w.sched.some(r=>r.topic&&String(r.topic).trim())).forEach((w,ord)=>{
     txt+=`\n*${ord+1}주차 — ${w.topic||''}*\n`;
     w.sched.forEach(r=>{ if(r.topic) txt+=`• ${r.day?r.day+' ':''}${r.time?r.time+' ':''}${r.day||r.time?': ':''}${r.topic}${r.place?' @'+r.place:''}${r.detail?' ('+r.detail+')':''}${r.inst?' — 멘토 '+r.inst:''}\n`; }); });
   try{ navigator.clipboard.writeText(txt); toast('Slack 메시지 초안이 클립보드에 복사되었습니다 — 채널에 붙여넣어 발송하세요'); }
